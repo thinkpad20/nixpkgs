@@ -3947,13 +3947,14 @@ let
   ruby_2_0 = ruby_2_0_0;
   ruby_2_1 = ruby_2_1_2;
 
-  rubyLibsWith = ruby: callPackage ../development/interpreters/ruby/gems.nix {
-    inherit ruby;
+  rubyLibsWith = myruby: callPackage ../development/interpreters/ruby/gems.nix {
+    ruby = myruby;
   };
 
   ruby18Libs = rubyLibsWith ruby18;
   ruby19Libs = rubyLibsWith ruby19;
   ruby2Libs = rubyLibsWith ruby2;
+  ruby21Libs = rubyLibsWith ruby21;
   rubyLibs = recurseIntoAttrs ruby19Libs;
 
   rake = rubyLibs.rake;
