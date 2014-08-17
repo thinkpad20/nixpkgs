@@ -24,6 +24,9 @@ stdenv.mkDerivation rec {
   postUnpack =
     '' export CPATH="${bzip2}/include"
        export LIBRARY_PATH="${bzip2}/lib"
+       export CXXFLAGS="-O3 ${stdenv.lib.optionalString stdenv.isDarwin
+         "-mmacosx-version-min=10.7 -std=c++11 -stdlib=libc++"
+       }"
     '';
 
   configureFlags =
