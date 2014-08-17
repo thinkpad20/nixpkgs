@@ -45,7 +45,9 @@ stdenv.mkDerivation rec {
     ++ ( if stdenv.isDarwin then [ "--with-out-ext=tk " ] else [ ]);
 
   installFlags = stdenv.lib.optionalString docSupport "install-doc";
-  # Bundler tries to create this directory
+
+  CFLAGS = stdenv.lib.optionalString stdenv.isDarwin "-mmacosx-version-min=10.7";
+
   postInstall = ''
     # Bundler tries to create this directory
     mkdir -pv $out/${passthru.gemPath}
