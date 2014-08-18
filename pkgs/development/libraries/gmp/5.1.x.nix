@@ -18,7 +18,7 @@ stdenv.mkDerivation (rec {
     # See <http://hydra.nixos.org/build/2760931>, for instance.
     #
     # no darwin because gmp uses ASM that clang doesn't like
-    optional (!stdenv.isSunOS && !stdenv.isDarwin) "--enable-fat"
+    optional (!stdenv.isSunOS) "--enable-fat"
     ++ (if cxx then [ "--enable-cxx"  ]
                else [ "--disable-cxx" ])
     ++ optional (cxx && stdenv.isDarwin) "CPPFLAGS=-fexceptions"
