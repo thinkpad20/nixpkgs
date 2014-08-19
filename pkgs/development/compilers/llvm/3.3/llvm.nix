@@ -38,7 +38,7 @@ in stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  doCheck = false;
+  doCheck = true;
 
   meta = with stdenv.lib; {
     description = "Collection of modular and reusable compiler and toolchain technologies";

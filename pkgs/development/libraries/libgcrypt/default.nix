@@ -10,7 +10,7 @@ stdenv.mkDerivation (rec {
 
   propagatedBuildInputs = [ libgpgerror ];
 
-  configureFlags = [ "--disable-asm" ];
+  configureFlags = stdenv.lib.optional stdenv.isDarwin "--disable-asm";
 
   doCheck = stdenv.system != "i686-linux"; # "basic" test fails after stdenv+glibc-2.18
 
