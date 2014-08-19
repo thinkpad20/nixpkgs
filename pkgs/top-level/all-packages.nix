@@ -10486,9 +10486,7 @@ let
     flup = pythonPackages.flup;
   };
 
-  vim = callPackage ../applications/editors/vim {
-    stdenv = clangStdenv;
-  };
+  vim = callPackage ../applications/editors/vim { };
 
   macvim = callPackage ../applications/editors/vim/macvim.nix { };
 
