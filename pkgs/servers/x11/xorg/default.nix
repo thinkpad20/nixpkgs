@@ -611,6 +611,7 @@ let
       url = mirror://xorg/individual/lib/libX11-1.6.2.tar.bz2;
       sha256 = "05mx0s0vqzds3qjc1gmjr2s6x2ll37z4lfhgm7p2w7936zl2g81a";
     };
+    CPP = "clang -E -";
     buildInputs = [pkgconfig inputproto kbproto libxcb xextproto xf86bigfontproto xproto xtrans ];
   }) // {inherit inputproto kbproto libxcb xextproto xf86bigfontproto xproto xtrans ;};
 
