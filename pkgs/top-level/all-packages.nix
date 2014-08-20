@@ -3946,7 +3946,7 @@ let
   ruby21Libs = rubyLibsWith ruby21;
   rubyLibs = recurseIntoAttrs ruby19Libs;
 
-  rake = rubyLibs.rake;
+  rakeGlobal = rubyLibs.rake;
 
   rubySqlite3 = callPackage ../development/ruby-modules/sqlite3 { };
 
