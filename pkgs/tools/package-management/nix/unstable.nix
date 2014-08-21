@@ -24,7 +24,6 @@ stdenv.mkDerivation rec {
   postUnpack =
     '' export CPATH="${bzip2}/include"
        export LIBRARY_PATH="${bzip2}/lib"
-       export CXXFLAGS="-O3 -Wno-error=reserved-user-defined-literal"
     '';
 
   configureFlags =
