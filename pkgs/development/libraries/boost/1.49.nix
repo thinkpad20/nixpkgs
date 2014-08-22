@@ -1,4 +1,5 @@
-{ stdenv, fetchurl, icu, expat, zlib, bzip2, python
+{ stdenv, fetchurl, icu, expat, zlib, bzip2, python, fixDarwinDylibNames
+, toolset ? if stdenv.isDarwin then "clang" else null
 , enableRelease ? true
 , enableDebug ? false
 , enableSingleThreaded ? false
@@ -56,13 +57,7 @@ stdenv.mkDerivation {
     sha256 = "0g0d33942rm073jgqqvj3znm3rk45b2y2lplfjpyg9q7amzqlx6x";
   };
 
-  # See <http://svn.boost.org/trac/boost/ticket/4688>.
-  patches = [
-    ./CVE-2013-0252.patch # https://svn.boost.org/trac/boost/ticket/7743
-    ./boost_filesystem_post_1_49_0.patch
-    ./time_utc.patch
-    ./boost-149-cstdint.patch
-  ] ++ (stdenv.lib.optional stdenv.isDarwin ./boost-149-darwin.patch );
+  patches = stdenv.lib.optional (toolset == "clang") [ ./boost-155-clang.patch ];
 
   enableParallelBuilding = true;
 
@@ -71,7 +66,7 @@ stdenv.mkDerivation {
   configureScript = "./bootstrap.sh";
   configureFlags = "--with-icu=${icu} --with-python=${python}/bin/python";
 
-  buildPhase = "./b2 -j$NIX_BUILD_CORES -sEXPAT_INCLUDE=${expat}/include -sEXPAT_LIBPATH=${expat}/lib --layout=${finalLayout} variant=${variant} threading=${threading} link=${link} ${cflags} install";
+  buildPhase = "${stdenv.lib.optionalString (toolset == "clang") "unset NIX_ENFORCE_PURITY; "}./b2 -j$NIX_BUILD_CORES -sEXPAT_INCLUDE=${expat}/include -sEXPAT_LIBPATH=${expat}/lib --layout=${layout} variant=${variant} threading=${threading} link=${link} ${cflags} install";
 
   installPhase = ":";
 
