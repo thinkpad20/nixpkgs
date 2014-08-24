@@ -3186,11 +3186,13 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   # le me
 
   airbrake = callPackage ../development/libraries/haskell/airbrake {};
+  friday = callPackage ../development/libraries/haskell/friday {};
   highlighter = callPackage ../development/libraries/haskell/highlighter {};
   imagemagick = callPackage ../development/libraries/haskell/imagemagick {
     ImageMagick = pkgs.imagemagick;
   };
   markdown = callPackage ../development/libraries/haskell/markdown {};
+  ratioInt = callPackage ../development/libraries/haskell/ratio-int {};
   stmLifted = callPackage ../development/libraries/haskell/stm-lifted {};
   textNormal = callPackage ../development/libraries/haskell/text-normal {};
   yesodNewsfeed = callPackage ../development/libraries/haskell/yesod-newsfeed {};
