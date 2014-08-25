@@ -33,6 +33,8 @@ rec {
     pkgs = stdenvNativePkgs;
   };
 
+
+  # A multitude of Darwin stdenvs.
   stdenvDarwin = import ./darwin {
     inherit config;
     stdenv = stdenvNative;
