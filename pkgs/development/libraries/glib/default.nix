@@ -7,7 +7,7 @@
 
 with stdenv.lib;
 
-assert stdenv.gcc.gcc != null;
+assert !stdenv.isDarwin -> stdenv.gcc.gcc != null;
 
 # TODO:
 # * Add gio-module-fam
