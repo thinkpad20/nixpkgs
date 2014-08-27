@@ -5030,7 +5030,7 @@ let
   gmpxx = appendToName "with-cxx" (gmp.override { cxx = true; });
 
   # The GHC bootstrap binaries link against libgmp.so.3, which is in GMP 4.x.
-  gmp4 = callPackage ../development/libraries/gmp/4.3.2.nix { };
+  gmp4 = dropCxx (callPackage ../development/libraries/gmp/4.3.2.nix { });
 
   gmp51 = callPackage ../development/libraries/gmp/5.1.x.nix { };
 
