@@ -852,6 +852,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   fglVisualize = callPackage ../development/libraries/haskell/fgl-visualize {};
 
+  FindBin = callPackage ../development/libraries/haskell/FindBin {};
+
   fingertree = callPackage ../development/libraries/haskell/fingertree {};
 
   focus = callPackage ../development/libraries/haskell/focus {};
