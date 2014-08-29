@@ -3193,7 +3193,6 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   imagemagick = callPackage ../development/libraries/haskell/imagemagick {
     ImageMagick = pkgs.imagemagick;
   };
-  markdown = callPackage ../development/libraries/haskell/markdown {};
   ratioInt = callPackage ../development/libraries/haskell/ratio-int {};
   stmLifted = callPackage ../development/libraries/haskell/stm-lifted {};
   textNormal = callPackage ../development/libraries/haskell/text-normal {};
