@@ -3030,6 +3030,8 @@ let
 
   haxe = callPackage ../development/compilers/haxe { };
 
+  hbc = callPackage ../development/compilers/hbc { };
+
   hhvm = callPackage ../development/compilers/hhvm { };
   hiphopvm = hhvm; /* Compatibility alias */
 
