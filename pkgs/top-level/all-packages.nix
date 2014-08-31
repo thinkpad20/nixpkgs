@@ -3978,12 +3978,10 @@ let
     wrapPython = pythonPackages.wrapPython;
   };
 
-  ruby_1_8_7 = callPackage ../development/interpreters/ruby/ruby-1.8.7.nix { };
-  ruby_1_9_3 = callPackage ../development/interpreters/ruby/ruby-1.9.3.nix { };
-  ruby_2_0_0 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.0.0.nix { });
-  ruby_2_1_0 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.1.0.nix { });
-  ruby_2_1_1 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.1.1.nix { });
-  ruby_2_1_2 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.1.2.nix { });
+  ruby18 = callPackage ../development/interpreters/ruby/ruby-18.nix { };
+  ruby19 = callPackage ../development/interpreters/ruby/ruby-19.nix { };
+  ruby2 = lowPrio (callPackage ../development/interpreters/ruby/ruby-20.nix { });
+  ruby21 = callPackage ../development/interpreters/ruby/ruby-21.nix { };
 
   # Ruby aliases
   ruby = ruby_1_9;
