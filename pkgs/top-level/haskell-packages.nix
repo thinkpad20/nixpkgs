@@ -3194,6 +3194,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
     ImageMagick = pkgs.imagemagick;
   };
   ratioInt = callPackage ../development/libraries/haskell/ratio-int {};
+  scan = callPackage ../development/libraries/haskell/scan {};
   stmLifted = callPackage ../development/libraries/haskell/stm-lifted {};
   textNormal = callPackage ../development/libraries/haskell/text-normal {};
   yesodNewsfeed = callPackage ../development/libraries/haskell/yesod-newsfeed {};
