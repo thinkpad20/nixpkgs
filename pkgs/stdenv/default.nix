@@ -48,13 +48,6 @@ rec {
     haveLibCxx = false;
   };
 
-  stdenvDarwin33 = import ./darwin {
-    inherit config;
-    stdenv = stdenvNative;
-    pkgs = stdenvNativePkgs;
-    useClang33 = true;
-  };
-
 
   # Linux standard environment.
   stdenvLinux = (import ./linux { inherit system allPackages platform config;}).stdenvLinux;
