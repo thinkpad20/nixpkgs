@@ -12,12 +12,12 @@ stdenv.mkDerivation (rec {
 
   nativeBuildInputs = [ m4 ];
 
+  patches = stdenv.lib.optional stdenv.isDarwin ./need-size-t.patch;
+
   configureFlags =
     # Build a "fat binary", with routines for several sub-architectures
     # (x86), except on Solaris where some tests crash with "Memory fault".
     # See <http://hydra.nixos.org/build/2760931>, for instance.
-    #
-    # no darwin because gmp uses ASM that clang doesn't like
     optional (!stdenv.isSunOS) "--enable-fat"
     ++ (if cxx then [ "--enable-cxx"  ]
                else [ "--disable-cxx" ])

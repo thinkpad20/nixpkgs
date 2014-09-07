@@ -4,25 +4,18 @@ stdenv.mkDerivation {
   name = "clang-${version}";
 
   unpackPhase = ''
-    unpackFile ${fetch "cfe" "045wjnp5j8xd2zjhvldcllnwlnrwz3dafmlk412z804d5xvzb9jv"}
+    unpackFile ${fetch "cfe" "12yv3jwdjcbkrx7zjm8wh4jrvb59v8fdw4mnmz3zc1jb00p9k07w"}
     mv cfe-${version}.src clang
     sourceRoot=$PWD/clang
     unpackFile ${clang-tools-extra_src}
     mv clang-tools-extra-* $sourceRoot/tools/extra
-    # !!! Hopefully won't be needed for 3.5
-    unpackFile ${llvm.src}
-    export cmakeFlags="$cmakeFlags -DCLANG_PATH_TO_LLVM_SOURCE="`ls -d $PWD/llvm-*`
-    (cd llvm-* && patch -Np1 -i ${./llvm-separate-build.patch})
   '';
 
-  patches = [ ./clang-separate-build.patch ./clang-purity.patch ];
-
-  buildInputs = [ cmake libedit libxml2 ];
+  buildInputs = [ cmake libedit libxml2 llvm ];
 
   cmakeFlags = [
     "-DCMAKE_BUILD_TYPE=Release"
     "-DCMAKE_CXX_FLAGS=-std=c++11"
-    "-DCLANG_PATH_TO_LLVM_BUILD=${llvm}"
   ] ++
   (stdenv.lib.optional (stdenv.gcc.libc != null) "-DC_INCLUDE_DIRS=${stdenv.gcc.libc}/include") ++
   (stdenv.lib.optional (stdenv.gcc.gcc != null) "-DGCC_INSTALL_PREFIX=${stdenv.gcc.gcc}");
