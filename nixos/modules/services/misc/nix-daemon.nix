@@ -35,6 +35,7 @@ let
         # your NixOS configuration, typically
         # /etc/nixos/configuration.nix.  Do not edit it!
         build-users-group = nixbld
+        build-cores = ${toString cfg.cores}
         build-max-jobs = ${toString (cfg.maxJobs)}
         build-use-chroot = ${if cfg.useChroot then "true" else "false"}
         build-chroot-dirs = ${toString cfg.chrootDirs} /bin/sh=${sh} $(echo $extraPaths)
@@ -71,6 +72,15 @@ in
           to build in parallel.  The default is 1.  You should generally
           set it to the number of CPUs in your system (e.g., 2 on an Athlon
           64 X2).
+        ";
+      };
+
+      cores = mkOption {
+        type = types.int;
+        default = 1;
+        example = 64;
+        description = "
+          Build cores to use
         ";
       };
 
