@@ -1,5 +1,5 @@
 { stdenv, fetchurl, icu, expat, zlib, bzip2, python, fixDarwinDylibNames
-, toolset ? null
+, toolset ? if stdenv.isDarwin then "clang" else null
 , enableRelease ? true
 , enableDebug ? false
 , enableSingleThreaded ? false
@@ -11,25 +11,19 @@
 , taggedLayout ? ((enableRelease && enableDebug) || (enableSingleThreaded && enableMultiThreaded) || (enableShared && enableStatic))
 }:
 
-# We must build at least one type of libraries
-assert !enableShared -> enableStatic;
-
-with stdenv.lib;
 let
 
-  variant = concatStringsSep ","
-    (optional enableRelease "release" ++
-     optional enableDebug "debug");
+  variant = stdenv.lib.concatStringsSep ","
+    (stdenv.lib.optional enableRelease "release" ++
+     stdenv.lib.optional enableDebug "debug");
 
-  threading = concatStringsSep ","
-    (optional enableSingleThreaded "single" ++
-     optional enableMultiThreaded "multi");
+  threading = stdenv.lib.concatStringsSep ","
+    (stdenv.lib.optional enableSingleThreaded "single" ++
+     stdenv.lib.optional enableMultiThreaded "multi");
 
-  link = concatStringsSep ","
-    (optional enableShared "shared" ++
-     optional enableStatic "static");
-
-  runtime-link = if enableShared then "shared" else "static";
+  link = stdenv.lib.concatStringsSep ","
+    (stdenv.lib.optional enableShared "shared" ++
+     stdenv.lib.optional enableStatic "static");
 
   # To avoid library name collisions
   layout = if taggedLayout then "tagged" else "system";
@@ -43,51 +37,7 @@ let
            else
              "";
 
-  withToolset = stdenv.lib.optionalString (toolset != null) "--with-toolset=${toolset}";
-
-  genericB2Flags = [
-    "--prefix=$out"
-    "--libdir=$lib/lib"
-    "-j$NIX_BUILD_CORES"
-    "--layout=${layout}"
-    "variant=${variant}"
-    "threading=${threading}"
-    "runtime-link=${runtime-link}"
-    "link=${link}"
-    "${cflags}"
-  ] ++ optional (variant == "release") "debug-symbols=off";
-
-  nativeB2Flags = [
-    "-sEXPAT_INCLUDE=${expat}/include"
-    "-sEXPAT_LIBPATH=${expat}/lib"
-  ] ++ optional (toolset != null) "toolset=${toolset}";
-  nativeB2Args = concatStringsSep " " (genericB2Flags ++ nativeB2Flags);
-
-  crossB2Flags = [
-    "-sEXPAT_INCLUDE=${expat.crossDrv}/include"
-    "-sEXPAT_LIBPATH=${expat.crossDrv}/lib"
-    "--user-config=user-config.jam"
-    "toolset=gcc-cross"
-    "--without-python"
-  ];
-  crossB2Args = concatMapStringsSep " " (genericB2Flags ++ crossB2Flags);
-
-  builder = b2Args: ''
-    ./b2 ${b2Args}
-  '';
-
-  installer = b2Args: ''
-    # boostbook is needed by some applications
-    mkdir -p $out/share/boostbook
-    cp -a tools/boostbook/{xsl,dtd} $out/share/boostbook/
-
-    # Let boost install everything else
-    ./b2 ${b2Args} install
-  '';
-
-  commonConfigureFlags = [
-    "--libdir=$(lib)/lib"
-  ];
+  withToolset = stdenv.lib.optionalString (toolset != null) " --with-toolset=${toolset}";
 in
 
 stdenv.mkDerivation {
@@ -98,8 +48,8 @@ stdenv.mkDerivation {
     description = "Collection of C++ libraries";
     license = "boost-license";
 
-    platforms = platforms.unix;
-    maintainers = with maintainers; [ simons wkennington ];
+    platforms = stdenv.lib.platforms.unix;
+    maintainers = [ stdenv.lib.maintainers.simons ];
   };
 
   src = fetchurl {
@@ -109,22 +59,20 @@ stdenv.mkDerivation {
 
   enableParallelBuilding = true;
 
-  buildInputs = [ icu expat zlib bzip2 python ]
+  buildInputs =
+    [ icu expat zlib bzip2 python ]
     ++ stdenv.lib.optional stdenv.isDarwin fixDarwinDylibNames;
 
+  NIX_CFLAGS_LINK = "-headerpad_max_install_names";
+
   configureScript = "./bootstrap.sh";
-  configureFlags = commonConfigureFlags ++ [
-    "--with-icu=${icu}"
-    "--with-python=${python}/bin/python"
-  ] ++ optional (toolset != null) "--with-toolset=${toolset}";
+  configureFlags = "--with-icu=${icu} --with-python=${python}/bin/python" + withToolset;
 
-  buildPhase = ''
-    ${stdenv.lib.optionalString (toolset == "clang") "unset NIX_ENFORCE_PURITY"}
-  '' + builder nativeB2Args;
+  buildPhase = "${stdenv.lib.optionalString (toolset == "clang") "unset NIX_ENFORCE_PURITY; "}./b2 -j$NIX_BUILD_CORES -sEXPAT_INCLUDE=${expat}/include -sEXPAT_LIBPATH=${expat}/lib --layout=${layout} variant=${variant} threading=${threading} link=${link} ${cflags} install";
 
-  installPhase = installer nativeB2Args;
-
-  outputs = [ "out" "lib" ];
+  installPhase = ''
+    ./b2 -j$NIX_BUILD_CORES -sEXPAT_INCLUDE=${expat}/include -sEXPAT_LIBPATH=${expat}/lib --layout=${layout} variant=${variant} threading=${threading} link=${link} ${cflags} install
+  '';
 
   crossAttrs = rec {
     buildInputs = [ expat.crossDrv zlib.crossDrv bzip2.crossDrv ];
@@ -134,13 +82,14 @@ stdenv.mkDerivation {
     # We want to substitute the contents of configureFlags, removing thus the
     # usual --build and --host added on cross building.
     preConfigure = ''
-      export configureFlags="--prefix=$out --without-icu ${concatStringsSep " " commonConfigureFlags}"
+      export configureFlags="--prefix=$out --without-icu"
+    '';
+    buildPhase = ''
       set -x
       cat << EOF > user-config.jam
       using gcc : cross : $crossConfig-g++ ;
       EOF
+      ./b2 -j$NIX_BUILD_CORES -sEXPAT_INCLUDE=${expat.crossDrv}/include -sEXPAT_LIBPATH=${expat.crossDrv}/lib --layout=${layout} --user-config=user-config.jam toolset=gcc-cross variant=${variant} threading=${threading} link=${link} ${cflags} --without-python install
     '';
-    buildPhase = builder crossB2Args;
-    installPhase = installer crossB2Args;
   };
 }
