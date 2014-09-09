@@ -3889,6 +3889,8 @@ let
 
   perl = if system != "i686-cygwin" then perl516 else sysPerl;
 
+  perlPure = perl516.override { inherit fetchurl; };
+
   php = php54;
 
   phpPackages = recurseIntoAttrs (import ./php-packages.nix {
@@ -6990,7 +6992,7 @@ let
 
   ### DEVELOPMENT / PERL MODULES
 
-  buildPerlPackage = import ../development/perl-modules/generic perl;
+  buildPerlPackage = import ../development/perl-modules/generic perlPure;
 
   perlPackages = recurseIntoAttrs (import ./perl-packages.nix {
     inherit pkgs;
