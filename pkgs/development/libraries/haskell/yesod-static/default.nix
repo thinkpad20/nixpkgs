@@ -12,8 +12,8 @@
 cabal.mkDerivation (self: {
   pname = "yesod-static";
   version = "1.2.4";
-  # sha256 = "0r5bz1jmgjd7cmvhkp3ahgl610bssvgxxsvb626dvqz2vqc0061z";
-  src = /Users/joelteon/.dev/Haskell/yesod/yesod-static;
+  sha256 = "0r5bz1jmgjd7cmvhkp3ahgl610bssvgxxsvb626dvqz2vqc0061z";
+  # src = /Users/joelteon/.dev/Haskell/yesod/yesod-static;
   buildDepends = [
     async attoparsec base64Bytestring blazeBuilder byteable conduit
     conduitExtra cryptohash cryptohashConduit cssText dataDefault
