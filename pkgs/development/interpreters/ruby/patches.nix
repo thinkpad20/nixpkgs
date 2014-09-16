@@ -23,6 +23,8 @@ in
   ember_data_source = { gemFlags = "--ignore-dependencies"; };
   ember_rails = { gemFlags = "--ignore-dependencies"; };
 
+  serverspec = { gemFlags = "--no-ri --no-rdoc"; };
+
   rbtrace = { dontBuild = 1; };
   method_source = { dontBuild = 1; };
 
