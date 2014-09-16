@@ -10300,7 +10300,7 @@ let
 
   sublime3 = lowPrio (callPackage ../applications/editors/sublime3 { });
 
-  subversion = callPackage ../applications/version-management/subversion/default.nix {
+  subversionNix = callPackage ../applications/version-management/subversion/default.nix {
     bdbSupport = true;
     httpServer = false;
     httpSupport = true;
@@ -10311,6 +10311,12 @@ let
     httpd = apacheHttpd;
     sasl = cyrus_sasl;
   };
+
+  subversionNative = callPackage ../applications/version-management/subversion/native.nix {};
+
+  subversion = if stdenv.isDarwin
+    then subversionNative
+    else subversionNix;
 
   subversionClient = appendToName "client" (subversion.override {
     bdbSupport = false;
