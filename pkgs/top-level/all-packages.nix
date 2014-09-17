@@ -3924,10 +3924,10 @@ let
     wrapPython = pythonPackages.wrapPython;
   };
 
-  ruby18 = callPackage ../development/interpreters/ruby/ruby-18.nix { };
-  ruby19 = callPackage ../development/interpreters/ruby/ruby-19.nix { };
-  ruby2 = lowPrio (callPackage ../development/interpreters/ruby/ruby-20.nix { });
-  ruby21 = callPackage ../development/interpreters/ruby/ruby-21.nix { };
+  ruby_1_8_7 = callPackage ../development/interpreters/ruby/ruby-1.8.7.nix { };
+  ruby_1_9_3 = callPackage ../development/interpreters/ruby/ruby-1.9.3.nix { };
+  ruby_2_0_0 = lowPrio (callPackage ../development/interpreters/ruby/ruby-20.nix { });
+  ruby_2_1_2 = callPackage ../development/interpreters/ruby/ruby-21.nix { };
 
   # Ruby aliases
   ruby = ruby_1_9;
@@ -3940,10 +3940,10 @@ let
     ruby = myruby;
   };
 
-  ruby18Libs = rubyLibsWith ruby18;
-  ruby19Libs = rubyLibsWith ruby19;
-  ruby2Libs = rubyLibsWith ruby2;
-  ruby21Libs = rubyLibsWith ruby21;
+  ruby18Libs = rubyLibsWith ruby_1_8_7;
+  ruby19Libs = rubyLibsWith ruby_1_9_3;
+  ruby2Libs = rubyLibsWith ruby_2_0_0;
+  ruby21Libs = rubyLibsWith ruby_2_1;
   rubyLibs = recurseIntoAttrs ruby19Libs;
 
   rakeGlobal = rubyLibs.rake;
