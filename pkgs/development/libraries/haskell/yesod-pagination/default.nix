@@ -7,8 +7,8 @@
 
 cabal.mkDerivation (self: {
   pname = "yesod-pagination";
-  version = "1.1.0.0";
-  sha256 = "0wq8lkvswq2fsvpw0qgdx8c9g8xparqzd1fdi62g4qmw9vnpw3s9";
+  version = "2.0.0";
+  sha256 = "0d42b8y7zpl624d7wa2caarni9g10hg14xsbamlkykki3bl197m1";
   buildDepends = [ esqueleto yesod ];
   testDepends = [
     hspec monadLogger persistent persistentSqlite resourcePool
