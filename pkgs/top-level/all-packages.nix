@@ -6745,7 +6745,7 @@ let
 
   commonsBcel = callPackage ../development/libraries/java/commons/bcel { };
 
-  commonsCompress = callPackage ../development/libraries/java/commons/compress { };
+  commonsCompress = callPackage ../development/libraries/java/commons/compress { inherit (releaseTools) mvnBuild; };
 
   commonsFileUpload = callPackage ../development/libraries/java/commons/fileupload { };
 

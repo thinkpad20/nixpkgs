@@ -19,7 +19,7 @@ rec {
     } // args);
 
   mvnBuild = args: import ./maven-build.nix (
-    { inherit stdenv;
+    { inherit pkgs;
     } // args);
 
   nixBuild = args: import ./nix-build.nix (
