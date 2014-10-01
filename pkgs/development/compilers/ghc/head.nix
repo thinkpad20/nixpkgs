@@ -1,12 +1,12 @@
 { stdenv, fetchurl, ghc, perl, gmp, ncurses, happy, alex }:
 
 stdenv.mkDerivation rec {
-  version = "7.9.20140814";
+  version = "7.9.20140929";
   name = "ghc-${version}";
 
   src = fetchurl {
-    url = "http://deb.haskell.org/dailies/2014-08-14/ghc_${version}.orig.tar.bz2";
-    sha256 = "05vmlbzbfv72z570xmlh8n003z9xc4l5hixjqvczyyyisdvmyaa3";
+    url = "http://deb.haskell.org/dailies/latest/ghc_${version}.orig.tar.bz2";
+    sha256 = "19cai4j86w506vi19kxzx3dwxj3cdgnw2mqhp7inv4bnd1s80gxy";
   };
 
   buildInputs = [ ghc perl gmp ncurses happy alex ];
@@ -25,8 +25,6 @@ stdenv.mkDerivation rec {
   '' + stdenv.lib.optionalString (!stdenv.isDarwin) ''
     export NIX_LDFLAGS="$NIX_LDFLAGS -rpath $out/lib/ghc-${version}"
   '';
-
-  configureFlags = "--with-gcc=${stdenv.gcc}/bin/gcc";
 
   # required, because otherwise all symbols from HSffi.o are stripped, and
   # that in turn causes GHCi to abort
