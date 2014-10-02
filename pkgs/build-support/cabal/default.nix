@@ -168,6 +168,7 @@ assert !enableStaticLibraries -> versionOlder "7.7" ghc.version;
             extraConfigureFlags = [
               (enableFeature self.enableSplitObjs "split-objs")
               (enableFeature enableLibraryProfiling "library-profiling")
+              (enableFeature enableLibraryProfiling "executable-profiling")
               (enableFeature self.enableSharedLibraries "shared")
               (optional (versionOlder "7" ghc.version) (enableFeature self.enableStaticLibraries "library-vanilla"))
               (optional (versionOlder "7.4" ghc.version) (enableFeature self.enableSharedExecutables "executable-dynamic"))
