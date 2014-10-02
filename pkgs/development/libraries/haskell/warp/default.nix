@@ -8,8 +8,8 @@
 
 cabal.mkDerivation (self: {
   pname = "warp";
-  version = "3.0.1.1";
-  sha256 = "1sgmcyk9ngys990287wsga3kk6wf29sj414w6jmv8a4sal202mqc";
+  version = "3.0.2";
+  sha256 = "1a60k7i6xpij5v8kj4akj5k0icizna6z0si6z1rcw99ln9hhqmya";
   buildDepends = [
     autoUpdate blazeBuilder caseInsensitive hashable httpDate httpTypes
     network simpleSendfile streamingCommons text unixCompat void wai
@@ -20,7 +20,6 @@ cabal.mkDerivation (self: {
     simpleSendfile streamingCommons text time transformers unixCompat
     void wai
   ];
-  doCheck = false;
   meta = {
     homepage = "http://github.com/yesodweb/wai";
     description = "A fast, light-weight web server for WAI applications";
