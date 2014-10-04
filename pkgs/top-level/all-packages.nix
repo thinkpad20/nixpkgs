@@ -1856,11 +1856,7 @@ let
 
   openssh_with_kerberos = pkgs.appendToName "with-kerberos" (openssh.override { withKerberos = true; });
 
-  opensp = callPackage ../tools/text/sgml/opensp {
-    stdenv = if stdenv.isDarwin
-      then allStdenvs.stdenvDarwinNaked
-      else stdenv;
-  };
+  opensp = callPackage ../tools/text/sgml/opensp { };
 
   spCompat = callPackage ../tools/text/sgml/opensp/compat.nix { };
 
