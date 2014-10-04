@@ -21,6 +21,7 @@ ln -s /bin/echo
 ln -s /bin/expr
 ln -s /bin/test
 ln -s /bin/chmod
+ln -s /bin/rmdir
 
 ln -s /usr/bin/tr
 ln -s /usr/bin/wc
