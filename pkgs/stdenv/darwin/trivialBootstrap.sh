@@ -30,9 +30,11 @@ ln -s /usr/bin/tar
 ln -s /usr/bin/xar
 ln -s /usr/bin/awk
 ln -s /usr/bin/env
+ln -s /usr/bin/tee
 ln -s /usr/bin/comm
 ln -s /usr/bin/cpio
 ln -s /usr/bin/curl
+ln -s /usr/bin/find
 ln -s /usr/bin/grep
 ln -s /usr/bin/gzip
 ln -s /usr/bin/tail
@@ -46,4 +48,5 @@ ln -s /usr/bin/patch
 ln -s /usr/bin/uname
 ln -s /usr/bin/touch
 ln -s /usr/bin/split
+ln -s /usr/bin/xargs
 ln -s /usr/bin/basename
