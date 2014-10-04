@@ -1,28 +1,29 @@
-{ system ? builtins.currentSystem
+{ system      ? builtins.currentSystem
 , allPackages ? import ../../top-level/all-packages.nix
-, platform ? null, config ? {} }:
+, platform    ? null
+, config      ? {}
+}:
 
 rec {
   allPackages = import ../../top-level/all-packages.nix;
 
   bootstrapTools = derivation {
-    name = "trivial-bootstrap-tools";
+    inherit system;
 
+    name    = "trivial-bootstrap-tools";
     builder = "/bin/sh";
     args    = [ ./trivialBootstrap.sh ];
 
-    inherit system;
-
-    mkdir = "/bin/mkdir";
-    ln    = "/bin/ln";
+    mkdir   = "/bin/mkdir";
+    ln      = "/bin/ln";
   };
 
   stage0 = rec {
     stdenv = import ../generic {
       inherit system config;
-      name = "stdenv-darwin-boot";
-      shell = "/bin/sh";
-      initialPath = [bootstrapTools];
+      name         = "stdenv-darwin-boot";
+      shell        = "/bin/bash";
+      initialPath  = [bootstrapTools];
       fetchurlBoot = import ../../build-support/fetchurl {
         inherit stdenv;
         curl = bootstrapTools;
@@ -43,11 +44,11 @@ rec {
   };
 
   buildTools = (import ../../os-specific/darwin/command-line-tools {
-    stdenv = stage0.stdenv;
     inherit fetchadc;
-    xar  = bootstrapTools;
-    gzip = bootstrapTools;
-    cpio = bootstrapTools;
+    stdenv = stage0.stdenv;
+    xar    = bootstrapTools;
+    gzip   = bootstrapTools;
+    cpio   = bootstrapTools;
   }).impure;
 
   preHook = ''
@@ -60,7 +61,7 @@ rec {
     xargsFlags=" "
     export MACOSX_DEPLOYMENT_TARGET=10.6
     export SDKROOT=
-    export SDKROOT_X=#${buildTools.sdk}
+    export SDKROOT_X=${buildTools.sdk}
     export NIX_CFLAGS_COMPILE+=" --sysroot=/var/empty -idirafter $SDKROOT_X/usr/include -F$SDKROOT_X/System/Library/Frameworks -Wno-multichar -Wno-#deprecated-declarations"
     export NIX_LDFLAGS_AFTER+=" -L$SDKROOT_X/usr/lib"
   '';
@@ -76,7 +77,7 @@ rec {
         nativeLibc   = true;
         stdenv       = stage0.stdenv;
         libcxx       = "/";
-        shell        = "/bin/sh";
+        shell        = "/bin/bash";
         clang        = {
           name    = "clang-9.9.9";
           gcc     = "/no-such-path";
@@ -110,10 +111,10 @@ rec {
       binutils  = import ../../build-support/native-darwin-cctools-wrapper { stdenv = stage1.stdenv; };
       clang     = stage1.pkgs.clang;
       coreutils = stage1.pkgs.coreutils;
-      shell     = "${stage1.pkgs.bash}/bin/sh";
+      shell     = "${stage1.pkgs.bash}/bin/bash";
     };
 
-    shell = "${stage1.pkgs.bash}/bin/sh";
+    shell = "${stage1.pkgs.bash}/bin/bash";
   };
 
   stdenvDarwin = stage2;

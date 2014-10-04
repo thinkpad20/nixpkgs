@@ -16,6 +16,7 @@ ln -s /bin/mv
 ln -s /bin/rm
 ln -s /bin/ls
 ln -s /bin/cat
+ln -s /bin/bash
 ln -s /bin/echo
 ln -s /bin/expr
 ln -s /bin/test
