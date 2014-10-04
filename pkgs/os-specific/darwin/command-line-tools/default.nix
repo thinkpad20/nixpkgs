@@ -15,13 +15,14 @@ let
     outputs = [ "devsdk" "cltools" ];
 
     unpackPhase = ''
-      ${xpwn}/bin/hdutil $src extract "Command Line Tools (OS X 10.9).pkg" "Command Line Tools (OS X 10.9).pkg"
-      ${xar}/bin/xar -x -f "Command Line Tools (OS X 10.9).pkg"
+      hdiutil attach $src -mountpoint clt-mount -nobrowse
+      trap 'hdiutil unmount clt-mount' EXIT
+      ${xar}/bin/xar -x -f "clt-mount/Command Line Tools (OS X 10.9).pkg"
     '';
 
     installPhase = ''
-      cp -r DevSDK_OSX109.pkg/ $devsdk
-      cp -r CLTools_Executables.pkg/ $cltools
+      cp -r DevSDK_OSX109.pkg $devsdk
+      cp -r CLTools_Executables.pkg $cltools
     '';
 
     meta = with stdenv.lib; {

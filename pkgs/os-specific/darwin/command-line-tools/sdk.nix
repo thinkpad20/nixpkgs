@@ -13,7 +13,7 @@ stdenv.mkDerivation {
   installPhase = ''
     mkdir -p $out
     cp -r System $out
-    cp -r usr/* $out
+    cp -r usr $out
   '';
 
   meta = with stdenv.lib; {
