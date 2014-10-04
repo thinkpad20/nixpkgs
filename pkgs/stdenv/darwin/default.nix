@@ -1,54 +1,120 @@
-{ stdenv, pkgs, config
-, haveLibCxx ? true
-}:
+{ system ? builtins.currentSystem
+, allPackages ? import ../../top-level/all-packages.nix
+, platform ? null, config ? {} }:
 
-import ../generic rec {
-  inherit config;
+rec {
+  allPackages = import ../../top-level/all-packages.nix;
 
-  preHook =
-    ''
-      export NIX_ENFORCE_PURITY=
-      export NIX_IGNORE_LD_THROUGH_GCC=1
-      export NIX_DONT_SET_RPATH=1
-      export NIX_NO_SELF_RPATH=1
-      dontFixLibtool=1
-      stripAllFlags=" " # the Darwin "strip" command doesn't know "-s"
-      xargsFlags=" "
-      export MACOSX_DEPLOYMENT_TARGET=10.6
-      export SDKROOT=${pkgs.darwin.cmdline_sdk}
-      export NIX_CFLAGS_COMPILE+=" --sysroot=/var/empty -idirafter $SDKROOT/usr/include -F$SDKROOT/System/Library/Frameworks -Wno-multichar -Wno-deprecated-declarations"
-      export NIX_LDFLAGS_AFTER+=" -L$SDKROOT/usr/lib"
-    '';
+  bootstrapTools = derivation {
+    name = "trivial-bootstrap-tools";
 
-  initialPath = (import ../common-path.nix) {pkgs = pkgs;};
+    builder = "/bin/sh";
+    args    = [ ./trivialBootstrap.sh ];
 
-  system = stdenv.system;
+    inherit system;
 
-  gcc = import ../../build-support/clang-wrapper {
-    nativeTools = false;
-    nativePrefix = stdenv.lib.optionalString stdenv.isSunOS "/usr";
-    nativeLibc = true;
-    inherit stdenv;
-    libcxx = if haveLibCxx then pkgs.libcxx.override {
-      libcxxabi = pkgs.libcxxabi.override {
-        libunwind = pkgs.libunwindNative;
+    mkdir = "/bin/mkdir";
+    ln    = "/bin/ln";
+  };
+
+  stage0 = rec {
+    stdenv = import ../generic {
+      inherit system config;
+      name = "stdenv-darwin-boot";
+      shell = "/bin/sh";
+      initialPath = [bootstrapTools];
+      fetchurlBoot = import ../../build-support/fetchurl {
+        inherit stdenv;
+        curl = bootstrapTools;
       };
-    } else null;
-    binutils = import ../../build-support/native-darwin-cctools-wrapper {inherit stdenv;};
-    clang = pkgs.clang;
-    coreutils = pkgs.coreutils;
-    shell = pkgs.bash + "/bin/sh";
+      gcc = "/no-such-path";
+    };
   };
 
-  shell = pkgs.bash + "/bin/sh";
-
-  fetchurlBoot = stdenv.fetchurlBoot;
-
-  overrides = pkgs_: {
-    inherit gcc;
-    inherit (gcc) binutils;
-    inherit (pkgs)
-      gzip bzip2 xz bash coreutils diffutils findutils gawk
-      gnumake gnused gnutar gnugrep gnupatch perl;
+  fetchadc = import ../../build-support/fetchadc {
+    stdenv = stage0.stdenv;
+    curl   = bootstrapTools;
+    adc_user = if config ? adc_user
+      then config.adc_user
+      else throw "You need an adc_user attribute in your config to download files from Apple Developer Connection";
+    adc_pass = if config ? adc_pass
+      then config.adc_pass
+      else throw "You need an adc_pass attribute in your config to download files from Apple Developer Connection";
   };
+
+  buildTools = (import ../../os-specific/darwin/command-line-tools {
+    stdenv = stage0.stdenv;
+    inherit fetchadc;
+    xar  = bootstrapTools;
+    gzip = bootstrapTools;
+    cpio = bootstrapTools;
+  }).impure;
+
+  preHook = ''
+    export NIX_ENFORCE_PURITY=
+    export NIX_IGNORE_LD_THROUGH_GCC=1
+    export NIX_DONT_SET_RPATH=1
+    export NIX_NO_SELF_RPATH=1
+    dontFixLibtool=1
+    stripAllFlags=" " # the Darwin "strip" command doesn't know "-s"
+    xargsFlags=" "
+    export MACOSX_DEPLOYMENT_TARGET=10.6
+    export SDKROOT=
+    export SDKROOT_X=#${buildTools.sdk}
+    export NIX_CFLAGS_COMPILE+=" --sysroot=/var/empty -idirafter $SDKROOT_X/usr/include -F$SDKROOT_X/System/Library/Frameworks -Wno-multichar -Wno-#deprecated-declarations"
+    export NIX_LDFLAGS_AFTER+=" -L$SDKROOT_X/usr/lib"
+  '';
+
+  stage1 = rec {
+    stdenv = import ../generic {
+      inherit system config preHook;
+      inherit (stage0.stdenv) name shell initialPath fetchurlBoot;
+
+      gcc = import ../../build-support/clang-wrapper {
+        nativeTools  = true;
+        nativePrefix = "${buildTools.tools}/Library/Developer/CommandLineTools/usr";
+        nativeLibc   = true;
+        stdenv       = stage0.stdenv;
+        libcxx       = "/";
+        shell        = "/bin/sh";
+        clang        = {
+          name    = "clang-9.9.9";
+          gcc     = "/no-such-path";
+          outPath = "${buildTools.tools}/Library/Developer/CommandLineTools/usr";
+        };
+      };
+    };
+    pkgs = allPackages {
+      inherit system platform;
+      bootStdenv = stdenv;
+    };
+  };
+
+  stage2 = import ../generic {
+    name = "stdenv-darwin";
+
+    inherit system config preHook;
+    inherit (stage1.stdenv) fetchurlBoot;
+
+    initialPath = (import ../common-path.nix) { pkgs = stage1.pkgs; };
+
+    gcc = import ../../build-support/clang-wrapper {
+      stdenv       = stage1.stdenv;
+      nativeTools  = false;
+      nativeLibc   = true;
+      libcxx       = stage1.pkgs.libcxx.override {
+        libcxxabi = stage1.pkgs.libcxxabi.override {
+          libunwind = stage1.pkgs.libunwindNative;
+        };
+      };
+      binutils  = import ../../build-support/native-darwin-cctools-wrapper { stdenv = stage1.stdenv; };
+      clang     = stage1.pkgs.clang;
+      coreutils = stage1.pkgs.coreutils;
+      shell     = "${stage1.pkgs.bash}/bin/sh";
+    };
+
+    shell = "${stage1.pkgs.bash}/bin/sh";
+  };
+
+  stdenvDarwin = stage2;
 }
