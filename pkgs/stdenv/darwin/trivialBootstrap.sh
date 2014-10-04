@@ -37,6 +37,7 @@ ln -s /usr/bin/curl
 ln -s /usr/bin/find
 ln -s /usr/bin/grep
 ln -s /usr/bin/gzip
+ln -s /usr/bin/head
 ln -s /usr/bin/tail
 ln -s /usr/bin/sort
 ln -s /usr/bin/uniq

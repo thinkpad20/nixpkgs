@@ -62,7 +62,7 @@ rec {
     export MACOSX_DEPLOYMENT_TARGET=10.6
     export SDKROOT=
     export SDKROOT_X=${buildTools.sdk}
-    export NIX_CFLAGS_COMPILE+=" --sysroot=/var/empty -idirafter $SDKROOT_X/usr/include -F$SDKROOT_X/System/Library/Frameworks -Wno-multichar -Wno-#deprecated-declarations"
+    export NIX_CFLAGS_COMPILE+=" --sysroot=/var/empty -idirafter $SDKROOT_X/usr/include -F$SDKROOT_X/System/Library/Frameworks -Wno-multichar -Wno-deprecated-declarations"
     export NIX_LDFLAGS_AFTER+=" -L$SDKROOT_X/usr/lib"
   '';
 
