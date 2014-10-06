@@ -47,6 +47,7 @@ ln -s /usr/bin/sort
 ln -s /usr/bin/uniq
 ln -s /usr/bin/less
 ln -s /usr/bin/true
+ln -s /usr/bin/diff
 ln -s /usr/bin/egrep
 ln -s /usr/bin/fgrep
 ln -s /usr/bin/patch
@@ -54,5 +55,6 @@ ln -s /usr/bin/uname
 ln -s /usr/bin/touch
 ln -s /usr/bin/split
 ln -s /usr/bin/xargs
+ln -s /usr/bin/which
 ln -s /usr/bin/basename
 ln -s /usr/bin/readlink
