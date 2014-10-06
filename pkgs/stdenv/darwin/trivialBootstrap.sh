@@ -26,6 +26,7 @@ ln -s /bin/rmdir
 ln -s /bin/sleep
 ln -s /bin/hostname
 
+ln -s /usr/bin/id
 ln -s /usr/bin/tr
 ln -s /usr/bin/wc
 ln -s /usr/bin/cut

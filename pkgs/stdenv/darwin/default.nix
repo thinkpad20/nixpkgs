@@ -59,7 +59,7 @@ rec {
     dontFixLibtool=1
     stripAllFlags=" " # the Darwin "strip" command doesn't know "-s"
     xargsFlags=" "
-    export MACOSX_DEPLOYMENT_TARGET=10.6
+    export MACOSX_DEPLOYMENT_TARGET=10.7
     export SDKROOT=
     export SDKROOT_X=${buildTools.sdk}
     export NIX_CFLAGS_COMPILE+=" --sysroot=/var/empty -idirafter $SDKROOT_X/usr/include -F$SDKROOT_X/System/Library/Frameworks -Wno-multichar -Wno-deprecated-declarations"
