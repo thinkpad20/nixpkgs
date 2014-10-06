@@ -29,6 +29,7 @@ ln -s /bin/hostname
 ln -s /usr/bin/tr
 ln -s /usr/bin/wc
 ln -s /usr/bin/cut
+ln -s /usr/bin/cmp
 ln -s /usr/bin/sed
 ln -s /usr/bin/tar
 ln -s /usr/bin/xar

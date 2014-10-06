@@ -22,7 +22,7 @@ rec {
   stage0 = rec {
     stdenv = import ../generic {
       inherit system config;
-      name         = "stdenv-darwin-boot";
+      name         = "stdenv-darwin-boot-0";
       shell        = "/bin/bash";
       initialPath  = [ bootstrapTools ];
       fetchurlBoot = import ../../build-support/fetchurl {
@@ -69,8 +69,10 @@ rec {
   # A stdenv that wraps the Apple command-line tools and our other trivial symlinked bootstrap tools
   stage1 = rec {
     stdenv = import ../generic {
+      name = "stdenv-darwin-boot-1";
+
       inherit system config;
-      inherit (stage0.stdenv) name shell initialPath fetchurlBoot;
+      inherit (stage0.stdenv) shell initialPath fetchurlBoot;
 
       preHook = preHook + "\n" + ''
         export NIX_LDFLAGS_AFTER+=" -L/usr/lib"
@@ -97,15 +99,30 @@ rec {
     };
   };
 
+  stage2 = rec {
+    stdenv = import ../generic {
+      name = "stdenv-darwin-boot-2";
+
+      inherit system config;
+      inherit (stage1.stdenv) shell fetchurlBoot preHook gcc;
+
+      initialPath = [ stage1.pkgs.xz ] ++ stage1.stdenv.initialPath;
+    };
+    pkgs = allPackages {
+      inherit system platform;
+      bootStdenv = stdenv;
+    };
+  };
+
   # Use stage1 to build a whole set of actual tools so we don't have to rely on the Apple prebuilt ones or
   # the ugly symlinked bootstrap tools anymore.
-  stage2 = import ../generic {
+  stage3 = with stage2; import ../generic {
     name = "stdenv-darwin";
 
     inherit system config;
     inherit (stage1.stdenv) fetchurlBoot;
 
-    initialPath = (import ../common-path.nix) { pkgs = stage1.pkgs; };
+    initialPath = (import ../common-path.nix) { inherit pkgs; };
 
     preHook = preHook + "\n" + ''
       export NIX_ENFORCE_PURITY=1
@@ -115,19 +132,19 @@ rec {
       stdenv       = stage1.stdenv;
       nativeTools  = false;
       nativeLibc   = true;
-      libcxx       = stage1.pkgs.libcxx.override {
-        libcxxabi = stage1.pkgs.libcxxabi.override {
-          libunwind = stage1.pkgs.libunwindNative;
+      libcxx       = pkgs.libcxx.override {
+        libcxxabi = pkgs.libcxxabi.override {
+          libunwind = pkgs.libunwindNative;
         };
       };
       binutils  = import ../../build-support/native-darwin-cctools-wrapper { stdenv = stage1.stdenv; };
-      clang     = stage1.pkgs.clang;
-      coreutils = stage1.pkgs.coreutils;
-      shell     = "${stage1.pkgs.bash}/bin/bash";
+      clang     = pkgs.clang;
+      coreutils = pkgs.coreutils;
+      shell     = "${pkgs.bash}/bin/bash";
     };
 
-    shell = "${stage1.pkgs.bash}/bin/bash";
+    shell = "${pkgs.bash}/bin/bash";
   };
 
-  stdenvDarwin = stage2;
+  stdenvDarwin = stage3;
 }
