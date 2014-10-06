@@ -18,12 +18,13 @@ rec {
     ln      = "/bin/ln";
   };
 
+  # The simplest stdenv possible to run fetchadc and get the Apple command-line tools
   stage0 = rec {
     stdenv = import ../generic {
       inherit system config;
       name         = "stdenv-darwin-boot";
       shell        = "/bin/bash";
-      initialPath  = [bootstrapTools];
+      initialPath  = [ bootstrapTools ];
       fetchurlBoot = import ../../build-support/fetchurl {
         inherit stdenv;
         curl = bootstrapTools;
@@ -52,7 +53,6 @@ rec {
   }).impure;
 
   preHook = ''
-    export NIX_ENFORCE_PURITY=
     export NIX_IGNORE_LD_THROUGH_GCC=1
     export NIX_DONT_SET_RPATH=1
     export NIX_NO_SELF_RPATH=1
@@ -66,21 +66,27 @@ rec {
     export NIX_LDFLAGS_AFTER+=" -L$SDKROOT_X/usr/lib"
   '';
 
+  # A stdenv that wraps the Apple command-line tools and our other trivial symlinked bootstrap tools
   stage1 = rec {
     stdenv = import ../generic {
-      inherit system config preHook;
+      inherit system config;
       inherit (stage0.stdenv) name shell initialPath fetchurlBoot;
+
+      preHook = preHook + "\n" + ''
+        export NIX_LDFLAGS_AFTER+=" -L/usr/lib"
+        export NIX_ENFORCE_PURITY=
+      '';
 
       gcc = import ../../build-support/clang-wrapper {
         nativeTools  = true;
         nativePrefix = "${buildTools.tools}/Library/Developer/CommandLineTools/usr";
         nativeLibc   = true;
         stdenv       = stage0.stdenv;
-        libcxx       = "/";
+        libcxx       = "/usr";
         shell        = "/bin/bash";
         clang        = {
           name    = "clang-9.9.9";
-          gcc     = "/no-such-path";
+          gcc     = "/usr";
           outPath = "${buildTools.tools}/Library/Developer/CommandLineTools/usr";
         };
       };
@@ -91,13 +97,19 @@ rec {
     };
   };
 
+  # Use stage1 to build a whole set of actual tools so we don't have to rely on the Apple prebuilt ones or
+  # the ugly symlinked bootstrap tools anymore.
   stage2 = import ../generic {
     name = "stdenv-darwin";
 
-    inherit system config preHook;
+    inherit system config;
     inherit (stage1.stdenv) fetchurlBoot;
 
     initialPath = (import ../common-path.nix) { pkgs = stage1.pkgs; };
+
+    preHook = preHook + "\n" + ''
+      export NIX_ENFORCE_PURITY=1
+    '';
 
     gcc = import ../../build-support/clang-wrapper {
       stdenv       = stage1.stdenv;

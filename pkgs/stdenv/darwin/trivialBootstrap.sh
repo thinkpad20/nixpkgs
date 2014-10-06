@@ -20,11 +20,15 @@ ln -s /bin/bash
 ln -s /bin/echo
 ln -s /bin/expr
 ln -s /bin/test
+ln -s /bin/date
 ln -s /bin/chmod
 ln -s /bin/rmdir
+ln -s /bin/sleep
+ln -s /bin/hostname
 
 ln -s /usr/bin/tr
 ln -s /usr/bin/wc
+ln -s /usr/bin/cut
 ln -s /usr/bin/sed
 ln -s /usr/bin/tar
 ln -s /usr/bin/xar
@@ -51,3 +55,4 @@ ln -s /usr/bin/touch
 ln -s /usr/bin/split
 ln -s /usr/bin/xargs
 ln -s /usr/bin/basename
+ln -s /usr/bin/readlink
