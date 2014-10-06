@@ -15,6 +15,7 @@ ln -s /bin/cp
 ln -s /bin/mv
 ln -s /bin/rm
 ln -s /bin/ls
+ln -s /bin/ps
 ln -s /bin/cat
 ln -s /bin/bash
 ln -s /bin/echo
