@@ -5976,7 +5976,7 @@
       (self.nativeDeps."es5-ext" or []);
     deps = {
       "es6-iterator-0.1.1" = self.by-version."es6-iterator"."0.1.1";
-      "es6-symbol-0.1.0" = self.by-version."es6-symbol"."0.1.0";
+      "es6-symbol-0.1.1" = self.by-version."es6-symbol"."0.1.1";
     };
     peerDependencies = [
     ];
@@ -6001,22 +6001,22 @@
     deps = {
       "d-0.1.1" = self.by-version."d"."0.1.1";
       "es5-ext-0.10.4" = self.by-version."es5-ext"."0.10.4";
-      "es6-symbol-0.1.0" = self.by-version."es6-symbol"."0.1.0";
+      "es6-symbol-0.1.1" = self.by-version."es6-symbol"."0.1.1";
     };
     peerDependencies = [
     ];
     passthru.names = [ "es6-iterator" ];
   };
   by-spec."es6-symbol"."0.1.x" =
-    self.by-version."es6-symbol"."0.1.0";
-  by-version."es6-symbol"."0.1.0" = lib.makeOverridable self.buildNodePackage {
-    name = "es6-symbol-0.1.0";
+    self.by-version."es6-symbol"."0.1.1";
+  by-version."es6-symbol"."0.1.1" = lib.makeOverridable self.buildNodePackage {
+    name = "es6-symbol-0.1.1";
     bin = false;
     src = [
       (fetchurl {
-        url = "http://registry.npmjs.org/es6-symbol/-/es6-symbol-0.1.0.tgz";
-        name = "es6-symbol-0.1.0.tgz";
-        sha1 = "ba5878f37a652f6c713244716fc7b24d61d2dc39";
+        url = "http://registry.npmjs.org/es6-symbol/-/es6-symbol-0.1.1.tgz";
+        name = "es6-symbol-0.1.1.tgz";
+        sha1 = "9cf7fab2edaff1b1da8fe8e68bfe3f5aca6ca218";
       })
     ];
     buildInputs =
@@ -13614,28 +13614,28 @@
     passthru.names = [ "moment" ];
   };
   by-spec."mongodb"."*" =
-    self.by-version."mongodb"."2.0.0-alpha2";
-  by-version."mongodb"."2.0.0-alpha2" = lib.makeOverridable self.buildNodePackage {
-    name = "mongodb-2.0.0-alpha2";
+    self.by-version."mongodb"."2.0.1";
+  by-version."mongodb"."2.0.1" = lib.makeOverridable self.buildNodePackage {
+    name = "mongodb-2.0.1";
     bin = false;
     src = [
       (fetchurl {
-        url = "http://registry.npmjs.org/mongodb/-/mongodb-2.0.0-alpha2.tgz";
-        name = "mongodb-2.0.0-alpha2.tgz";
-        sha1 = "04541787b29a7db6a03ca4e44e593dd726d03d91";
+        url = "http://registry.npmjs.org/mongodb/-/mongodb-2.0.1.tgz";
+        name = "mongodb-2.0.1.tgz";
+        sha1 = "2d5240c9493ec4b109c1eb4d656a5d0d15eb35e9";
       })
     ];
     buildInputs =
       (self.nativeDeps."mongodb" or []);
     deps = {
-      "mongodb-core-1.0.0-alpha9" = self.by-version."mongodb-core"."1.0.0-alpha9";
+      "mongodb-core-1.0.1" = self.by-version."mongodb-core"."1.0.1";
       "readable-stream-1.0.31" = self.by-version."readable-stream"."1.0.31";
     };
     peerDependencies = [
     ];
     passthru.names = [ "mongodb" ];
   };
-  "mongodb" = self.by-version."mongodb"."2.0.0-alpha2";
+  "mongodb" = self.by-version."mongodb"."2.0.1";
   by-spec."mongodb"."1.2.14" =
     self.by-version."mongodb"."1.2.14";
   by-version."mongodb"."1.2.14" = lib.makeOverridable self.buildNodePackage {
@@ -13725,15 +13725,15 @@
     passthru.names = [ "mongodb" ];
   };
   by-spec."mongodb-core"."~1.0" =
-    self.by-version."mongodb-core"."1.0.0-alpha9";
-  by-version."mongodb-core"."1.0.0-alpha9" = lib.makeOverridable self.buildNodePackage {
-    name = "mongodb-core-1.0.0-alpha9";
+    self.by-version."mongodb-core"."1.0.1";
+  by-version."mongodb-core"."1.0.1" = lib.makeOverridable self.buildNodePackage {
+    name = "mongodb-core-1.0.1";
     bin = false;
     src = [
       (fetchurl {
-        url = "http://registry.npmjs.org/mongodb-core/-/mongodb-core-1.0.0-alpha9.tgz";
-        name = "mongodb-core-1.0.0-alpha9.tgz";
-        sha1 = "895cf88ad00d20462c417cc2f59d261ec15f0c23";
+        url = "http://registry.npmjs.org/mongodb-core/-/mongodb-core-1.0.1.tgz";
+        name = "mongodb-core-1.0.1.tgz";
+        sha1 = "df757e5cd9b20c0b73d09d334edbb7a9b61f12e7";
       })
     ];
     buildInputs =
@@ -14766,15 +14766,15 @@
   };
   "node-inspector" = self.by-version."node-inspector"."0.7.4";
   by-spec."node-protobuf"."*" =
-    self.by-version."node-protobuf"."1.2.1";
-  by-version."node-protobuf"."1.2.1" = lib.makeOverridable self.buildNodePackage {
-    name = "node-protobuf-1.2.1";
+    self.by-version."node-protobuf"."1.2.2";
+  by-version."node-protobuf"."1.2.2" = lib.makeOverridable self.buildNodePackage {
+    name = "node-protobuf-1.2.2";
     bin = false;
     src = [
       (fetchurl {
-        url = "http://registry.npmjs.org/node-protobuf/-/node-protobuf-1.2.1.tgz";
-        name = "node-protobuf-1.2.1.tgz";
-        sha1 = "d517eb4cdcfac002390ace6b8f0b865322eef049";
+        url = "http://registry.npmjs.org/node-protobuf/-/node-protobuf-1.2.2.tgz";
+        name = "node-protobuf-1.2.2.tgz";
+        sha1 = "8d512499fe012358c1fd89d6b4d84ad80317acb3";
       })
     ];
     buildInputs =
@@ -14787,7 +14787,7 @@
     ];
     passthru.names = [ "node-protobuf" ];
   };
-  "node-protobuf" = self.by-version."node-protobuf"."1.2.1";
+  "node-protobuf" = self.by-version."node-protobuf"."1.2.2";
   by-spec."node-swt".">=0.1.1" =
     self.by-version."node-swt"."0.1.1";
   by-version."node-swt"."0.1.1" = lib.makeOverridable self.buildNodePackage {
