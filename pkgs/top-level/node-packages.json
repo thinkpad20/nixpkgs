@@ -16,6 +16,7 @@
 , "jsontool"
 , { "swig": "0.14.x" }
 , "coffee-script"
+, "coffeelint"
 , "escape-html"
 , "buffertools"
 , "wu"
