@@ -3720,7 +3720,7 @@ let
     libc = glibc;
     shell = bash;
     binutils = stdenv.gcc.binutils;
-    inherit stdenv coreutils zlib;
+    inherit stdenv coreutils zlib libcxx;
   };
 
   wrapClang = wrapClangWith (makeOverridable (import ../build-support/clang-wrapper)) glibc;
@@ -4002,7 +4002,7 @@ let
   ruby21Libs = rubyLibsWith ruby_2_1;
   rubyLibs = recurseIntoAttrs ruby19Libs;
 
-  rakeGlobal = rubyLibs.rake;
+  rake = rubyLibs.rake;
 
   rubySqlite3 = callPackage ../development/ruby-modules/sqlite3 { };
 
@@ -5944,9 +5944,9 @@ let
       else stdenv;
   };
 
-  libunwind = callPackage ../development/libraries/libunwind { };
-
-  libunwindNative = callPackage ../development/libraries/libunwind/native.nix {};
+  libunwind = if stdenv.isDarwin
+    then callPackage ../development/libraries/libunwind/native.nix {}
+    else callPackage ../development/libraries/libunwind { };
 
   libuvVersions = callPackage ../development/libraries/libuv { };
 

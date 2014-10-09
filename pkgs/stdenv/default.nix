@@ -41,13 +41,6 @@ rec {
     pkgs = stdenvNativePkgs;
   };
 
-  stdenvDarwinNaked = import ./darwin {
-    inherit config;
-    stdenv = stdenvNative;
-    pkgs = stdenvNativePkgs;
-    haveLibCxx = false;
-  };
-
 
   # Linux standard environment.
   stdenvLinux = (import ./linux { inherit system allPackages platform config;}).stdenvLinux;

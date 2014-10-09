@@ -72,8 +72,8 @@ doSubstitute() {
     local dst=$2
     local uselibcxx=
     local uselibcxxabi=
-    if test -n "$libcxx" && echo $dst | fgrep ++; then uselibcxx=$libcxx; fi
-    if test -n "$libcxxabi" && echo $dst | fgrep ++; then uselibcxxabi=$libcxxabi; fi
+    if test -n "$libcxx"; then uselibcxx=$libcxx; fi
+    if test -n "$libcxxabi"; then uselibcxxabi=$libcxxabi; fi
     # Can't use substitute() here, because replace may not have been
     # built yet (in the bootstrap).
     sed \
