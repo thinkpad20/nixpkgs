@@ -27,10 +27,9 @@ import ../generic rec {
     nativePrefix = stdenv.lib.optionalString stdenv.isSunOS "/usr";
     nativeLibc = true;
     inherit stdenv;
-    inherit (pkgs) libcxx;
+    inherit (pkgs) libcxx coreutils;
+    inherit (pkgs.llvmPackages) clang; # avoid double wrapping
     binutils = import ../../build-support/native-darwin-cctools-wrapper {inherit stdenv;};
-    clang = pkgs.clang;
-    coreutils = pkgs.coreutils;
     shell = pkgs.bash + "/bin/sh";
   };
 
