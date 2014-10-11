@@ -4,8 +4,8 @@
 }:
 
 let
-  version = "0.26.3"; # even major numbers are stable
-  sha256 = "1ca2lrwvhxzq0g4blbvq099vyydfjyz839jki301p1jgazrimjw8";
+  version = "0.26.5"; # even major numbers are stable
+  sha256 = "1vni6kqpcx4jy9q8mhhxphfjych76xxmgs3jyg8yacbl6gxfazfy";
 
   qtcairo_patches =
     let qtcairo = fetchgit { # the version for poppler-0.24
@@ -30,7 +30,9 @@ let
 
     nativeBuildInputs = [ pkgconfig cmake ] ++ libiconvOrEmpty ++ libintlOrEmpty;
 
-    cmakeFlags = "-DENABLE_XPDF_HEADERS=ON -DENABLE_LIBCURL=ON -DENABLE_ZLIB=ON";
+    cmakeFlags = "-DENABLE_XPDF_HEADERS=ON -DENABLE_LIBCURL=ON -DENABLE_ZLIB=ON"
+      # otherwise, cmake finds /Library/Frameworks/freetype.framework
+      + stdenv.lib.optionalString stdenv.isDarwin " -DCMAKE_FIND_FRAMEWORK=NEVER";
 
     patches = [ ./datadir_env.patch ./poppler-glib.patch ];
 

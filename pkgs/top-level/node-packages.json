@@ -16,6 +16,7 @@
 , "jsontool"
 , { "swig": "0.14.x" }
 , "coffee-script"
+, "coffeelint"
 , "escape-html"
 , "buffertools"
 , "wu"
@@ -112,7 +113,7 @@
 , "posix"
 , "node-protobuf"
 , "rethinkdb"
-, { "titanium": "3.2.1" }
+, "titanium"
 , "deepmerge"
 , "slasp"
 , "react"

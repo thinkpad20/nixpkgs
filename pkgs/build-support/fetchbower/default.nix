@@ -6,4 +6,5 @@
   outputHashAlgo = "sha256";
   inherit outputHash;
   PATH = "${git}/bin";
+  passthru.pname = name;
 }

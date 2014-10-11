@@ -7,7 +7,7 @@
 
 { name ? "", stdenv, nativeTools, nativeLibc, nativePrefix ? ""
 , clang ? null, libc ? null, binutils ? null, coreutils ? null, shell ? ""
-, zlib ? null, libcxx ? null
+, zlib ? null, libcxx
 }:
 
 assert nativeTools -> nativePrefix != "";
