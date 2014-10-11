@@ -7550,11 +7550,13 @@ let
   darwin = let
     cmdline = callPackage ../os-specific/darwin/command-line-tools {};
   in rec {
-    cctools = forceNativeDrv (callPackage ../os-specific/darwin/cctools-port {
+    cctools = forceNativeDrv (callPackage ../os-specific/darwin/cctools/port.nix {
       cross = assert crossSystem != null; crossSystem;
       inherit maloader;
       xctoolchain = xcode.toolchain;
     });
+
+    cctools_native = (callPackage ../os-specific/darwin/cctools/port.nix {}).native;
 
     maloader = callPackage ../os-specific/darwin/maloader {
       inherit opencflite;
