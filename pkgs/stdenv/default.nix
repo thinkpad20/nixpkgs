@@ -33,18 +33,10 @@ rec {
     pkgs = stdenvNativePkgs;
   };
 
-
-  # A multitude of Darwin stdenvs.
-  stdenvDarwin = import ./darwin {
-    inherit config;
-    stdenv = stdenvNative;
-    pkgs = stdenvNativePkgs;
-  };
-
-
   # Linux standard environment.
   stdenvLinux = (import ./linux { inherit system allPackages platform config;}).stdenvLinux;
 
+  stdenvDarwin = (import ./darwin { inherit system allPackages platform config;}).stdenvDarwin;
 
   # Select the appropriate stdenv for the platform `system'.
   stdenv =

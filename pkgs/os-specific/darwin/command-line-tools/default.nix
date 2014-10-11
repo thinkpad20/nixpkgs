@@ -3,7 +3,7 @@
 let
   name = "command-line-tools-mac-os-10.9";
 
-  pkg = { installPhase }: stdenv.mkDerivation {
+  pkg = installPhase: stdenv.mkDerivation {
     name = "${name}.pkg";
 
     phases = [ "installPhase" ];
@@ -35,10 +35,10 @@ let
       mkdir -p $tools
 
       cd $sdk
-      cat $start/DevSDK_OSX109.pkg/Payload | ${gzip}/bin/gzip -d | ${cpio}/bin/cpio -idm
+      cat $start/DevSDK_OSX109.pkg/Payload | ${gzip}/bin/gzip -d | ${cpio}/bin/cpio -idm 2> /dev/null
 
       cd $tools
-      cat $start/CLTools_Executables.pkg/Payload | ${gzip}/bin/gzip -d | ${cpio}/bin/cpio -idm
+      cat $start/CLTools_Executables.pkg/Payload | ${gzip}/bin/gzip -d | ${cpio}/bin/cpio -idm 2> /dev/null
     '';
 
     meta = with stdenv.lib; {
@@ -55,17 +55,13 @@ in rec {
     sha256 = "0zrpf73r3kfk9pdh6p6j6w1sbw7s2pp0f8rd83660r5hk1y3j5jc";
   };
 
-  pure = { xpwn }: basic (pkg {
-    installPhase = ''
-      ${xpwn}/bin/hdutil ${dmg} extract "Command Line Tools (OS X 10.9).pkg" $out
-    '';
-  });
+  pure = { xpwn }: basic (pkg ''
+    ${xpwn}/bin/hdutil ${dmg} extract "Command Line Tools (OS X 10.9).pkg" $out
+  '');
 
-  impure = basic (pkg {
-    installPhase = ''
-      /usr/bin/hdiutil attach ${dmg} -mountpoint clt-mount -nobrowse
-      cp "clt-mount/Command Line Tools (OS X 10.9).pkg" $out
-      /usr/bin/hdiutil unmount clt-mount
-    '';
-  });
+  impure = basic (pkg ''
+    /usr/bin/hdiutil attach ${dmg} -mountpoint clt-mount -nobrowse
+    cp "clt-mount/Command Line Tools (OS X 10.9).pkg" $out
+    /usr/bin/hdiutil unmount clt-mount
+  '');
 }
