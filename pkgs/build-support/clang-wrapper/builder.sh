@@ -37,9 +37,9 @@ if test -n "$nativeTools"; then
 else
     clangLDFlags=""
     if test -d "$gcc/lib"; then
-      basePath=`echo $gcc/lib/*/*/*`
+      basePath="" #`echo $gcc/lib/*/*/*`
       # Need libgcc until the llvm compiler-rt library is complete
-      clangLDFlags="$clangLDFlags -L$basePath"
+      clangLDFlags="" # $clangLDFlags -L$basePath"
       if test -e "$gcc/lib64"; then
           clangLDFlags="$clangLDFlags -L$gcc/lib64"
       else

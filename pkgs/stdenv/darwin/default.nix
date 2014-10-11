@@ -61,7 +61,7 @@ rec {
     xargsFlags=" "
     export MACOSX_DEPLOYMENT_TARGET=10.7
     export SDKROOT=
-    export SDKROOT_X=${buildTools.sdk}
+    export SDKROOT_X=/ # FIXME: impure!
     export NIX_CFLAGS_COMPILE+=" --sysroot=/var/empty -idirafter $SDKROOT_X/usr/include -F$SDKROOT_X/System/Library/Frameworks -Wno-multichar -Wno-deprecated-declarations"
     export NIX_LDFLAGS_AFTER+=" -L$SDKROOT_X/usr/lib"
   '';
@@ -117,7 +117,7 @@ rec {
   # Use stage1 to build a whole set of actual tools so we don't have to rely on the Apple prebuilt ones or
   # the ugly symlinked bootstrap tools anymore.
   stage3 = with stage2; import ../generic {
-    name = "stdenv-darwin";
+    name = "stdenv-darwin-boot-3";
 
     inherit system config;
     inherit (stage1.stdenv) fetchurlBoot;
@@ -129,7 +129,7 @@ rec {
     '';
 
     gcc = import ../../build-support/clang-wrapper {
-      stdenv       = stage1.stdenv;
+      inherit stdenv;
       nativeTools  = false;
       nativeLibc   = true;
       libcxx       = pkgs.libcxx.override {
@@ -137,7 +137,7 @@ rec {
           libunwind = pkgs.libunwindNative;
         };
       };
-      binutils  = import ../../build-support/native-darwin-cctools-wrapper { stdenv = stage1.stdenv; };
+      binutils  = import ../../build-support/native-darwin-cctools-wrapper { inherit stdenv; };
       clang     = pkgs.clang;
       coreutils = pkgs.coreutils;
       shell     = "${pkgs.bash}/bin/bash";
