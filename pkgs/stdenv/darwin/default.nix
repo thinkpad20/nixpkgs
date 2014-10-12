@@ -120,7 +120,7 @@ rec {
     name = "stdenv-darwin-boot-3";
 
     inherit system config;
-    inherit (stage1.stdenv) fetchurlBoot;
+    inherit (stdenv) fetchurlBoot;
 
     initialPath = (import ../common-path.nix) { inherit pkgs; };
 
