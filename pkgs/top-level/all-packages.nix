@@ -3702,9 +3702,9 @@ let
   win32hello = callPackage ../development/compilers/visual-c++/test { };
 
   wrapGCCWith = gccWrapper: glibc: baseGCC: gccWrapper {
-    nativeTools = stdenv ? gcc && stdenv.gcc.nativeTools;
-    nativeLibc = stdenv ? gcc && stdenv.gcc.nativeLibc;
-    nativePrefix = if stdenv ? gcc then stdenv.gcc.nativePrefix else "";
+    nativeTools = stdenv ? gcc && stdenv.cc.nativeTools;
+    nativeLibc = stdenv ? gcc && stdenv.cc.nativeLibc;
+    nativePrefix = if stdenv ? gcc then stdenv.cc.nativePrefix else "";
     gcc = baseGCC;
     libc = glibc;
     shell = bash;
@@ -3712,13 +3712,13 @@ let
   };
 
   wrapClangWith = clangWrapper: glibc: baseClang: clangWrapper {
-    nativeTools = stdenv.gcc.nativeTools or false;
-    nativeLibc = stdenv.gcc.nativeLibc or false;
-    nativePrefix = stdenv.gcc.nativePrefix or "";
+    nativeTools = stdenv.cc.nativeTools or false;
+    nativeLibc = stdenv.cc.nativeLibc or false;
+    nativePrefix = stdenv.cc.nativePrefix or "";
     clang = baseClang;
     libc = glibc;
     shell = bash;
-    binutils = stdenv.gcc.binutils;
+    binutils = stdenv.cc.binutils;
     inherit stdenv coreutils zlib libcxx;
   };
 
@@ -5684,7 +5684,7 @@ let
   libiconvOrEmpty = if libiconvOrNull == null then [] else [libiconv];
 
   libiconvOrNull =
-    if stdenv.gcc.libc or null != null || stdenv.isGlibc
+    if stdenv.cc.libc or null != null || stdenv.isGlibc
     then null
     else libiconv;
 
@@ -10639,7 +10639,7 @@ let
           ++ lib.optional (cfg.enableTrezor or false) trezor-bridge
          );
       libs = [ gstreamer gst_plugins_base ] ++ lib.optionals (cfg.enableQuakeLive or false)
-             (with xlibs; [ stdenv.gcc libX11 libXxf86dga libXxf86vm libXext libXt alsaLib zlib ]);
+             (with xlibs; [ stdenv.cc libX11 libXxf86dga libXxf86vm libXext libXt alsaLib zlib ]);
       gtk_modules = [ libcanberra ];
     };
 
