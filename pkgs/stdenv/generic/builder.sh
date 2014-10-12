@@ -10,7 +10,7 @@ echo "$preHook" > $out/setup
 cat "$setup" >> $out/setup
 
 sed -e "s^@initialPath@^$initialPath^g" \
-    -e "s^@gcc@^$gcc^g" \
+    -e "s^@cc@^$cc^g" \
     -e "s^@shell@^$shell^g" \
     -e "s^@needsPax@^$needsPax^g" \
     < $out/setup > $out/setup.tmp

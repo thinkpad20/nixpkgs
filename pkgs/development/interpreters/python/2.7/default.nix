@@ -30,10 +30,10 @@ let
       ./deterministic-build.patch
     ];
 
-  postPatch = stdenv.lib.optionalString (stdenv.gcc.libc != null) ''
+  postPatch = stdenv.lib.optionalString (stdenv.cc.libc != null) ''
     substituteInPlace ./Lib/plat-generic/regen \
                       --replace /usr/include/netinet/in.h \
-                                ${stdenv.gcc.libc}/include/netinet/in.h
+                                ${stdenv.cc.libc}/include/netinet/in.h
   '';
 
   buildInputs =

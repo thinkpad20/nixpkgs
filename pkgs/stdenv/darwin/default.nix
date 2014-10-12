@@ -29,7 +29,7 @@ rec {
         inherit stdenv;
         curl = bootstrapTools;
       };
-      gcc = "/no-such-path";
+      cc = "/no-such-path";
     };
   };
 
@@ -79,7 +79,7 @@ rec {
         export NIX_ENFORCE_PURITY=
       '';
 
-      gcc = import ../../build-support/clang-wrapper {
+      cc = import ../../build-support/clang-wrapper {
         nativeTools  = true;
         nativePrefix = "${buildTools.tools}/Library/Developer/CommandLineTools/usr";
         nativeLibc   = true;
@@ -104,7 +104,7 @@ rec {
       name = "stdenv-darwin-boot-2";
 
       inherit system config;
-      inherit (stage1.stdenv) shell fetchurlBoot preHook gcc;
+      inherit (stage1.stdenv) shell fetchurlBoot preHook cc;
 
       initialPath = [ stage1.pkgs.xz ] ++ stage1.stdenv.initialPath;
     };
@@ -128,7 +128,7 @@ rec {
       export NIX_ENFORCE_PURITY=1
     '';
 
-    gcc = import ../../build-support/clang-wrapper {
+    cc = import ../../build-support/clang-wrapper {
       inherit stdenv;
       nativeTools  = false;
       nativeLibc   = true;

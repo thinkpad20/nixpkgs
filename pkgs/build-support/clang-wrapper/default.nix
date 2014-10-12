@@ -39,7 +39,6 @@ stdenv.mkDerivation {
 
   libcxxabi = libcxx.abi or null;
 
-  gcc = clang.gcc;
   libc = if nativeLibc then null else libc;
   binutils = if nativeTools then null else binutils;
   # The wrapper scripts use 'cat', so we may need coreutils

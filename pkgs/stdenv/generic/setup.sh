@@ -79,7 +79,7 @@ addToSearchPath() {
 
 set -e
 
-[ -z $NIX_GCC ] && NIX_GCC=@gcc@
+[ -z $NIX_CC ] && NIX_CC=@cc@
 
 
 # Wildcard expansions that don't match should expand to an empty list.
@@ -90,7 +90,7 @@ shopt -s nullglob
 
 # Set up the initial path.
 PATH=
-for i in $NIX_GCC @initialPath@; do
+for i in $NIX_CC @initialPath@; do
     if [ "$i" = / ]; then i=; fi
     addToSearchPath PATH $i/bin
     addToSearchPath PATH $i/sbin
@@ -111,11 +111,11 @@ runHook preHook
 # Check that the pre-hook initialised SHELL.
 if [ -z "$SHELL" ]; then echo "SHELL not set"; exit 1; fi
 
-# Hack: run gcc's setup hook.
+# Hack: run cc's setup hook.
 envHooks=()
 crossEnvHooks=()
-if [ -f $NIX_GCC/nix-support/setup-hook ]; then
-    source $NIX_GCC/nix-support/setup-hook
+if [ -f $NIX_CC/nix-support/setup-hook ]; then
+    source $NIX_CC/nix-support/setup-hook
 fi
 
 
