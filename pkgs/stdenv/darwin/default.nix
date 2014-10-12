@@ -133,7 +133,7 @@ rec {
       nativeTools  = false;
       nativeLibc   = true;
       inherit (pkgs) libcxx;
-      binutils  = import ../../build-support/native-darwin-cctools-wrapper { inherit stdenv; };
+      binutils  = pkgs.darwin.cctools_native;
       clang     = pkgs.llvmPackages.clang;
       coreutils = pkgs.coreutils;
       shell     = "${pkgs.bash}/bin/bash";
