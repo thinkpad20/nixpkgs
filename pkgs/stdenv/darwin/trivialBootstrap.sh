@@ -62,4 +62,5 @@ ln -s /usr/bin/xargs
 ln -s /usr/bin/which
 ln -s /usr/bin/install
 ln -s /usr/bin/basename
+ln -s /usr/bin/dirname
 ln -s /usr/bin/readlink
