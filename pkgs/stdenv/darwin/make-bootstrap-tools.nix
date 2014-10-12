@@ -27,50 +27,6 @@ rec {
     sslSupport = false;
   };
 
-  busyboxStaticSh = busybox.override {
-    extraConfig = ''
-      CLEAR
-      CONFIG_STATIC y
-
-      CONFIG_ASH y
-      CONFIG_BASH_COMPAT y
-      CONFIG_ASH_ALIAS y
-      CONFIG_ASH_GETOPTS y
-      CONFIG_ASH_CMDCMD y
-      CONFIG_ASH_JOB_CONTROL y
-      CONFIG_ASH_BUILTIN_ECHO y
-      CONFIG_ASH_BUILTIN_PRINTF y
-      CONFIG_ASH_BUILTIN_TEST y
-    '';
-  };
-
-  busyboxStaticLn = busybox.override {
-    extraConfig = ''
-      CLEAR
-      CONFIG_STATIC y
-      CONFIG_LN y
-    '';
-  };
-
-  busyboxStaticMkdir = busybox.override {
-    extraConfig = ''
-      CLEAR
-
-      CONFIG_STATIC y
-      CONFIG_MKDIR y
-    '';
-  };
-
-  busyboxStaticCpio = busybox.override {
-    extraConfig = ''
-      CLEAR
-      CONFIG_STATIC y
-      CONFIG_CPIO y
-      # (shlevy) Are these necessary?
-      CONFIG_FEATURE_CPIO_O y
-      CONFIG_FEATURE_CPIO_P y
-    '';
-  };
 
   build = stdenv.mkDerivation {
     name = "build";
