@@ -5,12 +5,16 @@
 let
   baseParams = rec {
     name = "cctools-port-${version}";
-    version = "845";
+    version = "855";
 
-    src = fetchurl {
-      url = "https://github.com/tpoechtrager/cctools-port/archive/"
-          + "cctools-${version}-ld64-136-1.tar.gz";
-      sha256 = "06pg6h1g8avgx4j6cfykdpggf490li796gzhhyqn27jsagli307i";
+    src = let
+      # Should be fetchFromGitHub but it was whining so this will do for now
+      owner  = "tpoechtrager";
+      repo   = "cctools-port";
+      rev    = "7083dddbb0f106d791d313829ea7dc45db90e375";
+    in fetchurl {
+      url    = "https://github.com/${owner}/${repo}/archive/${rev}.tar.gz";
+      sha256 = "017gxlcwgi7xhayjzj9w3fac175p2rm4vjzf9cycq9683m9pmyzj";
     };
 
     buildInputs = [
@@ -57,12 +61,6 @@ in {
     patches = baseParams.patches ++ [ ./darwin.patch ];
 
     postInstall = ''
-      for tool in $out/bin/*; do
-        /usr/bin/install_name_tool -add_rpath ${llvm}/lib $tool
-      done
-      for tool in $out/libexec/*/*/*; do
-        /usr/bin/install_name_tool -add_rpath ${llvm}/lib $tool
-      done
       cd $out/bin
       for tool in dwarfdump dsymutil; do
         ln -s /usr/bin/$tool
