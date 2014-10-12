@@ -17,8 +17,7 @@ stdenv.mkDerivation {
     "-DCMAKE_BUILD_TYPE=Release"
     "-DCMAKE_CXX_FLAGS=-std=c++11"
   ] ++
-  (stdenv.lib.optional (stdenv.gcc.libc != null) "-DC_INCLUDE_DIRS=${stdenv.gcc.libc}/include") ++
-  (stdenv.lib.optional (stdenv.gcc.gcc != null) "-DGCC_INSTALL_PREFIX=${stdenv.gcc.gcc}");
+  (stdenv.lib.optional (stdenv.cc.libc != null) "-DC_INCLUDE_DIRS=${stdenv.cc.libc}/include");
 
   # Clang expects to find LLVMgold in its own prefix
   # Clang expects to find sanitizer libraries in its own prefix
@@ -26,8 +25,6 @@ stdenv.mkDerivation {
     ln -sv ${llvm}/lib/LLVMgold.so $out/lib
     ln -sv ${llvm}/lib/clang/${version}/lib $out/lib/clang/${version}/
   '';
-
-  passthru.gcc = stdenv.gcc.gcc;
 
   enableParallelBuilding = true;
 
