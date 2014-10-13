@@ -10,8 +10,9 @@ in stdenv.mkDerivation {
     sha256 = "07nmvzw5rcxpaw03c18vkn2mxp0lhn6y4nn57d2vlxi36kcwfbb8";
   };
 
-  NIX_CFLAGS_LINK="-L${libunwind}/lib";
+  NIX_CFLAGS_LINK = "-L${libunwind}/lib";
 
+  NIX_SKIP_CXX = "true";
   buildInputs = [ coreutils cmake ];
 
   postUnpack = ''
@@ -30,7 +31,7 @@ in stdenv.mkDerivation {
         # the magic combination of necessary CMake variables
         # if you fancy a try, take a look at
         # http://www.cmake.org/Wiki/CMake_RPATH_handling
-        install_name_tool -id $out/lib/$file $file
+        install_name_tool -id $out/$file $file
       done
       make install
       install -d 755 $out/include

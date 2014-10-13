@@ -11,6 +11,8 @@ in stdenv.mkDerivation rec {
     sha256 = "1h5is2jd802344kddm45jcm7bra51llsiv9r34h0rrb3ba2dlic0";
   };
 
+  NIX_SKIP_CXX = "true";
+
   buildInputs = [ cmake libcxxabi python ];
 
   cmakeFlags = [ "-DCMAKE_BUILD_TYPE=Release"

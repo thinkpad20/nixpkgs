@@ -83,7 +83,9 @@ if test -n "@libcxx@"; then
     NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -isystem@libcxx@/include/c++/v1"
     if [[ "@clangProg@" = *++ ]]; then
         NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -stdlib=libc++"
-        NIX_CFLAGS_LINK="$NIX_CFLAGS_LINK -L@libcxx@/lib -stdlib=libc++ -L@libcxxabi@/lib -lc++abi"
+        if test -z "$NIX_SKIP_CXX"; then
+            NIX_CFLAGS_LINK="$NIX_CFLAGS_LINK -L@libcxx@/lib -stdlib=libc++ -L@libcxxabi@/lib -lc++abi"
+        fi
     fi
 fi
 
