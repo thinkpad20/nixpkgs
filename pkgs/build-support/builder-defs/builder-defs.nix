@@ -100,7 +100,7 @@ let inherit (builtins) head tail trace; in
                 ${stdenv.preHook}
                 
                 set -e
-                NIX_GCC=${stdenv.gcc}
+                NIX_GCC=${stdenv.cc}
                 export SHELL=${stdenv.shell}
                 PATH_DELIMITER=':'
                 
