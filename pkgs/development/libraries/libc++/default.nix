@@ -13,6 +13,16 @@ in stdenv.mkDerivation rec {
 
   NIX_SKIP_CXX = "true";
 
+  # libc++ wants to re-export libc++abi, which is totally fine.
+  # however it tries to use an absolute path for that, and since we
+  # pass -lc++abi in the clang wrapper, c++abi gets linked already
+  # so no need to link with it again
+  preConfigure = ''
+    substituteInPlace lib/CMakeLists.txt \
+      --replace 'set (OSX_RE_EXPORT_LINE "/usr/lib/libc++abi.dylib ' 'set (OSX_RE_EXPORT_LINE "' \
+      --replace '"''${CMAKE_OSX_SYSROOT}/usr/lib/libc++abi.dylib"' ""
+  '';
+
   buildInputs = [ cmake libcxxabi python ];
 
   cmakeFlags = [ "-DCMAKE_BUILD_TYPE=Release"
