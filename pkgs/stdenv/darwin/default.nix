@@ -20,37 +20,27 @@ rec {
 
   # The simplest stdenv possible to run fetchadc and get the Apple command-line tools
   stage0 = rec {
+    fetchurl = import ../../build-support/fetchurl {
+      inherit stdenv;
+      curl = bootstrapTools;
+    };
+
     stdenv = import ../generic {
       inherit system config;
       name         = "stdenv-darwin-boot-0";
       shell        = "/bin/bash";
       initialPath  = [ bootstrapTools ];
-      fetchurlBoot = import ../../build-support/fetchurl {
-        inherit stdenv;
-        curl = bootstrapTools;
-      };
-      cc = "/no-such-path";
+      fetchurlBoot = fetchurl;
+      cc           = "/no-such-path";
     };
   };
 
-  fetchadc = import ../../build-support/fetchadc {
-    stdenv = stage0.stdenv;
-    curl   = bootstrapTools;
-    adc_user = if config ? adc_user
-      then config.adc_user
-      else throw "You need an adc_user attribute in your config to download files from Apple Developer Connection";
-    adc_pass = if config ? adc_pass
-      then config.adc_pass
-      else throw "You need an adc_pass attribute in your config to download files from Apple Developer Connection";
+  buildTools = import ../../os-specific/darwin/command-line-tools {
+    inherit (stage0) stdenv fetchurl;
+    xar  = bootstrapTools;
+    gzip = bootstrapTools;
+    cpio = bootstrapTools;
   };
-
-  buildTools = (import ../../os-specific/darwin/command-line-tools {
-    inherit fetchadc;
-    stdenv = stage0.stdenv;
-    xar    = bootstrapTools;
-    gzip   = bootstrapTools;
-    cpio   = bootstrapTools;
-  }).impure;
 
   preHook = ''
     export NIX_IGNORE_LD_THROUGH_GCC=1
