@@ -64,6 +64,7 @@ rec {
     export SDKROOT_X=/ # FIXME: impure!
     export NIX_CFLAGS_COMPILE+=" --sysroot=/var/empty -idirafter $SDKROOT_X/usr/include -F$SDKROOT_X/System/Library/Frameworks -Wno-multichar -Wno-deprecated-declarations"
     export NIX_LDFLAGS_AFTER+=" -L$SDKROOT_X/usr/lib"
+    export CMAKE_OSX_ARCHITECTURES=x86_64
   '';
 
   # A stdenv that wraps the Apple command-line tools and our other trivial symlinked bootstrap tools
