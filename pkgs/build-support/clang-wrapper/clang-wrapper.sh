@@ -86,7 +86,7 @@ if test -n "@libcxx@"; then
         if test -z "$NIX_SKIP_CXX"; then
             NIX_CFLAGS_LINK="$NIX_CFLAGS_LINK -L@libcxx@/lib -stdlib=libc++"
         fi
-        if test -z "$NIX_SKIP_CXXABI"; then
+        if test -z "$NIX_SKIP_CXXABI" && echo "$@" | grep -qvw -- -nostdlib; then
             NIX_CFLAGS_LINK="$NIX_CFLAGS_LINK -L@libcxxabi@/lib -lc++abi"
         fi
     fi
