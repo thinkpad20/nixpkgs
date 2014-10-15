@@ -37,6 +37,23 @@ rec {
       set -x
       mkdir -p $out/bin $out/lib $out/libexec
 
+      # Our loader
+      cp -d ${darwin.primitives}/lib/dyld $out/lib/
+
+      # C standard library stuff
+      cp -d ${darwin.csu}/lib/crt?.o $out/lib
+      cp -d ${darwin.primitives}/lib/libSystem.dylib $out/lib/
+
+      # Set up links to pretend we work like a conventional unix (blame Apple, not me)
+      ln -s libSystem.dylib $out/lib/libc.dylib
+      ln -s libSystem.dylib $out/lib/libm.dylib
+      ln -s libSystem.dylib $out/lib/libdl.dylib
+      ln -s libSystem.dylib $out/lib/libpthread.dylib
+
+      # libnsl*.so*
+      # libutil*.so*
+
+
       # Copy coreutils, bash, etc.
       cp ${coreutils_}/bin/* $out/bin
       (cd $out/bin && rm vdir dir sha*sum pinky factor pathchk runcon shuf who whoami shred users)
