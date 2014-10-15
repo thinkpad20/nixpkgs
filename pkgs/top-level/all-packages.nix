@@ -7642,6 +7642,8 @@ let
 
     cmdline_sdk   = cmdline.sdk;
     cmdline_tools = cmdline.tools;
+
+    csu = callPackage ../os-specific/darwin/csu {};
   };
 
   devicemapper = lvm2;
