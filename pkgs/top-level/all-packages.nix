@@ -7645,6 +7645,7 @@ let
 
     csu        = callPackage ../os-specific/darwin/csu {};
     primitives = callPackage ../os-specific/darwin/primitives {};
+    bootstrap_cmds   = callPackage ../os-specific/darwin/bootstrap-cmds { };
   };
 
   devicemapper = lvm2;
