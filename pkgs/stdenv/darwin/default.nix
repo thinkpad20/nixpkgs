@@ -42,7 +42,7 @@ rec {
     cpio = bootstrapTools;
   };
 
-  preHook = ''
+  commonPreHook = ''
     export NIX_IGNORE_LD_THROUGH_GCC=1
     export NIX_DONT_SET_RPATH=1
     export NIX_NO_SELF_RPATH=1
@@ -51,10 +51,8 @@ rec {
     xargsFlags=" "
     export MACOSX_DEPLOYMENT_TARGET=
     export SDKROOT=
-    export SDKROOT_X=/ # FIXME: impure!
-    export NIX_CFLAGS_COMPILE+=" --sysroot=/var/empty -idirafter $SDKROOT_X/usr/include -F$SDKROOT_X/System/Library/Frameworks -Wno-multichar -Wno-deprecated-declarations"
-    export NIX_LDFLAGS_AFTER+=" -L$SDKROOT_X/usr/lib"
     export CMAKE_OSX_ARCHITECTURES=x86_64
+    export NIX_CFLAGS_COMPILE+=" --sysroot=/var/empty -Wno-multichar -Wno-deprecated-declarations"
   '';
 
   # A stdenv that wraps the Apple command-line tools and our other trivial symlinked bootstrap tools
@@ -65,7 +63,8 @@ rec {
       inherit system config;
       inherit (stage0.stdenv) shell initialPath fetchurlBoot;
 
-      preHook = preHook + "\n" + ''
+      preHook = commonPreHook + ''
+        export NIX_CFLAGS_COMPILE+=" -idirafter /usr/include -F/System/Library/Frameworks"
         export NIX_LDFLAGS_AFTER+=" -L/usr/lib"
         export NIX_ENFORCE_PURITY=
       '';
@@ -90,12 +89,19 @@ rec {
     };
   };
 
+  # We need xz to be a real stdenv (TODO: should I just include it in the bootstrap tools to simplify things?)
   stage2 = rec {
     stdenv = import ../generic {
       name = "stdenv-darwin-boot-2";
 
       inherit system config;
-      inherit (stage1.stdenv) shell fetchurlBoot preHook cc;
+      inherit (stage1.stdenv) shell fetchurlBoot cc;
+
+      preHook = commonPreHook + ''
+        export NIX_CFLAGS_COMPILE+=" -idirafter /usr/include -F/System/Library/Frameworks"
+        export NIX_LDFLAGS_BEFORE+=" -L/usr/lib/"
+        export LD_DYLD_PATH=/usr/lib/dyld
+      '';
 
       initialPath = [ stage1.pkgs.xz ] ++ stage1.stdenv.initialPath;
     };
@@ -115,7 +121,10 @@ rec {
 
     initialPath = (import ../common-path.nix) { inherit pkgs; };
 
-    preHook = preHook + "\n" + ''
+    preHook = commonPreHook + ''
+      export NIX_CFLAGS_COMPILE+=" -idirafter ${pkgs.darwin.libSystem}/include -F${pkgs.darwin.corefoundation}/System/Library/Frameworks"
+      export NIX_LDFLAGS_BEFORE+=" -L${pkgs.darwin.libSystem}/lib/"
+      export LD_DYLD_PATH=${pkgs.darwin.dyld}/lib/dyld
       export NIX_ENFORCE_PURITY=1
     '';
 
@@ -133,5 +142,5 @@ rec {
     shell = "${pkgs.bash}/bin/bash";
   };
 
-  stdenvDarwin = stage3;
+  stdenvDarwin = stage2.pkgs.darwin.libSystem;
 }

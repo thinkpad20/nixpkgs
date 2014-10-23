@@ -7633,7 +7633,6 @@ let
 
     xcode = callPackage ../os-specific/darwin/xcode {};
 
-    libc = callPackage ../os-specific/darwin/libc {};
 
     osx_sdk = callPackage ../os-specific/darwin/osx-sdk {};
     osx_private_sdk = callPackage ../os-specific/darwin/osx-private-sdk { inherit osx_sdk; };
@@ -7643,9 +7642,22 @@ let
     cmdline_sdk   = cmdline.sdk;
     cmdline_tools = cmdline.tools;
 
-    csu        = callPackage ../os-specific/darwin/csu {};
-    primitives = callPackage ../os-specific/darwin/primitives {};
-    bootstrap_cmds   = callPackage ../os-specific/darwin/bootstrap-cmds { };
+    csu              = callPackage ../os-specific/darwin/csu {};
+    dyld             = callPackage ../os-specific/darwin/dyld {};
+    libc             = callPackage ../os-specific/darwin/libc {};
+    xnu              = callPackage ../os-specific/darwin/xnu { inherit bootstrap_cmds; };
+    coreos_makefiles = callPackage ../os-specific/darwin/coreos-makefiles {};
+    bootstrap_cmds   = callPackage ../os-specific/darwin/bootstrap-cmds {};
+    corefoundation   = callPackage ../os-specific/darwin/corefoundation { inherit dyld libdispatch launchd libclosure; };
+
+    libSystem        = callPackage ../os-specific/darwin/libSystem { inherit bootstrap_cmds xnu libc libdispatch; };
+
+    # We only have headers for these for now
+    libdispatch      = callPackage ../os-specific/darwin/libdispatch {};
+    libclosure       = callPackage ../os-specific/darwin/libclosure {};
+    launchd          = callPackage ../os-specific/darwin/launchd {};
+
+    dtrace           = callPackage ../os-specific/darwin/dtrace { cctools = cctools_native; };
   };
 
   devicemapper = lvm2;
