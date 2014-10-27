@@ -11,10 +11,10 @@ let
       # Should be fetchFromGitHub but it was whining so this will do for now
       owner  = "tpoechtrager";
       repo   = "cctools-port";
-      rev    = "7083dddbb0f106d791d313829ea7dc45db90e375";
+      rev    = "88fd4d1514b4e23cddb3409f74d09349d6ff2f3c";
     in fetchurl {
       url    = "https://github.com/${owner}/${repo}/archive/${rev}.tar.gz";
-      sha256 = "017gxlcwgi7xhayjzj9w3fac175p2rm4vjzf9cycq9683m9pmyzj";
+      sha256 = "0qka91xp7h16g3m20q3iraf5nnps8kq56qs5478j5zdx9ajjl5zq";
     };
 
     buildInputs = [
@@ -58,8 +58,6 @@ let
 in {
   # Hacks that for the darwin stdenv (sad that we need write workarounds for what started as a darwin package)
   native = stdenv.mkDerivation (baseParams // {
-    patches = baseParams.patches ++ [ ./darwin.patch ];
-
     postInstall = ''
       cd $out/bin
       for tool in dwarfdump dsymutil; do
