@@ -21,6 +21,22 @@ stdenv.mkDerivation rec {
 
     cd ${cctools}/include/mach-o && find . -name '*.h' | cpio -pdm $out/include/mach-o
 
+    cat <<EOF > $out/include/TargetConditionals.h
+    #ifndef __TARGETCONDITIONALS__
+    #define __TARGETCONDITIONALS__
+    #define TARGET_OS_MAC           1
+    #define TARGET_OS_WIN32         0
+    #define TARGET_OS_UNIX          0
+    #define TARGET_OS_EMBEDDED      0
+    #define TARGET_OS_IPHONE        0
+    #define TARGET_IPHONE_SIMULATOR 0
+    #define TARGET_OS_LINUX         0
+    #endif  /* __TARGETCONDITIONALS__ */
+    EOF
+
+
+
+    # The startup object files
     cp ${csu}/lib/* $out/lib
 
     # Set up the actual library link
