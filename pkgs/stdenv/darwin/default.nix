@@ -46,7 +46,6 @@ rec {
     export NIX_IGNORE_LD_THROUGH_GCC=1
     export NIX_DONT_SET_RPATH=1
     export NIX_NO_SELF_RPATH=1
-    dontFixLibtool=1
     stripAllFlags=" " # the Darwin "strip" command doesn't know "-s"
     xargsFlags=" "
     export MACOSX_DEPLOYMENT_TARGET=
@@ -64,6 +63,7 @@ rec {
       inherit (stage0.stdenv) shell initialPath fetchurlBoot;
 
       preHook = commonPreHook + ''
+        dontFixLibtool=1
         export NIX_CFLAGS_COMPILE+=" -idirafter /usr/include -F/System/Library/Frameworks"
         export NIX_LDFLAGS_AFTER+=" -L/usr/lib"
         export NIX_ENFORCE_PURITY=
@@ -98,6 +98,7 @@ rec {
       inherit (stage1.stdenv) shell fetchurlBoot cc;
 
       preHook = commonPreHook + ''
+        dontFixLibtool=1
         export NIX_CFLAGS_COMPILE+=" -idirafter /usr/include -F/System/Library/Frameworks"
         export NIX_LDFLAGS_BEFORE+=" -L/usr/lib/"
         export LD_DYLD_PATH=/usr/lib/dyld
