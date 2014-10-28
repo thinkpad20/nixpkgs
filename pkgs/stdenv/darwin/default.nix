@@ -133,7 +133,7 @@ rec {
       nativeTools  = false;
       nativeLibc   = true;
       inherit (pkgs) libcxx;
-      binutils  = pkgs.darwin.cctools_native;
+      binutils  = pkgs.darwin.cctools;
       clang     = pkgs.llvmPackages.clang;
       coreutils = pkgs.coreutils;
       shell     = "${pkgs.bash}/bin/bash";
@@ -142,5 +142,5 @@ rec {
     shell = "${pkgs.bash}/bin/bash";
   };
 
-  stdenvDarwin = stage2.pkgs.darwin.libSystem;
+  stdenvDarwin = stage3;
 }

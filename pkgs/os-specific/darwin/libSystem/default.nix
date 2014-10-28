@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, bootstrap_cmds, xnu, libc, libdispatch }:
+{ stdenv, fetchurl, bootstrap_cmds, xnu, libc, libm, libdispatch, cctools }:
 
 stdenv.mkDerivation rec {
   name = "libSystem";
@@ -8,15 +8,15 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/lib $out/include
 
+
     # Set up our include directories
-    cd ${libc}/include && find . -name '*.h' | cpio -pdm $out/include
-
     cd ${xnu}/include && find . -name '*.h' | cpio -pdm $out/include
-    cd ${xnu}/System/Library/Frameworks/Kernel.framework/Headers && find . -name '*.h' | cpio -pdm $out/include
-    cd ${xnu}/System/Library/Frameworks/Kernel.framework/PrivateHeaders && find . -name '*.h' | cpio -pdm $out/include
-    cd ${xnu}/System/Library/Frameworks/System.framework/Versions/B/PrivateHeaders && find . -name '*.h' | cpio -pdm $out/include
+    cp ${xnu}/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/Availability*.h $out/include
 
+    cd ${libc}/include && find . -name '*.h' | cpio -pdm $out/include
+    cd ${libm}/include && find . -name '*.h' | cpio -pdm $out/include
     cd ${libdispatch}/include/dispatch && find . -name '*.h' | cpio -pdm $out/include
+    cd ${cctools}/include/mach-o && find . -name '*.h' | cpio -pdm $out/include/mach-o
 
 
     # Set up the actual library link

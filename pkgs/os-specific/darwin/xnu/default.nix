@@ -70,5 +70,7 @@ stdenv.mkDerivation rec {
 
     mv $out/usr/include $out
     rmdir $out/usr
+
+    cp libsyscall/wrappers/gethostuuid*.h $out/include
   '';
 }
