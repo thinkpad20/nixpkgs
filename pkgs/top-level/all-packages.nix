@@ -7653,9 +7653,10 @@ let
     libinfo          = callPackage ../os-specific/darwin/libinfo {};
     corefoundation   = callPackage ../os-specific/darwin/corefoundation { inherit dyld libdispatch launchd libclosure; };
     architecture     = callPackage ../os-specific/darwin/architecture {};
+    libunwind        = callPackage ../os-specific/darwin/libunwind { inherit dyld; };
 
     libSystem        = callPackage ../os-specific/darwin/libSystem {
-      inherit bootstrap_cmds xnu libc libm libdispatch cctools libinfo dyld csu architecture;
+      inherit bootstrap_cmds xnu libc libm libdispatch cctools libinfo dyld csu architecture libclosure;
     };
 
     # We only have headers for these for now
