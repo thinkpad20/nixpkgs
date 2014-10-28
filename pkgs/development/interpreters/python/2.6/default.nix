@@ -44,7 +44,7 @@ let
     C_INCLUDE_PATH = concatStringsSep ":" (map (p: "${p}/include") buildInputs);
     LIBRARY_PATH = concatStringsSep ":" (map (p: "${p}/lib") buildInputs);
 
-    configureFlags = "--enable-shared --with-threads --enable-unicode";
+    configureFlags = "--enable-shared --with-threads --enable-unicode" + stdenv.lib.optionalString (stdenv.isDarwin) " --disable-toolbox-glue";
 
     preConfigure =
       ''

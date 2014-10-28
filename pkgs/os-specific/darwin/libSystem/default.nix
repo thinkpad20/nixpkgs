@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, bootstrap_cmds, xnu, libc, libm, libdispatch, cctools, libinfo, dyld, csu }:
+{ stdenv, fetchurl, bootstrap_cmds, xnu, libc, libm, libdispatch, cctools, libinfo, dyld, csu, architecture }:
 
 stdenv.mkDerivation rec {
   name = "libSystem";
@@ -17,6 +17,7 @@ stdenv.mkDerivation rec {
     cd ${libdispatch}/include/dispatch && find . -name '*.h' | cpio -pdm $out/include
     cd ${libinfo}/include && find . -name '*.h' | cpio -pdm $out/include
     cd ${dyld}/include && find . -name '*.h' | cpio -pdm $out/include
+    cd ${architecture}/include && find . -name '*.h' | cpio -pdm $out/include
 
     cd ${cctools}/include/mach-o && find . -name '*.h' | cpio -pdm $out/include/mach-o
 
