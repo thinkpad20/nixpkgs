@@ -49,6 +49,12 @@ let
       sh autogen.sh
     '';
 
+    preInstall = ''
+      pushd include
+      make DSTROOT=$out/include RC_OS=common install
+      popd
+    '';
+
     meta = {
       homepage = "http://www.opensource.apple.com/source/cctools/";
       description = "Mac OS X Compiler Tools (cross-platform port)";
@@ -56,7 +62,6 @@ let
     };
   };
 in {
-  # Hacks that for the darwin stdenv (sad that we need write workarounds for what started as a darwin package)
   native = stdenv.mkDerivation (baseParams // {
     postInstall = ''
       cd $out/bin

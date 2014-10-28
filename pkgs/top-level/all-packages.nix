@@ -4161,7 +4161,7 @@ let
   });
 
   binutilsCross =
-    if crossSystem != null && crossSystem.libc == "libSystem" then darwin.cctools
+    if crossSystem != null && crossSystem.libc == "libSystem" then darwin.cctools_cross
     else lowPrio (forceNativeDrv (import ../development/tools/misc/binutils {
       inherit stdenv fetchurl zlib bison;
       noSysDirs = true;
@@ -7617,13 +7617,13 @@ let
   darwin = let
     cmdline = callPackage ../os-specific/darwin/command-line-tools {};
   in rec {
-    cctools = forceNativeDrv (callPackage ../os-specific/darwin/cctools/port.nix {
+    cctools_cross = forceNativeDrv (callPackage ../os-specific/darwin/cctools/port.nix {
       cross = assert crossSystem != null; crossSystem;
       inherit maloader;
       xctoolchain = xcode.toolchain;
-    });
+    }).cross;
 
-    cctools_native = (callPackage ../os-specific/darwin/cctools/port.nix {}).native;
+    cctools = (callPackage ../os-specific/darwin/cctools/port.nix {}).native;
 
     maloader = callPackage ../os-specific/darwin/maloader {
       inherit opencflite;
@@ -7657,7 +7657,7 @@ let
     libclosure       = callPackage ../os-specific/darwin/libclosure {};
     launchd          = callPackage ../os-specific/darwin/launchd {};
 
-    dtrace           = callPackage ../os-specific/darwin/dtrace { cctools = cctools_native; };
+    dtrace           = callPackage ../os-specific/darwin/dtrace { inherit cctools; };
   };
 
   devicemapper = lvm2;
