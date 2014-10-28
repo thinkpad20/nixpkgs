@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, bootstrap_cmds, xnu, libc, libm, libdispatch, cctools }:
+{ stdenv, fetchurl, bootstrap_cmds, xnu, libc, libm, libdispatch, cctools, libinfo, dyld, csu }:
 
 stdenv.mkDerivation rec {
   name = "libSystem";
@@ -8,7 +8,6 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/lib $out/include
 
-
     # Set up our include directories
     cd ${xnu}/include && find . -name '*.h' | cpio -pdm $out/include
     cp ${xnu}/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/Availability*.h $out/include
@@ -16,14 +15,18 @@ stdenv.mkDerivation rec {
     cd ${libc}/include && find . -name '*.h' | cpio -pdm $out/include
     cd ${libm}/include && find . -name '*.h' | cpio -pdm $out/include
     cd ${libdispatch}/include/dispatch && find . -name '*.h' | cpio -pdm $out/include
+    cd ${libinfo}/include && find . -name '*.h' | cpio -pdm $out/include
+    cd ${dyld}/include && find . -name '*.h' | cpio -pdm $out/include
+
     cd ${cctools}/include/mach-o && find . -name '*.h' | cpio -pdm $out/include/mach-o
 
+    cp ${csu}/lib/* $out/lib
 
     # Set up the actual library link
     ln -s /usr/lib/libSystem.dylib $out/lib/libSystem.dylib
 
     # Set up links to pretend we work like a conventional unix (Apple's design, not mine!)
-    for name in c dbm dl info m mx poll proc pthread rpcsvc; do
+    for name in c dbm dl info m mx poll proc pthread rpcsvc gcc_s.10.4 gcc_s.10.5; do
       ln -s libSystem.dylib $out/lib/lib$name.dylib
     done
   '';

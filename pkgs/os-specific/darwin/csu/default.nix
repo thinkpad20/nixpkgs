@@ -10,14 +10,14 @@ stdenv.mkDerivation rec {
   };
 
   postUnpack = ''
-    sed -i 's/\/bin\/mkdir/mkdir/g'      $sourceRoot/Makefile
-    sed -i 's/\/bin\/chmod/chmod/g'      $sourceRoot/Makefile
-    sed -i 's/\/usr\/lib/\/lib/g'        $sourceRoot/Makefile
-    sed -i 's/\/usr\/local\/lib/\/lib/g' $sourceRoot/Makefile
+    substituteInPlace $sourceRoot/Makefile \
+      --replace "/usr/lib" "/lib" \
+      --replace "/usr/local/lib" "/lib" \
+      --replace "/usr/bin" "" \
+      --replace "/bin/" ""
   '';
 
   installPhase = ''
-    mkdir -p $out/lib
     export DSTROOT=$out
     make install
   '';

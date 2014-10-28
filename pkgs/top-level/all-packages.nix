@@ -7650,9 +7650,10 @@ let
     xnu              = callPackage ../os-specific/darwin/xnu { inherit bootstrap_cmds; };
     coreos_makefiles = callPackage ../os-specific/darwin/coreos-makefiles {};
     bootstrap_cmds   = callPackage ../os-specific/darwin/bootstrap-cmds {};
+    libinfo          = callPackage ../os-specific/darwin/libinfo {};
     corefoundation   = callPackage ../os-specific/darwin/corefoundation { inherit dyld libdispatch launchd libclosure; };
 
-    libSystem        = callPackage ../os-specific/darwin/libSystem { inherit bootstrap_cmds xnu libc libm libdispatch cctools; };
+    libSystem        = callPackage ../os-specific/darwin/libSystem { inherit bootstrap_cmds xnu libc libm libdispatch cctools libinfo dyld csu; };
 
     # We only have headers for these for now
     libdispatch      = callPackage ../os-specific/darwin/libdispatch {};

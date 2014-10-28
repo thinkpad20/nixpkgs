@@ -19,10 +19,11 @@ stdenv.mkDerivation rec {
     bash xcodescripts/headers.sh
 
     # Ugh Apple stopped releasing this stuff so we need an older one...
-    cp ${libc_old}/include/spawn.h    $out/include
-    cp ${libc_old}/include/setjmp.h   $out/include
-    cp ${libc_old}/include/ucontext.h $out/include
-    cp ${libc_old}/include/pthread*.h $out/include
-    cp ${libc_old}/include/sched.h    $out/include
+    cp    ${libc_old}/include/spawn.h    $out/include
+    cp    ${libc_old}/include/setjmp.h   $out/include
+    cp    ${libc_old}/include/ucontext.h $out/include
+    cp    ${libc_old}/include/pthread*.h $out/include
+    cp    ${libc_old}/include/sched.h    $out/include
+    cp -R ${libc_old}/include/malloc     $out/include
   '';
 }
