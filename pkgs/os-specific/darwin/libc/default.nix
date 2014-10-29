@@ -25,5 +25,9 @@ stdenv.mkDerivation rec {
     cp    ${libc_old}/include/pthread*.h $out/include
     cp    ${libc_old}/include/sched.h    $out/include
     cp -R ${libc_old}/include/malloc     $out/include
+
+    mkdir -p $out/include/libkern
+    cp ${libc_old}/include/libkern/OSAtomic.h       $out/include/libkern
+    cp ${libc_old}/include/libkern/OSCacheControl.h $out/include/libkern
   '';
 }
