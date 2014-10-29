@@ -35,6 +35,7 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/bin $out/libexec $out/share/man/man1
 
+    chmod +x mig.sh
     cp mig.sh   $out/bin/mig
     cp migcom   $out/libexec
     cp mig.1    $out/share/man/man1

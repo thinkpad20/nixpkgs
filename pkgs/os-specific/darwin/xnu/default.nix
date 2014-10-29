@@ -21,6 +21,13 @@ stdenv.mkDerivation rec {
 
     substituteInPlace libkern/kxld/Makefile \
       --replace "-Werror " ""
+
+    substituteInPlace libsyscall/xcodescripts/mach_install_mig.sh \
+      --replace "/usr/include" "/include" \
+      --replace "/usr/local/include" "/include" \
+      --replace "MIG=" "# " \
+      --replace "MIGCC=" "# " \
+      --replace " -o 0" ""
   '';
 
   installPhase = ''
@@ -44,7 +51,7 @@ stdenv.mkDerivation rec {
 
     export CC=cc
     export CXX=c++
-    export MIG=mig
+    export MIG=${bootstrap_cmds}/bin/mig
     export MIGCOM=${bootstrap_cmds}/libexec/migcom
     export STRIP=strip
     export LIPO=lipo
@@ -71,6 +78,15 @@ stdenv.mkDerivation rec {
     mv $out/usr/include $out
     rmdir $out/usr
 
+    # TODO: figure out why I need to do this
     cp libsyscall/wrappers/gethostuuid*.h $out/include
+
+    # Build the mach headers we crave
+    export MIGCC=cc
+    export ARCHS="x86_64"
+    export SRCROOT=$PWD/libsyscall
+    export DERIVED_SOURCES_DIR=$out/include # Produces headers we probably don't need...
+    export SDKROOT=$out
+    libsyscall/xcodescripts/mach_install_mig.sh
   '';
 }
