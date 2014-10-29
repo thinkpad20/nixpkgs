@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, bootstrap_cmds, xnu, libc, libm, libdispatch, cctools, libinfo, dyld, csu, architecture, libclosure }:
+{ stdenv, fetchurl, bootstrap_cmds, xnu, libc, libm, libdispatch, cctools, libinfo, dyld, csu, architecture, libclosure, carbon-headers }:
 
 stdenv.mkDerivation rec {
   name = "libSystem";
@@ -12,13 +12,9 @@ stdenv.mkDerivation rec {
     cd ${xnu}/include && find . -name '*.h' | cpio -pdm $out/include
     cp ${xnu}/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/Availability*.h $out/include
 
-    cd ${libc}/include && find . -name '*.h' | cpio -pdm $out/include
-    cd ${libm}/include && find . -name '*.h' | cpio -pdm $out/include
-    cd ${libdispatch}/include/dispatch && find . -name '*.h' | cpio -pdm $out/include
-    cd ${libinfo}/include && find . -name '*.h' | cpio -pdm $out/include
-    cd ${dyld}/include && find . -name '*.h' | cpio -pdm $out/include
-    cd ${architecture}/include && find . -name '*.h' | cpio -pdm $out/include
-    cd ${libclosure}/include && find . -name '*.h' | cpio -pdm $out/include
+    for dep in ${libc} ${libm} ${libinfo} ${dyld} ${architecture} ${libclosure} ${carbon-headers} ${libdispatch}; do
+      cd $dep/include && find . -name '*.h' | cpio -pdm $out/include
+    done
 
     cd ${cctools}/include/mach-o && find . -name '*.h' | cpio -pdm $out/include/mach-o
 
