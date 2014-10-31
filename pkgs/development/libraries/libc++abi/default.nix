@@ -12,9 +12,6 @@ in stdenv.mkDerivation {
 
   NIX_CFLAGS_LINK = "-L${libunwind}/lib";
 
-  NIX_SKIP_CXX    = "true";
-  NIX_SKIP_CXXABI = "true";
-
   buildInputs = [ coreutils cmake ];
 
   postUnpack = ''
