@@ -23,6 +23,8 @@ in stdenv.mkDerivation {
     export TRIPLE=x86_64-apple-darwin
   '';
 
+  NIX_SKIP_CXXABI = "true";
+
   installPhase = if stdenv.isDarwin
     then ''
       for file in lib/*; do

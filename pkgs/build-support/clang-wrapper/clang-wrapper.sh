@@ -82,7 +82,10 @@ fi
 if test -n "@libcxx@"; then
     NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -isystem@libcxx@/include/c++/v1"
     if [[ "@clangProg@" = *++ ]]; then
-        NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -L@libcxx@/lib -L@libcxxabi@/lib -stdlib=libc++"
+        NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -L@libcxx@/lib -stdlib=libc++"
+        if test -z "$NIX_SKIP_CXXABI" && echo "$@" | grep -qvw -- -nostdlib; then
+            NIX_CFLAGS_LINK="$NIX_CFLAGS_LINK -L@libcxxabi@/lib -lc++abi"
+        fi
     fi
 fi
 
