@@ -28,6 +28,11 @@ let
     configureFlags = [ "CXXFLAGS=-I${libcxx}/include/c++/v1" ];
 
     postPatch = ''
+      # FIXME: there are far more absolute path references that I don't want to fix right now
+      substituteInPlace cctools/configure.ac \
+        --replace "-isystem /usr/local/include -isystem /usr/pkg/include" "" \
+        --replace "-L/usr/local/lib" ""
+
       patchShebangs tools
       sed -i -e 's/which/type -P/' tools/*.sh
       sed -i -e 's|clang++|& -I${libcxx}/include/c++/v1|' cctools/autogen.sh
