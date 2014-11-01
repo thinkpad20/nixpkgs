@@ -84,11 +84,13 @@ if test -n "@libcxx@"; then
     NIX_CFLAGS_LINK="$NIX_CFLAGS_LINK -L@libcxx@/lib -L@libcxxabi@/lib"
 
     if [[ "@clangProg@" = *++ ]]; then
+        NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -stdlib=libc++"
         if test -z "$NIX_SKIP_CXXABI" && echo "$@" | grep -qvw -- -nostdlib; then
-            NIX_CFLAGS_LINK="$NIX_CFLAGS_LINK -stdlib=libc++ -lc++abi"
+            NIX_CFLAGS_LINK="$NIX_CFLAGS_LINK -lc++abi"
         fi
     fi
 fi
+
 
 # Add the flags for the C compiler proper.
 extraAfter=($NIX_CFLAGS_COMPILE)
