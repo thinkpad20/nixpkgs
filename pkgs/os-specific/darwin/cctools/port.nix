@@ -31,7 +31,11 @@ let
       # FIXME: there are far more absolute path references that I don't want to fix right now
       substituteInPlace cctools/configure.ac \
         --replace "-isystem /usr/local/include -isystem /usr/pkg/include" "" \
-        --replace "-L/usr/local/lib" ""
+        --replace "-L/usr/local/lib" "" \
+        --replace "AC_CONFIG_FILES([otool/Makefile])" ""
+
+      substituteInPlace cctools/Makefile.am \
+        --replace 'SUBDIRS=libstuff ar as misc otool ld64 $(LD_CLASSIC)' 'SUBDIRS=libstuff ar as misc ld64 $(LD_CLASSIC)'
 
       patchShebangs tools
       sed -i -e 's/which/type -P/' tools/*.sh

@@ -79,7 +79,7 @@ if test "$NIX_ENFORCE_PURITY" = "1" -a -n "$NIX_STORE"; then
     NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE --sysroot=/var/empty"
 fi
 
-if test -n "@libcxx@"; then
+if test -n "@libcxx@" && test "@libcxx@" != "/usr"; then
     NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -isystem@libcxx@/include/c++/v1"
     NIX_CFLAGS_LINK="$NIX_CFLAGS_LINK -L@libcxx@/lib -L@libcxxabi@/lib"
 
