@@ -15,12 +15,12 @@ stdenv.mkDerivation rec {
 
   buildPhase = ''
     cd src
-    cc -c libuwind.cxx
-    cc -c Registers.s
-    cc -c unw_getcontext.s
-    cc -c UnwindLevel1.c
-    cc -c UnwindLevel1-gcc-ext.c
-    cc -c Unwind-sjlj.c
+    cc -I$PWD/../include -c libuwind.cxx
+    cc -I$PWD/../include -c Registers.s
+    cc -I$PWD/../include -c unw_getcontext.s
+    cc -I$PWD/../include -c UnwindLevel1.c
+    cc -I$PWD/../include -c UnwindLevel1-gcc-ext.c
+    cc -I$PWD/../include -c Unwind-sjlj.c
   '';
 
   installPhase = ''
