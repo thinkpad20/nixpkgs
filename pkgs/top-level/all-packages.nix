@@ -7655,9 +7655,10 @@ let
     architecture     = callPackage ../os-specific/darwin/architecture {};
     libunwind        = callPackage ../os-specific/darwin/libunwind { inherit dyld; };
     carbon-headers   = callPackage ../os-specific/darwin/carbon-headers {};
+    CommonCrypto     = callPackage ../os-specific/darwin/CommonCrypto {};
 
     libSystem        = callPackage ../os-specific/darwin/libSystem {
-      inherit bootstrap_cmds xnu libc libm libdispatch cctools libinfo dyld csu architecture libclosure carbon-headers;
+      inherit bootstrap_cmds xnu libc libm libdispatch cctools libinfo dyld csu architecture libclosure carbon-headers CommonCrypto;
     };
 
     # We only have headers for these for now

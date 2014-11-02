@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, bootstrap_cmds, xnu, libc, libm, libdispatch, cctools, libinfo, dyld, csu, architecture, libclosure, carbon-headers, ncurses }:
+{ stdenv, fetchurl, bootstrap_cmds, xnu, libc, libm, libdispatch, cctools, libinfo, dyld, csu, architecture, libclosure, carbon-headers, ncurses, CommonCrypto }:
 
 stdenv.mkDerivation rec {
   name = "libSystem";
@@ -12,7 +12,7 @@ stdenv.mkDerivation rec {
     cd ${xnu}/include && find . -name '*.h' | cpio -pdm $out/include
     cp ${xnu}/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/Availability*.h $out/include
 
-    for dep in ${libc} ${libm} ${libinfo} ${dyld} ${architecture} ${libclosure} ${carbon-headers} ${libdispatch} ${ncurses}; do
+    for dep in ${libc} ${libm} ${libinfo} ${dyld} ${architecture} ${libclosure} ${carbon-headers} ${libdispatch} ${ncurses} ${CommonCrypto}; do
       cd $dep/include && find . -name '*.h' | cpio -pdm $out/include
     done
 
