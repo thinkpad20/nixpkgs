@@ -1,4 +1,4 @@
-{ stdenv, cmake, coreutils, fetchsvn, libcxx, libunwind, llvm, python }:
+{ stdenv, cmake, coreutils, fetchsvn, libcxx, libunwind, llvm }:
 let
   rev = "217324";
 in stdenv.mkDerivation {
@@ -12,7 +12,7 @@ in stdenv.mkDerivation {
 
   NIX_CFLAGS_LINK = if stdenv.isDarwin then "" else "-L${libunwind}/lib";
 
-  buildInputs = [ coreutils cmake python ];
+  buildInputs = [ coreutils cmake ];
 
   postUnpack = ''
     unpackFile ${libcxx.src}
@@ -26,11 +26,6 @@ in stdenv.mkDerivation {
   '';
 
   NIX_SKIP_CXXABI = "true";
-
-  doCheck = true;
-  checkPhase = ''
-    make check-libcxxabi
-  '';
 
   installPhase = if stdenv.isDarwin
     then ''
