@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, libc_old }:
+{ stdenv, fetchurl, ed, libc_old }:
 
 stdenv.mkDerivation rec {
   version = "997.90.3";
@@ -10,6 +10,8 @@ stdenv.mkDerivation rec {
   };
 
   phases = [ "unpackPhase" "installPhase" ];
+
+  buildInputs = [ ed ];
 
   installPhase = ''
     export SRCROOT=$PWD

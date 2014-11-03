@@ -8,6 +8,15 @@ stdenv.mkDerivation {
     sha256 = "1bcxq7qgf6r98m6l277fx6s0gn9sr4vn7f3s0r5mwx79waqk0k6i";
   };
 
+  postUnpack = ''
+    rm $sourceRoot/*.o $sourceRoot/unifdef
+  '';
+
+  patchPhase = stdenv.lib.optionalString stdenv.isDarwin ''
+    substituteInPlace Makefile \
+      --replace "-O2" "-O2 -Wno-return-type"
+  '';
+
   buildPhase = ''
     make unifdef
   '';

@@ -38,17 +38,11 @@ rec {
       mkdir -p $out/bin $out/lib $out/libexec
 
       # Our loader
-      cp -d ${darwin.primitives}/lib/dyld $out/lib/
+      cp -d ${darwin.dyld}/lib/dyld $out/lib/
 
       # C standard library stuff
-      cp -d ${darwin.csu}/lib/crt?.o $out/lib
-      cp -d ${darwin.primitives}/lib/libSystem.dylib $out/lib/
-
-      # Set up links to pretend we work like a conventional unix (blame Apple, not me)
-      ln -s libSystem.dylib $out/lib/libc.dylib
-      ln -s libSystem.dylib $out/lib/libm.dylib
-      ln -s libSystem.dylib $out/lib/libdl.dylib
-      ln -s libSystem.dylib $out/lib/libpthread.dylib
+      cp -d ${darwin.csu}/lib/*.o $out/lib
+      cp -d ${darwin.libSystem}/lib/*.dylib $out/lib/
 
       # libnsl*.so*
       # libutil*.so*

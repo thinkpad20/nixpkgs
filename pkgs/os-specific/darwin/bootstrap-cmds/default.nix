@@ -1,4 +1,4 @@
-{ stdenv, fetchurl }:
+{ stdenv, fetchurl, yacc, flex }:
 
 stdenv.mkDerivation rec {
   version = "86";
@@ -8,6 +8,8 @@ stdenv.mkDerivation rec {
     url    = "http://www.opensource.apple.com/tarballs/bootstrap_cmds/${name}.tar.gz";
     sha256 = "0xr0296jm1r3q7kbam98h85g23qlfi763z54ahj563n636kyk2wb";
   };
+
+  buildInputs = [ yacc flex ];
 
   buildPhase = ''
     cd migcom.tproj

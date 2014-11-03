@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, bootstrap_cmds }:
+{ stdenv, fetchurl, bootstrap_cmds, bison, flex, gnum4, unifdef }:
 
 stdenv.mkDerivation rec {
   version = "2422.115.4";
@@ -11,13 +11,14 @@ stdenv.mkDerivation rec {
 
   phases = [ "unpackPhase" "patchPhase" "installPhase" ];
 
-  buildInputs = [ bootstrap_cmds ];
+  buildInputs = [ bootstrap_cmds bison flex gnum4 unifdef ];
 
   patchPhase = ''
     substituteInPlace makedefs/MakeInc.cmd \
       --replace "/usr/bin/" "" \
       --replace "/bin/" "" \
-      --replace "-Werror " ""
+      --replace "-Werror " "" \
+      --replace "-c -S -m" "-c -m"
 
     substituteInPlace libkern/kxld/Makefile \
       --replace "-Werror " ""
@@ -53,22 +54,22 @@ stdenv.mkDerivation rec {
     export CXX=c++
     export MIG=${bootstrap_cmds}/bin/mig
     export MIGCOM=${bootstrap_cmds}/libexec/migcom
-    export STRIP=strip
-    export LIPO=lipo
-    export LIBTOOL=libtool
-    export NM=nm
-    export UNIFDEF=unifdef
-    export DSYMUTIL=dsymutil
-    export CTFCONVERT=ctfconvert
-    export CTFMERGE=ctfmerge
-    export CTFINSERT=ctf_insert
-    export NMEDIT=nmedit
+    export STRIP=sentinel-missing
+    export LIPO=sentinel-missing
+    export LIBTOOL=sentinel-missing
+    export NM=sentinel-missing
+    export UNIFDEF=${unifdef}/bin/unifdef
+    export DSYMUTIL=sentinel-missing
+    export CTFCONVERT=sentinel-missing
+    export CTFMERGE=sentinel-missing
+    export CTFINSERT=sentinel-missing
+    export NMEDIT=sentinel-missing
 
     export HOST_OS_VERSION=10.7
     export HOST_CC=cc
-    export HOST_FLEX=flex
-    export HOST_BISON=bison
-    export HOST_GM4=m4
+    export HOST_FLEX=${flex}/bin/flex
+    export HOST_BISON=${bison}/bin/bison
+    export HOST_GM4=${gnum4}/bin/m4
     export HOST_CODESIGN='echo dummy_codesign'
     export HOST_CODESIGN_ALLOCATE=echo
 
