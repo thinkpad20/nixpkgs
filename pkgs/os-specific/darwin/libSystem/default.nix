@@ -1,10 +1,12 @@
-{ stdenv, fetchurl, bootstrap_cmds, xnu, libc, libm, libdispatch, cctools, libinfo,
+{ stdenv, fetchurl, cpio, bootstrap_cmds, xnu, libc, libm, libdispatch, cctools, libinfo,
   dyld, csu, architecture, libclosure, carbon-headers, ncurses, CommonCrypto, copyfile }:
 
 stdenv.mkDerivation rec {
   name = "libSystem";
 
   phases = [ "installPhase" ];
+
+  buildInputs = [ cpio ];
 
   installPhase = ''
     mkdir -p $out/lib $out/include
