@@ -17,18 +17,25 @@ stdenv.mkDerivation rec {
     substituteInPlace makedefs/MakeInc.cmd \
       --replace "/usr/bin/" "" \
       --replace "/bin/" "" \
-      --replace "-Werror " "" \
+      --replace "-Werror " ""
+
+    substituteInPlace makedefs/MakeInc.def \
       --replace "-c -S -m" "-c -m"
 
     substituteInPlace libkern/kxld/Makefile \
       --replace "-Werror " ""
+
+    substituteInPlace SETUP/kextsymboltool/Makefile \
+      --replace "-lstdc++" "-lc++"
 
     substituteInPlace libsyscall/xcodescripts/mach_install_mig.sh \
       --replace "/usr/include" "/include" \
       --replace "/usr/local/include" "/include" \
       --replace "MIG=" "# " \
       --replace "MIGCC=" "# " \
-      --replace " -o 0" ""
+      --replace " -o 0" "" \
+      --replace '$SRC/$mig' '-I$DSTROOT/include $SRC/$mig' \
+      --replace '$SRC/servers/netname.defs' '-I$DSTROOT/include $SRC/servers/netname.defs'
   '';
 
   installPhase = ''
@@ -86,7 +93,7 @@ stdenv.mkDerivation rec {
     export MIGCC=cc
     export ARCHS="x86_64"
     export SRCROOT=$PWD/libsyscall
-    export DERIVED_SOURCES_DIR=$out/include # Produces headers we probably don't need...
+    export DERIVED_SOURCES_DIR=$out/include
     export SDKROOT=$out
     libsyscall/xcodescripts/mach_install_mig.sh
   '';
