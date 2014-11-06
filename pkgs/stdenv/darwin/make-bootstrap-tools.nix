@@ -14,17 +14,15 @@ rec {
     sslSupport = false;
   };
 
-
   build = stdenv.mkDerivation {
     name = "build";
 
     buildInputs = [nukeReferences cpio];
 
     buildCommand = ''
-      set -x
-      mkdir -p $out/bin $out/lib $out/libexec
+      mkdir -p $out/bin $out/lib
 
-      # Our loader
+      # Our (fake) loader
       cp -d ${darwin.dyld}/lib/dyld $out/lib/
 
       # C standard library stuff
@@ -75,36 +73,47 @@ rec {
         cp ${darwin.cctools}/bin/$i $out/bin
       done
 
+      cp -rd ${pkgs.darwin.corefoundation}/System $out
+
       chmod -R u+w $out
+
+      nuke-refs $out/bin/*
 
       # Strip executables even further
       for i in $out/bin/*; do
         if test -x $i -a ! -L $i; then
           chmod +w $i
+
+          # This is clearly a hack. Once we have an install_name_tool-alike that can patch dyld, this will be nicer.
+          ${perl}/bin/perl -i -0777 -pe 's/\/nix\/store\/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-dyld-239\.4\/lib\/dyld/\/usr\/lib\/dyld\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00/sg' $i
+
           strip $i || true
         fi
       done
 
       rpathify() {
-        libs=$(/usr/bin/otool -L "$1" | grep -o "$NIX_STORE.*-\S*" | cat)
+        libs=$(/usr/bin/otool -L "$1" | tail -n +2 | grep -o "$NIX_STORE.*-\S*" | cat)
 
         for lib in $libs; do
           ${darwin.cctools}/bin/install_name_tool -change $lib "@rpath/$(basename $lib)" "$1"
         done
       }
 
-      for i in $out/bin/* $out/lib/*.dylib; do
+      for i in $out/bin/* $out/lib/*.dylib $out/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation; do
         if test -x $i -a ! -L $i; then
+          echo "Adding rpath to $i"
           rpathify $i
         fi
       done
 
-      nuke-refs $out/bin/*
       nuke-refs $out/lib/*
+      nuke-refs $out/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
 
       mkdir $out/.pack
       mv $out/* $out/.pack
       mv $out/.pack $out/pack
+
+      ls -l $out/pack
 
       mkdir $out/on-server
       (cd $out/pack && (find | cpio -o -H newc)) | bzip2 > $out/on-server/bootstrap-tools.cpio.bz2
@@ -126,14 +135,14 @@ rec {
       /bin/mkdir $out
       /usr/bin/bzip2 -d < ${build}/on-server/bootstrap-tools.cpio.bz2 | (cd $out && /usr/bin/cpio -v -i)
 
-      ${darwin.patch-dyld}/bin/patch-dyld $out/bin/install_name_tool
-
       for i in $out/bin/*; do
         if ! test -L $i; then
           echo patching $i
-          ${darwin.patch-dyld}/bin/patch-dyld $i
+          libs=$(/usr/bin/otool -L "$i" | tail -n +2 | grep -v libSystem | cat)
 
-          $out/bin/install_name_tool -add_rpath $out/lib $i
+          if [ -n "$libs" ]; then
+            $out/bin/install_name_tool -add_rpath $out/lib $i
+          fi
         fi
       done
     '';
