@@ -12,10 +12,6 @@ stdenv.mkDerivation rec {
   buildInputs = [ dyld icu libdispatch launchd libclosure ];
 
   preBuild = ''
-    # TODO: don't do this; just give it dyld_priv
-    #substituteInPlace CFBundle_BinaryTypes.h \
-    #  --replace "#define USE_DYLD_PRIV 1" ""
-
     substituteInPlace Makefile \
       --replace "/usr/bin/clang" "clang" \
       --replace "-arch i386 " "" \
@@ -24,13 +20,22 @@ stdenv.mkDerivation rec {
       --replace "/bin/" "" \
       --replace "/System/Library/Frameworks/" "$out/" \
       --replace "-licucore.A" "-licui18n -licuuc" \
-      --replace 'chown -RH -f root:wheel $(DSTBASE)/CoreFoundation.framework' ""
+      --replace 'chown -RH -f root:wheel $(DSTBASE)/CoreFoundation.framework' "" \
+      --replace 'chmod -RH' 'chmod -R'
 
     replacement=''$'#define __PTK_FRAMEWORK_COREFOUNDATION_KEY5 55\n#define _pthread_getspecific_direct(key) pthread_getspecific((key))\n#define _pthread_setspecific_direct(key, val) pthread_setspecific((key), (val))'
 
     substituteInPlace CFPlatform.c --replace "#include <pthread/tsd_private.h>" "$replacement"
 
     substituteInPlace CFRunLoop.c --replace "#include <pthread/private.h>" ""
+
+    substituteInPlace CFURLPriv.h \
+      --replace "#include <CoreFoundation/CFFileSecurity.h>" "" \
+      --replace "#include <CoreFoundation/CFURLEnumerator.h>" "" \
+      --replace "CFFileSecurityRef" "void *" \
+      --replace "CFURLEnumeratorResult" "void *" \
+      --replace "CFURLEnumeratorRef" "void *"
+
 
     export DSTROOT=$out
   '';
