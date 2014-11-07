@@ -14,6 +14,7 @@ stdenv.mkDerivation rec {
     # Set up our include directories
     cd ${xnu}/include && find . -name '*.h' | cpio -pdm $out/include
     cp ${xnu}/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/Availability*.h $out/include
+    cp ${xnu}/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/stdarg.h        $out/include
 
     for dep in ${libc} ${libm} ${libinfo} ${dyld} ${architecture} ${libclosure} ${carbon-headers} ${libdispatch} ${ncurses} ${CommonCrypto} ${copyfile}; do
       cd $dep/include && find . -name '*.h' | cpio -pdm $out/include

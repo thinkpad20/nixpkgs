@@ -14,17 +14,15 @@ rec {
     sslSupport = false;
   };
 
-
   build = stdenv.mkDerivation {
     name = "build";
 
     buildInputs = [nukeReferences cpio];
 
     buildCommand = ''
-      set -x
-      mkdir -p $out/bin $out/lib $out/libexec
+      mkdir -p $out/bin $out/lib
 
-      # Our loader
+      # Our (fake) loader
       cp -d ${darwin.dyld}/lib/dyld $out/lib/
 
       # C standard library stuff
@@ -33,6 +31,9 @@ rec {
 
       cp -rL ${darwin.libSystem}/include $out
       chmod -R u+w $out/include
+      cp -rL ${icu}/include*             $out/include
+      cp -rL ${libiconv}/include/*       $out/include
+      cp -rL ${gnugrep.pcre}/include/*   $out/include
       mv $out/include $out/include-libSystem
 
       # Copy coreutils, bash, etc.
@@ -61,46 +62,59 @@ rec {
       cp -d ${llvmPackages.clang}/bin/clang++ $out/bin
       cp -d ${llvmPackages.clang}/bin/clang-3.5 $out/bin
 
+      cp -rL ${llvmPackages.clang}/lib/clang $out/lib
+
       cp -d ${libcxx}/lib/libc++*.dylib $out/lib
       cp -d ${libcxxabi}/lib/libc++abi*.dylib $out/lib
 
       mkdir $out/include
-      cp -rd ${libcxx}/include/c++ $out/include
+      cp -rd ${libcxx}/include/c++     $out/include
 
-      cp -d ${zlib}/lib/libz.* $out/lib
-      cp -d ${gmpxx}/lib/libgmp*.* $out/lib
+      cp -d ${icu}/lib/libicu*.dylib $out/lib
+      cp -d ${zlib}/lib/libz.*       $out/lib
+      cp -d ${gmpxx}/lib/libgmp*.*   $out/lib
 
       # Copy binutils.
       for i in as ld ar ranlib nm strip install_name_tool; do
         cp ${darwin.cctools}/bin/$i $out/bin
       done
 
+      cp -rd ${pkgs.darwin.corefoundation}/System $out
+
       chmod -R u+w $out
+
+      nuke-refs $out/bin/*
 
       # Strip executables even further
       for i in $out/bin/*; do
         if test -x $i -a ! -L $i; then
           chmod +w $i
+
+          # This is clearly a hack. Once we have an install_name_tool-alike that can patch dyld, this will be nicer.
+          ${perl}/bin/perl -i -0777 -pe 's/\/nix\/store\/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-dyld-239\.4\/lib\/dyld/\/usr\/lib\/dyld\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00/sg' $i
+
           strip $i || true
         fi
       done
 
       rpathify() {
-        libs=$(/usr/bin/otool -L "$1" | grep -o "$NIX_STORE.*-\S*" | cat)
+        libs=$(/usr/bin/otool -L "$1" | tail -n +2 | grep -o "$NIX_STORE.*-\S*" | cat)
 
         for lib in $libs; do
           ${darwin.cctools}/bin/install_name_tool -change $lib "@rpath/$(basename $lib)" "$1"
         done
       }
 
-      for i in $out/bin/* $out/lib/*.dylib; do
+      for i in $out/bin/* $out/lib/*.dylib $out/lib/clang/3.5.0/lib/darwin/*.dylib $out/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation; do
         if test -x $i -a ! -L $i; then
+          echo "Adding rpath to $i"
           rpathify $i
         fi
       done
 
-      nuke-refs $out/bin/*
       nuke-refs $out/lib/*
+      nuke-refs $out/lib/clang/3.5.0/lib/darwin/*
+      nuke-refs $out/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
 
       mkdir $out/.pack
       mv $out/* $out/.pack
@@ -126,14 +140,14 @@ rec {
       /bin/mkdir $out
       /usr/bin/bzip2 -d < ${build}/on-server/bootstrap-tools.cpio.bz2 | (cd $out && /usr/bin/cpio -v -i)
 
-      ${darwin.patch-dyld}/bin/patch-dyld $out/bin/install_name_tool
-
       for i in $out/bin/*; do
         if ! test -L $i; then
           echo patching $i
-          ${darwin.patch-dyld}/bin/patch-dyld $i
+          libs=$(/usr/bin/otool -L "$i" | tail -n +2 | grep -v libSystem | cat)
 
-          $out/bin/install_name_tool -add_rpath $out/lib $i
+          if [ -n "$libs" ]; then
+            $out/bin/install_name_tool -add_rpath $out/lib $i
+          fi
         fi
       done
     '';
@@ -170,6 +184,7 @@ rec {
       export CXX="clang++ $flags -Wl,-syslibroot,${unpack} -Wl,-rpath,${unpack}/lib"
 
       echo '#include <stdio.h>' >> foo.c
+      echo '#include <float.h>' >> foo.c
       echo '#include <limits.h>' >> foo.c
       echo 'int main() { printf("Hello World\n"); return 0; }' >> foo.c
       $CC -o $out/bin/foo foo.c

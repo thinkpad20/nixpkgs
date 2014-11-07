@@ -7668,8 +7668,6 @@ let
     launchd          = callPackage ../os-specific/darwin/launchd {};
 
     dtrace           = callPackage ../os-specific/darwin/dtrace { inherit cctools; };
-
-    patch-dyld       = callPackage ../os-specific/darwin/patch-dyld {};
   };
 
   devicemapper = lvm2;
