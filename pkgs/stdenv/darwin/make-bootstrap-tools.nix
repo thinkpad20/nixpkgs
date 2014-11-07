@@ -31,6 +31,7 @@ rec {
 
       cp -rL ${darwin.libSystem}/include $out
       chmod -R u+w $out/include
+      cp -rL ${icu}/include*             $out/include
       cp -rL ${libiconv}/include/*       $out/include
       cp -rL ${gnugrep.pcre}/include/*   $out/include
       mv $out/include $out/include-libSystem
@@ -69,8 +70,9 @@ rec {
       mkdir $out/include
       cp -rd ${libcxx}/include/c++     $out/include
 
-      cp -d ${zlib}/lib/libz.* $out/lib
-      cp -d ${gmpxx}/lib/libgmp*.* $out/lib
+      cp -d ${icu}/lib/libicu*.dylib $out/lib
+      cp -d ${zlib}/lib/libz.*       $out/lib
+      cp -d ${gmpxx}/lib/libgmp*.*   $out/lib
 
       # Copy binutils.
       for i in as ld ar ranlib nm strip install_name_tool; do
