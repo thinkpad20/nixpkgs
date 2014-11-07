@@ -31,6 +31,8 @@ rec {
 
       cp -rL ${darwin.libSystem}/include $out
       chmod -R u+w $out/include
+      cp -rL ${libiconv}/include/*       $out/include
+      cp -rL ${gnugrep.pcre}/include/*   $out/include
       mv $out/include $out/include-libSystem
 
       # Copy coreutils, bash, etc.
@@ -59,11 +61,13 @@ rec {
       cp -d ${llvmPackages.clang}/bin/clang++ $out/bin
       cp -d ${llvmPackages.clang}/bin/clang-3.5 $out/bin
 
+      cp -rL ${llvmPackages.clang}/lib/clang $out/lib
+
       cp -d ${libcxx}/lib/libc++*.dylib $out/lib
       cp -d ${libcxxabi}/lib/libc++abi*.dylib $out/lib
 
       mkdir $out/include
-      cp -rd ${libcxx}/include/c++ $out/include
+      cp -rd ${libcxx}/include/c++     $out/include
 
       cp -d ${zlib}/lib/libz.* $out/lib
       cp -d ${gmpxx}/lib/libgmp*.* $out/lib
@@ -99,7 +103,7 @@ rec {
         done
       }
 
-      for i in $out/bin/* $out/lib/*.dylib $out/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation; do
+      for i in $out/bin/* $out/lib/*.dylib $out/lib/clang/3.5.0/lib/darwin/*.dylib $out/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation; do
         if test -x $i -a ! -L $i; then
           echo "Adding rpath to $i"
           rpathify $i
@@ -107,13 +111,12 @@ rec {
       done
 
       nuke-refs $out/lib/*
+      nuke-refs $out/lib/clang/3.5.0/lib/darwin/*
       nuke-refs $out/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
 
       mkdir $out/.pack
       mv $out/* $out/.pack
       mv $out/.pack $out/pack
-
-      ls -l $out/pack
 
       mkdir $out/on-server
       (cd $out/pack && (find | cpio -o -H newc)) | bzip2 > $out/on-server/bootstrap-tools.cpio.bz2
@@ -179,6 +182,7 @@ rec {
       export CXX="clang++ $flags -Wl,-syslibroot,${unpack} -Wl,-rpath,${unpack}/lib"
 
       echo '#include <stdio.h>' >> foo.c
+      echo '#include <float.h>' >> foo.c
       echo '#include <limits.h>' >> foo.c
       echo 'int main() { printf("Hello World\n"); return 0; }' >> foo.c
       $CC -o $out/bin/foo foo.c
