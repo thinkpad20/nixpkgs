@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, ed }:
+{ stdenv, fetchurl, ed, unifdef }:
 
 stdenv.mkDerivation rec {
   version = "825.40.1";
@@ -11,7 +11,7 @@ stdenv.mkDerivation rec {
 
   phases = [ "unpackPhase" "installPhase" ];
 
-  buildInputs = [ ed ];
+  buildInputs = [ ed unifdef ];
 
   installPhase = ''
     export SRCROOT=$PWD

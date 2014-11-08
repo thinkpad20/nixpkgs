@@ -7657,9 +7657,11 @@ let
     carbon-headers   = callPackage ../os-specific/darwin/carbon-headers {};
     CommonCrypto     = callPackage ../os-specific/darwin/CommonCrypto {};
     copyfile         = callPackage ../os-specific/darwin/copyfile {};
+    removefile       = callPackage ../os-specific/darwin/removefile {};
 
     libSystem        = callPackage ../os-specific/darwin/libSystem {
-      inherit bootstrap_cmds xnu libc libm libdispatch cctools libinfo dyld csu architecture libclosure carbon-headers CommonCrypto copyfile;
+      inherit bootstrap_cmds xnu libc libm libdispatch cctools libinfo dyld csu architecture;
+      inherit libclosure carbon-headers CommonCrypto copyfile removefile;
     };
 
     # We only have headers for these for now

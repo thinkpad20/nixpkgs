@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, ed, libc_old }:
+{ stdenv, fetchurl, ed, unifdef, libc_old }:
 
 stdenv.mkDerivation rec {
   version = "997.90.3";
@@ -11,8 +11,9 @@ stdenv.mkDerivation rec {
 
   phases = [ "unpackPhase" "installPhase" ];
 
-  buildInputs = [ ed ];
+  buildInputs = [ ed unifdef ];
 
+  # TODO: asl.h actually comes from syslog project now
   installPhase = ''
     export SRCROOT=$PWD
     export DSTROOT=$out
@@ -29,6 +30,7 @@ stdenv.mkDerivation rec {
     cp -R ${libc_old}/include/malloc     $out/include
 
     mkdir -p $out/include/libkern
+    cp ${libc_old}/include/asl.h                    $out/include
     cp ${libc_old}/include/libkern/OSAtomic.h       $out/include/libkern
     cp ${libc_old}/include/libkern/OSCacheControl.h $out/include/libkern
   '';

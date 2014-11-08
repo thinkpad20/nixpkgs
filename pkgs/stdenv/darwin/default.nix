@@ -27,7 +27,10 @@ rec {
 
     args = [ ./unpack-bootstrap-tools.sh ];
 
-    tarball = "/Users/copumpkin/bootstrap-tools.cpio.bz2";
+    tarball = import <nix/fetchurl.nix> {
+      url    = "https://www.dropbox.com/s/38l9q6pm4udszvj/bootstrap-tools.cpio.bz2?dl=0";
+      sha256 = "1axs4i6nkgz49r08fb2dz9jvv6ap5y9ag8rn3llqfn449cpcf83k";
+    };
 
     inherit system;
 
@@ -161,7 +164,7 @@ rec {
     };
 
     overrides = pkgs: {
-      inherit clang;
+      clang = cc;
       inherit (pkgs)
         gzip bzip2 xz bash binutils coreutils diffutils findutils gawk
         glibc gnumake gnused gnutar gnugrep gnupatch patchelf
