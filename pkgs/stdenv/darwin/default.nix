@@ -29,7 +29,7 @@ rec {
 
     tarball = import <nix/fetchurl.nix> {
       url    = "https://www.dropbox.com/s/38l9q6pm4udszvj/bootstrap-tools.cpio.bz2?dl=0";
-      sha256 = "0hc846smy38scpy1q534dm5vc6r9sngvbwbhb7gqxak9p0gxjywi";
+      sha256 = "0wc7rjydbmb5kqyqd0fl8b8kvb3b6disrffszfb0az4k6d1wrs77";
     };
 
     inherit system;
