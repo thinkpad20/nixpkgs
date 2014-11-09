@@ -29,7 +29,7 @@ rec {
 
     tarball = import <nix/fetchurl.nix> {
       url    = "https://www.dropbox.com/s/38l9q6pm4udszvj/bootstrap-tools.cpio.bz2?dl=0";
-      sha256 = "0wc7rjydbmb5kqyqd0fl8b8kvb3b6disrffszfb0az4k6d1wrs77";
+      sha256 = "0mnxaanfw2ichs4k8rk4dnjdskwpbf8h3p1pj6y1ck3mhgzrda75";
     };
 
     inherit system;
@@ -98,7 +98,6 @@ rec {
       shell        = "${bootstrapTools}/bin/bash";
       clang        = {
         name    = "clang-9.9.9";
-        gcc     = "";
         outPath = bootstrapTools;
       };
     } // { libc = bootstrapTools; };
@@ -173,5 +172,5 @@ rec {
     };
   };
 
-  stdenvDarwin = stage4;
+  stdenvDarwin = stage3.stdenv;
 }
