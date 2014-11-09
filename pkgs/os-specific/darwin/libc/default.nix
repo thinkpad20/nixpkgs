@@ -31,6 +31,7 @@ stdenv.mkDerivation rec {
 
     mkdir -p $out/include/libkern
     cp ${libc_old}/include/asl.h                    $out/include
+    cp ${libc_old}/include/libproc.h                $out/include
     cp ${libc_old}/include/libkern/OSAtomic.h       $out/include/libkern
     cp ${libc_old}/include/libkern/OSCacheControl.h $out/include/libkern
   '';
