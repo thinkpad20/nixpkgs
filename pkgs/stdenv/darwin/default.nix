@@ -27,7 +27,10 @@ rec {
 
     args = [ ./unpack-bootstrap-tools.sh ];
 
-    tarball = "/Users/copumpkin/bootstrap-tools.cpio.bz2";
+    tarball = import <nix/fetchurl.nix> {
+      url    = "https://www.dropbox.com/s/38l9q6pm4udszvj/bootstrap-tools.cpio.bz2?dl=0";
+      sha256 = "0hc846smy38scpy1q534dm5vc6r9sngvbwbhb7gqxak9p0gxjywi";
+    };
 
     inherit system;
 
