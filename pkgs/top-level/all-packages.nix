@@ -7658,10 +7658,14 @@ let
     CommonCrypto     = callPackage ../os-specific/darwin/CommonCrypto {};
     copyfile         = callPackage ../os-specific/darwin/copyfile {};
     removefile       = callPackage ../os-specific/darwin/removefile {};
+    configd          = callPackage ../os-specific/darwin/configd { inherit launchd; };
+    libnotify        = callPackage ../os-specific/darwin/libnotify {};
+    mDNSResponder    = callPackage ../os-specific/darwin/mDNSResponder {};
+    libresolv        = callPackage ../os-specific/darwin/libresolv { inherit libinfo configd libnotify mDNSResponder; };
 
     libSystem        = callPackage ../os-specific/darwin/libSystem {
       inherit bootstrap_cmds xnu libc libm libdispatch cctools libinfo dyld csu architecture;
-      inherit libclosure carbon-headers CommonCrypto copyfile removefile;
+      inherit libclosure carbon-headers CommonCrypto copyfile removefile libresolv;
     };
 
     # We only have headers for these for now

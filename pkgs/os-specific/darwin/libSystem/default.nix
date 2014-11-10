@@ -1,5 +1,6 @@
 { stdenv, fetchurl, cpio, bootstrap_cmds, xnu, libc, libm, libdispatch, cctools, libinfo,
-  dyld, csu, architecture, libclosure, carbon-headers, ncurses, CommonCrypto, copyfile, removefile }:
+  dyld, csu, architecture, libclosure, carbon-headers, ncurses, CommonCrypto, copyfile,
+  removefile, libresolv }:
 
 stdenv.mkDerivation rec {
   name = "libSystem";
@@ -16,7 +17,7 @@ stdenv.mkDerivation rec {
     cp ${xnu}/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/Availability*.h $out/include
     cp ${xnu}/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/stdarg.h        $out/include
 
-    for dep in ${libc} ${libm} ${libinfo} ${dyld} ${architecture} ${libclosure} ${carbon-headers} ${libdispatch} ${ncurses} ${CommonCrypto} ${copyfile} ${removefile}; do
+    for dep in ${libc} ${libm} ${libinfo} ${dyld} ${architecture} ${libclosure} ${carbon-headers} ${libdispatch} ${ncurses} ${CommonCrypto} ${copyfile} ${removefile} ${libresolv}; do
       cd $dep/include && find . -name '*.h' | cpio -pdm $out/include
     done
 
@@ -39,6 +40,9 @@ stdenv.mkDerivation rec {
 
     # The startup object files
     cp ${csu}/lib/* $out/lib
+
+    # This probably doesn't belong here, but we want to stay similar to glibc, which includes resolv internally...
+    ln -s ${libresolv}/lib/libresolv.dylib $out/lib/libresolv.dylib
 
     # Set up the actual library link
     ln -s /usr/lib/libSystem.dylib $out/lib/libSystem.dylib
