@@ -52,6 +52,8 @@ let
       doCheck = false;
     };
 
+    configureFlags = stdenv.lib.optional stdenv.isDarwin "ac_cv_func_readlinkat=no";
+
     # The tests are known broken on Cygwin
     # (http://thread.gmane.org/gmane.comp.gnu.core-utils.bugs/19025),
     # Darwin (http://thread.gmane.org/gmane.comp.gnu.core-utils.bugs/19351),
