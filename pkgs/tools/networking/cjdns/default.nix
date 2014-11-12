@@ -14,7 +14,8 @@ stdenv.mkDerivation {
     sha256 = "11z8dk7byxh9pfv7mhfvnk465qln1g7z8c8f822623d59lwjpbs1";
   };
 
-  patches = [ ./Werror.patch ];
+  # Make the NixOS service work a little better.
+  patches = [ ./makekeys-sigpipe.patch ./Werror.patch ];
 
   buildInputs = [ which python27 nodejs ] ++
     # for flock

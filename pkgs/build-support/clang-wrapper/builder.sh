@@ -138,10 +138,6 @@ test -n "$libc" && echo $libc > $out/nix-support/orig-libc
 doSubstitute "$addFlags" "$out/nix-support/add-flags.sh"
 
 doSubstitute "$setupHook" "$out/nix-support/setup-hook"
-cat >> "$out/nix-support/setup-hook" << EOF
-export CC=clang
-export CXX=clang++
-EOF
 
 cp -p $utils $out/nix-support/utils.sh
 

@@ -31,3 +31,6 @@ fi
 if test -n "@coreutils@"; then
     addToSearchPath PATH @coreutils@/bin
 fi
+
+export CC=gcc
+export CXX=g++

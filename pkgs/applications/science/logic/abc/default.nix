@@ -12,7 +12,8 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ readline ];
   preBuild = ''
-    export buildFlags="CC=$CC CXX=$CXX LD=$CXX"
+    export buildFlags="CC=${stdenv.cc.progname} CXX=${stdenv.cc.prognamexx} LD=${stdenv.cc.prognamexx}"
+    echo $buildFlags
   '';
   enableParallelBuilding = true;
   installPhase = ''

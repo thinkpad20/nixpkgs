@@ -83,6 +83,11 @@ stdenv.mkDerivation {
         + " (wrapper script)";
     };
 
+  passthru = {
+    progname = "gcc";
+    prognamexx = "g++";
+  };
+
   # The dynamic linker has different names on different Linux platforms.
   dynamicLinker =
     if !nativeLibc then
