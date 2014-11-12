@@ -28,8 +28,8 @@ rec {
     args = [ ./unpack-bootstrap-tools.sh ];
 
     tarball = import <nix/fetchurl.nix> {
-      url    = "https://www.dropbox.com/s/38l9q6pm4udszvj/bootstrap-tools.cpio.bz2?dl=0";
-      sha256 = "12incyx08cbm7f7l0133r9cszlhjjj6jyfy5z9rgy1za1r1sxz8b";
+      url    = "https://www.dropbox.com/s/38l9q6pm4udszvj/bootstrap-tools.cpio.bz2";
+      sha256 = "1b0i15my1mi0ixsd8p73qxgr8rk4py4lbm1kfnxkl5xawbd22ax8";
     };
 
     inherit system;

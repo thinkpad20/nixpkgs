@@ -29,6 +29,10 @@ rec {
       cp -d ${darwin.libSystem}/lib/*.o $out/lib/
       cp -d ${darwin.libSystem}/lib/*.dylib $out/lib/
 
+      # Resolv is actually a link to another package, so let's copy it properly
+      rm $out/lib/libresolv.dylib
+      cp -L ${darwin.libSystem}/lib/libresolv.dylib $out/lib
+
       cp -rL ${darwin.libSystem}/include $out
       chmod -R u+w $out/include
       cp -rL ${icu}/include*             $out/include
