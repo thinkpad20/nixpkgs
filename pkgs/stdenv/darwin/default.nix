@@ -29,7 +29,7 @@ rec {
 
     tarball = import <nix/fetchurl.nix> {
       url    = "https://www.dropbox.com/s/38l9q6pm4udszvj/bootstrap-tools.cpio.bz2";
-      sha256 = "1b0i15my1mi0ixsd8p73qxgr8rk4py4lbm1kfnxkl5xawbd22ax8";
+      sha256 = "1byb69g1h5kmg92wxifr7yydm2bcxsv93rblbvv36ly577z15s4g";
     };
 
     inherit system;
@@ -39,7 +39,13 @@ rec {
     cpio  = "/usr/bin/cpio";
     tail  = "/usr/bin/tail";
     grep  = "/usr/bin/grep";
-    cat   = "/bin/cat ";
+    cat   = "/bin/cat";
+
+    # FIXME: this is unnecessarily impure but I haven't done the work yet to build it
+    otool = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/otool";
+
+    # FIXME: we can definitely build this without much effort
+    curl  = "/usr/bin/curl";
 
     langC  = true;
     langCC = true;

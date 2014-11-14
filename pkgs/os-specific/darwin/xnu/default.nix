@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, bootstrap_cmds, bison, flex, gnum4, unifdef }:
+{ stdenv, fetchurl, bootstrap_cmds, bison, flex, gnum4, unifdef, perl }:
 
 stdenv.mkDerivation rec {
   version = "2422.115.4";
@@ -11,9 +11,13 @@ stdenv.mkDerivation rec {
 
   phases = [ "unpackPhase" "patchPhase" "installPhase" ];
 
-  buildInputs = [ bootstrap_cmds bison flex gnum4 unifdef ];
+  buildInputs = [ bootstrap_cmds bison flex gnum4 unifdef perl ];
 
   patchPhase = ''
+    substituteInPlace Makefile \
+      --replace "/bin/" "" \
+      --replace "MAKEJOBS := " '# MAKEJOBS := '
+
     substituteInPlace makedefs/MakeInc.cmd \
       --replace "/usr/bin/" "" \
       --replace "/bin/" "" \
@@ -21,6 +25,9 @@ stdenv.mkDerivation rec {
 
     substituteInPlace makedefs/MakeInc.def \
       --replace "-c -S -m" "-c -m"
+
+    substituteInPlace makedefs/MakeInc.top \
+      --replace "MEMORY_SIZE := " 'MEMORY_SIZE := 1073741824 # '
 
     substituteInPlace libkern/kxld/Makefile \
       --replace "-Werror " ""
@@ -36,6 +43,8 @@ stdenv.mkDerivation rec {
       --replace " -o 0" "" \
       --replace '$SRC/$mig' '-I$DSTROOT/include $SRC/$mig' \
       --replace '$SRC/servers/netname.defs' '-I$DSTROOT/include $SRC/servers/netname.defs'
+
+    patchShebangs .
   '';
 
   installPhase = ''

@@ -42,5 +42,9 @@ stdenv.mkDerivation rec {
     cp migcom   $out/libexec
     cp mig.1    $out/share/man/man1
     cp migcom.1 $out/share/man/man1
+
+    substituteInPlace $out/bin/mig \
+      --replace 'arch=`/usr/bin/arch`' 'arch=i386' \
+      --replace '/usr/bin/mktemp' 'mktemp'
   '';
 }

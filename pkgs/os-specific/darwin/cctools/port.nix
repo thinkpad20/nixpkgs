@@ -13,7 +13,7 @@ let
       repo   = "cctools-port";
       rev    = "88fd4d1514b4e23cddb3409f74d09349d6ff2f3c";
     in fetchurl {
-      url    = "https://github.com/${owner}/${repo}/archive/${rev}.tar.gz";
+      url    = "http://github.com/${owner}/${repo}/archive/${rev}.tar.gz";
       sha256 = "0qka91xp7h16g3m20q3iraf5nnps8kq56qs5478j5zdx9ajjl5zq";
     };
 

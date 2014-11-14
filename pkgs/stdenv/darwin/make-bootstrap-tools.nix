@@ -8,10 +8,54 @@ rec {
     aclSupport = false;
   });
 
-  curl = import ../../tools/networking/curl {
-    inherit fetchurl;
+  curl_ = import ../../tools/networking/curl {
+    inherit stdenv fetchurl;
     zlibSupport = false;
     sslSupport = false;
+  };
+
+  bzip2_ = import ../../tools/compression/bzip2 {
+    inherit stdenv fetchurl;
+  };
+
+  busyboxSh = busybox.override {
+    extraConfig = ''
+      CLEAR
+
+      CONFIG_ASH y
+      CONFIG_BASH_COMPAT y
+      CONFIG_ASH_ALIAS y
+      CONFIG_ASH_GETOPTS y
+      CONFIG_ASH_CMDCMD y
+      CONFIG_ASH_JOB_CONTROL y
+      CONFIG_ASH_BUILTIN_ECHO y
+      CONFIG_ASH_BUILTIN_PRINTF y
+      CONFIG_ASH_BUILTIN_TEST y
+    '';
+  };
+
+  busyBoxLn = busybox.override {
+    extraConfig = ''
+      CLEAR
+      CONFIG_LN y
+    '';
+  };
+
+  busyBoxMkdir = busybox.override {
+    extraConfig = ''
+      CLEAR
+      CONFIG_MKDIR y
+    '';
+  };
+
+  busyBoxCpio = busybox.override {
+    extraConfig = ''
+      CLEAR
+      CONFIG_CPIO y
+      # (shlevy) Are these necessary?
+      CONFIG_FEATURE_CPIO_O y
+      CONFIG_FEATURE_CPIO_P y
+    '';
   };
 
   build = stdenv.mkDerivation {
@@ -89,25 +133,28 @@ rec {
 
       nuke-refs $out/bin/*
 
-      # Strip executables even further
-      for i in $out/bin/*; do
-        if test -x $i -a ! -L $i; then
-          chmod +w $i
-
-          # This is clearly a hack. Once we have an install_name_tool-alike that can patch dyld, this will be nicer.
-          ${perl}/bin/perl -i -0777 -pe 's/\/nix\/store\/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-dyld-239\.4\/lib\/dyld/\/usr\/lib\/dyld\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00/sg' $i
-
-          strip $i || true
-        fi
-      done
-
       rpathify() {
-        libs=$(/usr/bin/otool -L "$1" | tail -n +2 | grep -o "$NIX_STORE.*-\S*" | cat)
+        libs=$(/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/otool -L "$1" | tail -n +2 | grep -o "$NIX_STORE.*-\S*" | cat)
 
         for lib in $libs; do
           ${darwin.cctools}/bin/install_name_tool -change $lib "@rpath/$(basename $lib)" "$1"
         done
       }
+
+      fix_dyld() {
+          # This is clearly a hack. Once we have an install_name_tool-alike that can patch dyld, this will be nicer.
+          ${perl}/bin/perl -i -0777 -pe 's/\/nix\/store\/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-dyld-239\.4\/lib\/dyld/\/usr\/lib\/dyld\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00/sg' "$1"
+      }
+
+      # Strip executables even further
+      for i in $out/bin/*; do
+        if test -x $i -a ! -L $i; then
+          chmod +w $i
+
+          fix_dyld $i
+          strip $i || true
+        fi
+      done
 
       for i in $out/bin/* $out/lib/*.dylib $out/lib/clang/3.5.0/lib/darwin/*.dylib $out/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation; do
         if test -x $i -a ! -L $i; then
@@ -127,11 +174,18 @@ rec {
       mkdir $out/on-server
       (cd $out/pack && (find | cpio -o -H newc)) | bzip2 > $out/on-server/bootstrap-tools.cpio.bz2
 
-      # mkdir $out/in-nixpkgs
-      # chmod u+w $out/in-nixpkgs/*
-      # strip $out/in-nixpkgs/*
-      # nuke-refs $out/in-nixpkgs/*
-      # bzip2 $out/in-nixpkgs/curl
+      mkdir $out/in-nixpkgs
+      cp ${curl_}/bin/curl $out/in-nixpkgs
+      cp ${bzip2_}/bin/bzip2 $out/in-nixpkgs
+
+      chmod u+w $out/in-nixpkgs/*
+      for i in $out/in-nixpkgs/*; do
+        fix_dyld $i
+      done
+
+      strip $out/in-nixpkgs/*
+      nuke-refs $out/in-nixpkgs/*
+      bzip2 $out/in-nixpkgs/curl
     '';
 
     allowedReferences = [];
@@ -147,7 +201,7 @@ rec {
       for i in $out/bin/*; do
         if ! test -L $i; then
           echo patching $i
-          libs=$(/usr/bin/otool -L "$i" | tail -n +2 | grep -v libSystem | cat)
+          libs=$(/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/otool -L "$i" | tail -n +2 | grep -v libSystem | cat)
 
           if [ -n "$libs" ]; then
             $out/bin/install_name_tool -add_rpath $out/lib $i

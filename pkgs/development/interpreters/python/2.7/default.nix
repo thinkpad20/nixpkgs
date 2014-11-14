@@ -43,6 +43,9 @@ let
 
   ensurePurity =
     ''
+      substituteInPlace configure \
+        --replace '`/usr/bin/arch`' '"i386"'
+
       # Purity.
       for i in /usr /sw /opt /pkg; do
         substituteInPlace ./setup.py --replace $i /no-such-path

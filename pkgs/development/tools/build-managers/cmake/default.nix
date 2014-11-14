@@ -39,6 +39,11 @@ stdenv.mkDerivation rec {
       sha256 = "16acmdr27adma7gs9rs0dxdiqppm15vl3vv3agy7y8s94wyh4ybv";
     });
 
+  postPatch = ''
+    substituteInPlace Modules/Platform/Darwin.cmake \
+      --replace 'list(REMOVE_DUPLICATES _apps_paths)' ''$'if (_apps_paths)\nlist(REMOVE_DUPLICATES _apps_paths)\nendif()'
+  '';
+
   buildInputs = [ curl expat zlib bzip2 libarchive ]
     ++ optional useNcurses ncurses
     ++ optional useQt4 qt4;
