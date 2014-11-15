@@ -72,10 +72,11 @@ let
   };
 in {
   native = stdenv.mkDerivation (baseParams // {
+    # FIXME
     postInstall = ''
       cd $out/bin
       for tool in dwarfdump dsymutil; do
-        ln -s /usr/bin/$tool
+        ln -s /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/$tool
       done
     '';
   });

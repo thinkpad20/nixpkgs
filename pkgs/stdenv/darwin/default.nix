@@ -4,7 +4,35 @@
 , config      ? {}
 }:
 
-rec {
+let
+  fetch = { file, sha256 }: import <nix/fetchurl.nix> {
+    url = "https://dl.dropboxusercontent.com/u/361503/${file}";
+    inherit sha256;
+    executable = true;
+  };
+
+  bootstrapFiles = {
+    sh = fetch {
+      file = "sh";
+      sha256 = "15s9daz0qjxz0n19wbc9aq4g5fcppq1lcfg7naja35cn9xrvykd5";
+    };
+
+    bzip2 = fetch {
+      file = "bzip2";
+      sha256 = "0gsfn285smk3v8ypb2gxnyc45k2mj5sr3vb7byxkkhqdz80gf3ww";
+    };
+
+    mkdir = fetch {
+      file = "mkdir";
+      sha256 = "1952sd9hf6wz6vsbmxj2q1ifzprixf8ipnlhbanc18j7l3iw4wvj";
+    };
+
+    cpio = fetch {
+      file = "cpio";
+      sha256 = "0pwbv8bb77z7sfps9isx6bm8rwdx9bqbyzyj40mw1qnk1w8gbgf0";
+    };
+  };
+in rec {
   allPackages = import ../../top-level/all-packages.nix;
 
   commonPreHook = ''
@@ -23,29 +51,23 @@ rec {
   bootstrapTools = derivation {
     name = "bootstrap-tools";
 
-    builder = "/bin/sh";
+    builder = bootstrapFiles.sh;
 
     args = [ ./unpack-bootstrap-tools.sh ];
 
     tarball = import <nix/fetchurl.nix> {
       url    = "https://www.dropbox.com/s/38l9q6pm4udszvj/bootstrap-tools.cpio.bz2";
-      sha256 = "1byb69g1h5kmg92wxifr7yydm2bcxsv93rblbvv36ly577z15s4g";
+      sha256 = "0sw2xbyzx49jmah41l2xgfq74f9ianbpq1bx8afbadn55qz7fp0a";
     };
 
     inherit system;
 
-    mkdir = "/bin/mkdir";
-    bzip2 = "/usr/bin/bzip2";
-    cpio  = "/usr/bin/cpio";
-    tail  = "/usr/bin/tail";
-    grep  = "/usr/bin/grep";
-    cat   = "/bin/cat";
+    mkdir = bootstrapFiles.mkdir;
+    bzip2 = bootstrapFiles.bzip2;
+    cpio  = bootstrapFiles.cpio;
 
     # FIXME: this is unnecessarily impure but I haven't done the work yet to build it
     otool = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/otool";
-
-    # FIXME: we can definitely build this without much effort
-    curl  = "/usr/bin/curl";
 
     langC  = true;
     langCC = true;

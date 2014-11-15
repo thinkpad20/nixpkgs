@@ -60,3 +60,5 @@ stdenv.mkDerivation rec {
     license     = licenses.aspl20;
   };
 }
+
+# ld -macosx_version_min 10.6 -arch x86_64 -dylib -o $out/lib/libSystem.dylib -reexport-lSystem

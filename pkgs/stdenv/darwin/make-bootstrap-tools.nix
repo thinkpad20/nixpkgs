@@ -11,51 +11,10 @@ rec {
   curl_ = import ../../tools/networking/curl {
     inherit stdenv fetchurl;
     zlibSupport = false;
-    sslSupport = false;
   };
 
   bzip2_ = import ../../tools/compression/bzip2 {
     inherit stdenv fetchurl;
-  };
-
-  busyboxSh = busybox.override {
-    extraConfig = ''
-      CLEAR
-
-      CONFIG_ASH y
-      CONFIG_BASH_COMPAT y
-      CONFIG_ASH_ALIAS y
-      CONFIG_ASH_GETOPTS y
-      CONFIG_ASH_CMDCMD y
-      CONFIG_ASH_JOB_CONTROL y
-      CONFIG_ASH_BUILTIN_ECHO y
-      CONFIG_ASH_BUILTIN_PRINTF y
-      CONFIG_ASH_BUILTIN_TEST y
-    '';
-  };
-
-  busyBoxLn = busybox.override {
-    extraConfig = ''
-      CLEAR
-      CONFIG_LN y
-    '';
-  };
-
-  busyBoxMkdir = busybox.override {
-    extraConfig = ''
-      CLEAR
-      CONFIG_MKDIR y
-    '';
-  };
-
-  busyBoxCpio = busybox.override {
-    extraConfig = ''
-      CLEAR
-      CONFIG_CPIO y
-      # (shlevy) Are these necessary?
-      CONFIG_FEATURE_CPIO_O y
-      CONFIG_FEATURE_CPIO_P y
-    '';
   };
 
   build = stdenv.mkDerivation {
@@ -101,6 +60,11 @@ rec {
       cp ${bzip2}/bin/bzip2 $out/bin
       cp -d ${gnumake}/bin/* $out/bin
       cp -d ${patch}/bin/* $out/bin
+
+      # This used to be in-nixpkgs, but now is in the bundle
+      # because I can't be bothered to make it partially static
+      cp ${curl_}/bin/curl $out/bin
+      cp -d ${curl_}/lib/libcurl*.dylib $out/lib
 
       cp -d ${gnugrep.pcre}/lib/libpcre*.dylib $out/lib
       cp -d ${libiconv}/lib/libiconv*.dylib $out/lib
@@ -175,17 +139,18 @@ rec {
       (cd $out/pack && (find | cpio -o -H newc)) | bzip2 > $out/on-server/bootstrap-tools.cpio.bz2
 
       mkdir $out/in-nixpkgs
-      cp ${curl_}/bin/curl $out/in-nixpkgs
+      cp ${stdenv.shell} $out/in-nixpkgs/sh
+      cp ${cpio}/bin/cpio $out/in-nixpkgs
+      cp ${coreutils_}/bin/mkdir $out/in-nixpkgs
       cp ${bzip2_}/bin/bzip2 $out/in-nixpkgs
 
       chmod u+w $out/in-nixpkgs/*
+      strip $out/in-nixpkgs/*
+      nuke-refs $out/in-nixpkgs/*
+
       for i in $out/in-nixpkgs/*; do
         fix_dyld $i
       done
-
-      strip $out/in-nixpkgs/*
-      nuke-refs $out/in-nixpkgs/*
-      bzip2 $out/in-nixpkgs/curl
     '';
 
     allowedReferences = [];
@@ -195,8 +160,8 @@ rec {
     name = "unpack";
 
     buildCommand = ''
-      /bin/mkdir $out
-      /usr/bin/bzip2 -d < ${build}/on-server/bootstrap-tools.cpio.bz2 | (cd $out && /usr/bin/cpio -v -i)
+      ${build}/in-nixpkgs/mkdir $out
+      ${build}/in-nixpkgs/bzip2 -d < ${build}/on-server/bootstrap-tools.cpio.bz2 | (cd $out && ${build}/in-nixpkgs/cpio -v -i)
 
       for i in $out/bin/*; do
         if ! test -L $i; then
@@ -233,13 +198,13 @@ rec {
       grep --version
       clang --version
 
-      /bin/sh -c 'echo Hello World'
+      ${build}/in-nixpkgs/sh -c 'echo Hello World'
 
-      export flags="-idirafter ${unpack}/include-libSystem --sysroot=/var/empty -isystem${unpack}/include/c++/v1"
+      export flags="-idirafter ${unpack}/include-libSystem --sysroot=${unpack} -L${unpack}/lib"
 
       export CPP="clang -E $flags"
-      export CC="clang $flags -Wl,-syslibroot,${unpack} -Wl,-rpath,${unpack}/lib"
-      export CXX="clang++ $flags -Wl,-syslibroot,${unpack} -Wl,-rpath,${unpack}/lib"
+      export CC="clang $flags -Wl,-rpath,${unpack}/lib -Wl,-v"
+      export CXX="clang++ $flags -lc++abi -isystem${unpack}/include/c++/v1 -Wl,-rpath,${unpack}/lib -Wl,-v"
 
       echo '#include <stdio.h>' >> foo.c
       echo '#include <float.h>' >> foo.c
@@ -258,6 +223,8 @@ rec {
       ./configure --prefix=$out
       make
       make install
+
+      $out/bin/hello
     '';
   };
 }
