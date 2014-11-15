@@ -14,7 +14,8 @@ stdenv.mkDerivation rec {
   postUnpack = ''
     substituteInPlace $sourceRoot/Makefile \
       --replace "/usr/include" "/include" \
-      --reaplce "/usr/bin/" ""
+      --replace "/usr/bin/" "" \
+      --replace "/bin/" ""
   '';
 
   installPhase = ''
