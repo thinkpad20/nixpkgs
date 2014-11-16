@@ -125,7 +125,6 @@ in rec {
       shell        = "${bootstrapTools}/bin/bash";
       clang        = {
         name    = "clang-9.9.9";
-        gcc     = "";
         outPath = bootstrapTools;
       };
     } // { libc = bootstrapTools; };
