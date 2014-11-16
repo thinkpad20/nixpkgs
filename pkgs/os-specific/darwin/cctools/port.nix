@@ -37,6 +37,9 @@ let
       substituteInPlace cctools/Makefile.am \
         --replace 'SUBDIRS=libstuff ar as misc otool ld64 $(LD_CLASSIC)' 'SUBDIRS=libstuff ar as misc ld64 $(LD_CLASSIC)'
 
+      substituteInPlace cctools/include/Makefile \
+        --replace "/bin/" ""
+
       patchShebangs tools
       sed -i -e 's/which/type -P/' tools/*.sh
       sed -i -e 's|clang++|& -I${libcxx}/include/c++/v1|' cctools/autogen.sh
