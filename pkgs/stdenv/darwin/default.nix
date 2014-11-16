@@ -14,22 +14,22 @@ let
   bootstrapFiles = {
     sh = fetch {
       file = "sh";
-      sha256 = "15s9daz0qjxz0n19wbc9aq4g5fcppq1lcfg7naja35cn9xrvykd5";
+      sha256 = "18n6syd0h7b1acz96a9539pynp526x09wv2y08y73svkbmd7zp8l";
     };
 
     bzip2 = fetch {
       file = "bzip2";
-      sha256 = "0gsfn285smk3v8ypb2gxnyc45k2mj5sr3vb7byxkkhqdz80gf3ww";
+      sha256 = "13pdlnl2jbg4ci0r8dib2bk2h31vpxcf770kr5zxx3sqsm5bp4l6";
     };
 
     mkdir = fetch {
       file = "mkdir";
-      sha256 = "1952sd9hf6wz6vsbmxj2q1ifzprixf8ipnlhbanc18j7l3iw4wvj";
+      sha256 = "1g2vkz6xxfvcw5570rrpmiqz1hkh2myzmfmn6s54n6fbs93ganan";
     };
 
     cpio = fetch {
       file = "cpio";
-      sha256 = "0pwbv8bb77z7sfps9isx6bm8rwdx9bqbyzyj40mw1qnk1w8gbgf0";
+      sha256 = "007bb335dl23yjmlynlarx20cl25rmpq36ssxw6qqrvlgzx2nwss";
     };
   };
 in rec {
@@ -57,7 +57,7 @@ in rec {
 
     tarball = import <nix/fetchurl.nix> {
       url    = "https://www.dropbox.com/s/38l9q6pm4udszvj/bootstrap-tools.cpio.bz2";
-      sha256 = "0sw2xbyzx49jmah41l2xgfq74f9ianbpq1bx8afbadn55qz7fp0a";
+      sha256 = "1gkakfljkfzhg5dqc6ks1sydzjzpdphpvddl54j19f5n7y5mjw5q";
     };
 
     inherit system;
