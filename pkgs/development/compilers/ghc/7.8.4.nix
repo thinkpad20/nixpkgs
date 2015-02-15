@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, ghc, perl, gmp, ncurses, libiconv, makeWrapper }:
+{ stdenv, fetchurl, ghc, perl, gmp, ncurses, libiconv }:
 
 stdenv.mkDerivation rec {
   version = "7.8.4";

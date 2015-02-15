@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, ghc, perl, gmp, ncurses, libiconv }:
+{ stdenv, fetchgit, ghc, perl, gmp, ncurses, libiconv, autoconf, automake, happy, alex }:
 
 let
 
@@ -18,18 +18,22 @@ in
 stdenv.mkDerivation rec {
   version = "7.11.20150128";
   name = "ghc-${version}";
+  rev = "6ff3db92140e3ac8cbda50d1a4aab976350ac8c4";
 
-  src = fetchurl {
-    url = "http://deb.haskell.org/dailies/2015-01-31/ghc_${version}.orig.tar.bz2";
-    sha256 = "0fafb4gn2n2fd5779m0j3q0bhj3wlv043japcpr1ly5lljph5y4j";
+  src = fetchgit {
+    url = "git://git.haskell.org/ghc.git";
+    inherit rev;
+    sha256 = "1a1r3nw7x5rd8563770zcg1phm55vi3sxs2zwr91ik026n8jjba6";
   };
 
   postUnpack = ''
-    # tarball includes many already-compiled files
-    find . \( -name '*.dyn_o' -o -name '*.dyn_hi' -o -name haddock \) -type f -exec rm {} \;
+    pushd ghc-${builtins.substring 0 7 rev}
+    patchShebangs .
+    ./boot
+    popd
   '';
 
-  buildInputs = [ ghc perl ];
+  buildInputs = [ ghc perl autoconf automake happy alex ];
 
   preConfigure = ''
     echo >mk/build.mk "${buildMK}"

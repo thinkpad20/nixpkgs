@@ -145,6 +145,28 @@ self: super: {
   # https://github.com/haskell/vector/issues/47
   vector = if pkgs.stdenv.isi686 then appendConfigureFlag super.vector "--ghc-options=-msse2" else super.vector;
 
+  # cabal2nix likes to generate dependencies on hinotify when hfsevents is really required
+  # on darwin: https://github.com/NixOS/cabal2nix/issues/146
+  hinotify = if pkgs.stdenv.isDarwin then super.hfsevents else super.hinotify;
+
+  # FSEvents API is very buggy and tests are unreliable. See
+  # http://openradar.appspot.com/10207999 and similar issues
+  fsnotify = if pkgs.stdenv.isDarwin then dontCheck super.fsnotify else super.fsnotify;
+
+  # Doesn't properly handle nonsense byte sequences on HFS+
+  # https://github.com/fpco/haskell-filesystem/issues/5
+  system-fileio = if pkgs.stdenv.isDarwin
+    then dontCheck super.system-fileio
+    else super.system-fileio;
+
+  # Prevents needing to add security_tool as a build tool to all of x509-system's
+  # dependencies.
+  x509-system = overrideCabal super.x509-system (drv: {
+    patchPhase = (drv.patchPhase or "") + pkgs.stdenv.lib.optionalString pkgs.stdenv.isDarwin ''
+      substituteInPlace System/X509/MacOS.hs --replace security ${pkgs.darwin.security_tool}/bin/security
+    '';
+  });
+
   # Does not compile: <http://hydra.cryp.to/build/469842/nixlog/1/raw>.
   base_4_7_0_2 = markBroken super.base_4_7_0_2;
 
@@ -468,9 +490,6 @@ self: super: {
   rematch = dontCheck super.rematch;            # https://github.com/tcrayford/rematch/issues/5
   rematch-text = dontCheck super.rematch-text;  # https://github.com/tcrayford/rematch/issues/6
 
-  # https://github.com/Twinside/Rasterific/issues/20
-  Rasterific = dontCheck super.Rasterific;
-
   # Upstream notified by e-mail.
   MonadCompose = markBrokenVersion "0.2.0.0" super.MonadCompose;
 
@@ -480,6 +499,15 @@ self: super: {
     doCheck = false;
     doHaddock = false;
   });
+
+  # This packages compiles 4+ hours on a fast machine. That's just unreasonable.
+  CHXHtml = dontDistribute super.CHXHtml;
+
+  # https://github.com/bos/bloomfilter/issues/7
+  bloomfilter = overrideCabal super.bloomfilter (drv: { broken = !pkgs.stdenv.is64bit; });
+
+  # https://github.com/ekmett/exceptions/issues/40
+  exceptions = dontCheck super.exceptions;
 
 } // {
 

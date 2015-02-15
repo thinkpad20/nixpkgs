@@ -78,6 +78,21 @@ stdenv.mkDerivation rec {
        ln -s ${libiconv}/lib/libiconv.dylib ghc-7.0.4/utils/hpc/dist/build/tmp
        ln -s ${libiconv}/lib/libiconv.dylib ghc-7.0.4/ghc/stage2/build/tmp
 
+       for file in ghc-cabal ghc-pwd ghc-stage2 ghc-pkg haddock hsc2hs hpc; do
+         fix $(find . -type f -name $file)
+       done
+
+       for file in $(find . -name setup-config); do
+         substituteInPlace $file --replace /usr/bin/ranlib "$(type -P ranlib)"
+       done
+     '';
+
+  configurePhase = ''
+    ./configure --prefix=$out \
+      --with-gmp-libraries=${gmp}/lib --with-gmp-includes=${gmp}/include \
+      ${stdenv.lib.optionalString stdenv.isDarwin "--with-gcc=${../../haskell-modules/gcc-clang-wrapper.sh}"}
+  '';
+
        for file in ghc-cabal ghc-pwd ghc-stage2 ghc-pkg hsc2hs hpc; do
          fix $(find . -type f -name $file)
        done

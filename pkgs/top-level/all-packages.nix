@@ -72,6 +72,7 @@ let
       platforms = (import ./platforms.nix);
     in
       if system == "armv6l-linux" then platforms.raspberrypi
+      else if system == "armv7l-linux" then platforms.beaglebone
       else if system == "armv5tel-linux" then platforms.sheevaplug
       else if system == "mips64el-linux" then platforms.fuloong2f_n32
       else if system == "x86_64-linux" then platforms.pc64
@@ -5986,6 +5987,8 @@ let
 
   libarchive = callPackage ../development/libraries/libarchive { };
 
+  libasr = callPackage ../development/libraries/libasr { };
+
   libass = callPackage ../development/libraries/libass { };
 
   libassuan1 = callPackage ../development/libraries/libassuan1 { };
@@ -8602,8 +8605,6 @@ let
 
   iw = callPackage ../os-specific/linux/iw { };
 
-  iwlegacy = callPackage ../os-specific/linux/firmware/iwlegacy { };
-
   jfbview = callPackage ../os-specific/linux/jfbview { };
 
   jujuutils = callPackage ../os-specific/linux/jujuutils { };
@@ -8635,7 +8636,7 @@ let
     cross = assert crossSystem != null; crossSystem;
   });
 
-  linuxHeaders26Cross = forceNativeDrv (import ../os-specific/linux/kernel-headers/2.6.32.nix {
+  linuxHeaders26Cross = forceNativeDrv (import ../os-specific/linux/kernel-headers/3.12.nix {
     inherit stdenv fetchurl perl;
     cross = assert crossSystem != null; crossSystem;
   });
@@ -8675,7 +8676,7 @@ let
 
   linux_3_10 = makeOverridable (import ../os-specific/linux/kernel/linux-3.10.nix) {
     inherit fetchurl stdenv perl buildLinux;
-    kernelPatches = [ kernelPatches.bridge_stp_helper kernelPatches.crc_regression ]
+    kernelPatches = [ kernelPatches.bridge_stp_helper ]
       ++ lib.optionals ((platform.kernelArch or null) == "mips")
       [ kernelPatches.mips_fpureg_emu
         kernelPatches.mips_fpu_sigill
@@ -8695,7 +8696,7 @@ let
 
   linux_3_14 = makeOverridable (import ../os-specific/linux/kernel/linux-3.14.nix) {
     inherit fetchurl stdenv perl buildLinux;
-    kernelPatches = [ kernelPatches.bridge_stp_helper kernelPatches.crc_regression ]
+    kernelPatches = [ kernelPatches.bridge_stp_helper ]
       ++ lib.optionals ((platform.kernelArch or null) == "mips")
       [ kernelPatches.mips_fpureg_emu
         kernelPatches.mips_fpu_sigill
@@ -10603,7 +10604,7 @@ let
 
   kubernetes = callPackage ../applications/networking/cluster/kubernetes { };
 
-  lame = callPackage ../applications/audio/lame { };
+  lame = callPackage ../development/libraries/lame { };
 
   larswm = callPackage ../applications/window-managers/larswm { };
 

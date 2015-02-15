@@ -7664,7 +7664,7 @@ let
       sha256 = "1xanqn7rn96841s3lim5lnx5743gc4kyfg4ggj1ys5r0gw8i6har";
     };
 
-    disabled = isPy3k;
+    disabled = isPy3k || isPyPy;
 
     propagatedBuildInputs = with self; [ dateutil ];
 
@@ -7685,7 +7685,7 @@ let
       sha256 = "0avkrcpisfvhz103v7vmq2jd83hvmpqrb4mlbx6ikkk1wcvclsx8";
     };
 
-    disabled = isPy3k;
+    disabled = isPy3k || isPyPy;
 
     propagatedBuildInputs = with self; [ sqlite3 vobject lxml requests urwid pyxdg ];
 
@@ -10543,12 +10543,12 @@ let
   };
 
   taskw = buildPythonPackage rec {
-    version = "0.8.6";
+    version = "1.0.2";
     name = "taskw-${version}";
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/t/taskw/${name}.tar.gz";
-      sha256 = "341a165a1c2ef94fb1c2a49a785357377f04a0d55cabe9563179849497e47146";
+      sha256 = "0wa2hwplss2r56jrwib6j9sxxm02dz78878975jk9fj10p84w5kr";
     };
 
     patches = [ ../development/python-modules/taskw/use-template-for-taskwarrior-install-path.patch ];
@@ -10557,7 +10557,7 @@ let
         --replace '@@taskwarrior@@' '${pkgs.taskwarrior}'
     '';
 
-    buildInputs = with self; [ nose pkgs.taskwarrior ];
+    buildInputs = with self; [ nose pkgs.taskwarrior tox ];
     propagatedBuildInputs = with self; [ six dateutil pytz ];
 
     meta = {
@@ -10697,14 +10697,8 @@ let
     };
   };
 
-  # TODO
-  # Installs correctly but fails tests that involve simple things like:
-  # cmd.run("tox", "-h")
-  # also, buildPythonPackage needs to supply the tox.ini correctly for projects that use tox for their tests
-  #
-
   tox = buildPythonPackage rec {
-    name = "tox-1.7.2";
+    name = "tox-1.8.1";
 
     propagatedBuildInputs = with self; [ py virtualenv ];
 
@@ -10712,7 +10706,7 @@ let
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/t/tox/${name}.tar.gz";
-      md5 = "0d9b3acb1a9252659d753b0ae6b9b264";
+      md5 = "c4423cc6512932b37e5b0d1faa87bef2";
     };
   };
 
