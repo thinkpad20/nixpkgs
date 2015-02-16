@@ -47,9 +47,9 @@ in stdenv.mkDerivation {
     (cd tools/gyp; patch -Np1 -i ${../../python-modules/gyp/no-darwin-cflags.patch})
   '' else null;
 
-  preBuild = ''
+  preBuild = if stdenv.isDarwin then ''
     sed -e 's|^#!/usr/bin/env python$|#!${python}/bin/python|g' -i out/gyp-mac-tool
-  '';
+  '' else null;
 
   buildInputs = [ python which ]
     ++ (optional stdenv.isLinux utillinux)
