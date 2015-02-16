@@ -4657,11 +4657,9 @@ let
 
   bam = callPackage ../development/tools/build-managers/bam {};
 
-  # TODO: pull c++filt (and maybe strip) out of binutils_raw for darwin, since we want those.
-  # Probably needs to be some sort of buildEnv to merge the parts of the two that we want.
-  binutils = if stdenv.isDarwin then darwin.cctools else binutils_raw;
+  binutils = if stdenv.isDarwin then darwin.binutils else binutils-raw;
 
-  binutils_raw = callPackage ../development/tools/misc/binutils { inherit noSysDirs; };
+  binutils-raw = callPackage ../development/tools/misc/binutils { inherit noSysDirs; };
 
   binutils_nogold = lowPrio (callPackage ../development/tools/misc/binutils {
     inherit noSysDirs;
@@ -8496,6 +8494,8 @@ let
 
     # TODO: goes away once we get a proper binutils
     cxxfilt = callPackage ../os-specific/darwin/cxxfilt {};
+
+    binutils = callPackage ../os-specific/darwin/binutils { inherit cctools; };
   };
 
   devicemapper = lvm2;
