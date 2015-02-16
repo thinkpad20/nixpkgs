@@ -114,7 +114,7 @@ in rec {
     overrides = orig: with stage0; rec {
       darwin = orig.darwin // {
         Libsystem = stdenv.mkDerivation {
-          name = "bootstrap-libSystem";
+          name = "bootstrap-Libsystem";
           buildCommand = ''
             mkdir -p $out
             ln -s ${bootstrapTools}/lib $out/lib
