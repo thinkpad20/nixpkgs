@@ -18,7 +18,8 @@ stdenv.mkDerivation {
     # - otool: we use it for some of our name mangling
     # - install_name_tool: we use it to rewrite stuff in our bootstrap tools
     # - strip: the binutils one seems to break mach-o files
-    for i in ar ranlib as dsymutil install_name_tool ld strip otool; do
+    # - lipo: gcc build assumes it exists
+    for i in ar ranlib as dsymutil install_name_tool ld strip otool lipo; do
       ln -sf "${cctools}/bin/$i" "$out/bin/$i"
     done
 
