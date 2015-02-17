@@ -3351,7 +3351,6 @@ let
       if crossSystem != null && crossSystem.config == "i586-pc-gnu"
       then gnu.libpthreadCross
       else null;
-    inherit (darwin) cxxfilt;
   }));
 
   gcc48_multi =
@@ -8491,9 +8490,6 @@ let
     apple_sdk = callPackage ../os-specific/darwin/apple-sdk {};
 
     libobjc = apple-source-releases.objc4;
-
-    # TODO: goes away once we get a proper binutils
-    cxxfilt = callPackage ../os-specific/darwin/cxxfilt {};
 
     binutils = callPackage ../os-specific/darwin/binutils { inherit cctools; };
   };

@@ -31,7 +31,6 @@
 , libpthread ? null, libpthreadCross ? null  # required for GNU/Hurd
 , stripped ? true
 , gnused ? null
-, cxxfilt ? null
 }:
 
 assert langJava     -> zip != null && unzip != null
@@ -291,7 +290,6 @@ stdenv.mkDerivation ({
     ++ (optionals (cross != null) [binutilsCross])
     ++ (optionals langAda [gnatboot])
     ++ (optionals langVhdl [gnat])
-    ++ (optional stdenv.isDarwin cxxfilt)
     ;
 
   NIX_LDFLAGS = stdenv.lib.optionalString  stdenv.isSunOS "-lm -ldl";
