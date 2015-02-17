@@ -218,8 +218,7 @@ stdenv.mkDerivation ({
   prePatch = if stdenv.isDarwin then
     ''
       substituteInPlace gcc/config/darwin-c.c \
-        --replace "\"/System/Library/Frameworks\"," "" \
-        --replace "\"/Library/Frameworks\"," "" \
+        --replace "add_system_framework_path (str);" ""
     '' else null;
 
   postPatch =
@@ -304,8 +303,6 @@ stdenv.mkDerivation ({
     export CFLAGS_FOR_TARGET="-Wl,-rpath,$prefix/lib/amd64 $CFLAGS_FOR_TARGET"
   '' + stdenv.lib.optionalString stdenv.isDarwin ''
     configureFlagsArray+=(--with-native-system-header-dir=${stdenv.cc.libc}/include)
-    export CFLAGS_FOR_TARGET="$NIX_CFLAGS_COMPILE"
-    export CXXFLAGS_FOR_TARGET="$NIX_CFLAGS_COMPILE"
   '';
 
   dontDisableStatic = true;
