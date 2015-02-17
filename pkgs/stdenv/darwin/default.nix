@@ -224,19 +224,39 @@ in rec {
     inherit
       gnumake gzip gnused bzip2 gnutar gawk ed xz patch libiconv bash
       libcxxabi libcxx ncurses libffi zlib icu llvm gmp pcre gnugrep
-      coreutils findutils diffutils patchutils binutils;
+      coreutils findutils diffutils patchutils;
 
     llvmPackages = orig.llvmPackages // {
       inherit (llvmPackages) llvm clang;
     };
 
     darwin = orig.darwin // {
-      inherit (darwin)
-        dyld Libsystem cctools CF;
+      inherit (darwin) dyld Libsystem CF;
     };
   };
 
-  stage4 = with stage3; import ../generic rec {
+  stage4 = with stage3; stageFun 4 stage3 {
+    shell = "${pkgs.bash}/bin/bash";
+    extraInitialPath = [ pkgs.bash ];
+    overrides = persistent3;
+  };
+
+  persistent4 = orig: with stage4.pkgs; {
+    inherit
+      gnumake gzip gnused bzip2 gnutar gawk ed xz patch libiconv bash
+      libcxxabi libcxx ncurses libffi zlib icu llvm gmp pcre gnugrep
+      coreutils findutils diffutils patchutils binutils binutils-raw;
+
+    llvmPackages = orig.llvmPackages // {
+      inherit (llvmPackages) llvm clang;
+    };
+
+    darwin = orig.darwin // {
+      inherit (darwin) dyld Libsystem cctools CF;
+    };
+  };
+
+  stage5 = with stage4; import ../generic rec {
     inherit system config;
     inherit (stdenv) fetchurlBoot;
 
@@ -271,16 +291,16 @@ in rec {
     allowedRequisites = (with pkgs; [
       xz libcxx libcxxabi icu gmp gnumake findutils bzip2 llvm zlib libffi
       coreutils ed diffutils gnutar gzip ncurses libiconv gnused bash gawk
-      gnugrep llvmPackages.clang patch pcre
+      gnugrep llvmPackages.clang patch pcre binutils-raw binutils gettext
     ]) ++ (with pkgs.darwin; [
       dyld Libsystem CF cctools
     ]);
 
-    overrides = orig: persistent3 orig // {
+    overrides = orig: persistent4 orig // {
       clang = cc;
       inherit cc;
     };
   };
 
-  stdenvDarwin = stage4;
+  stdenvDarwin = stage5;
 }
