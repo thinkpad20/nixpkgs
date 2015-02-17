@@ -1817,6 +1817,8 @@ let
 
   man_db = callPackage ../tools/misc/man-db { };
 
+  mawk = callPackage ../tools/text/mawk { };
+
   mbox = callPackage ../tools/security/mbox { };
 
   memtest86 = callPackage ../tools/misc/memtest86 { };
@@ -7437,6 +7439,8 @@ let
   vxl = callPackage ../development/libraries/vxl {
     libpng = libpng12;
   };
+
+  wavpack = callPackage ../development/libraries/wavpack { };
 
   wayland = callPackage ../development/libraries/wayland { };
 
