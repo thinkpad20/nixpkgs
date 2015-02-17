@@ -1213,8 +1213,6 @@ let
 
   fatsort = callPackage ../tools/filesystems/fatsort { };
 
-  fatrace = callPackage ../os-specific/linux/fatrace { };
-
   fcitx = callPackage ../tools/inputmethods/fcitx { };
 
   fcitx-anthy = callPackage ../tools/inputmethods/fcitx/fcitx-anthy.nix { };
@@ -2415,8 +2413,6 @@ let
 
   remmina = callPackage ../applications/networking/remote/remmina {};
 
-  remotebox = callPackage ../applications/virtualization/remotebox {};
-
   renameutils = callPackage ../tools/misc/renameutils { };
 
   replace = callPackage ../tools/text/replace { };
@@ -2426,6 +2422,8 @@ let
   rescuetime = callPackage ../applications/misc/rescuetime { };
 
   rdiff-backup = callPackage ../tools/backup/rdiff-backup { };
+
+  rdfind = callPackage ../tools/filesystems/rdfind { };
 
   rdmd = callPackage ../development/compilers/rdmd { };
 
@@ -2480,7 +2478,7 @@ let
   rzip = callPackage ../tools/compression/rzip { };
 
   s3backer = callPackage ../tools/filesystems/s3backer { };
-  
+
   s3fs = callPackage ../tools/filesystems/s3fs { };
 
   s3cmd = callPackage ../tools/networking/s3cmd { };
@@ -2749,6 +2747,8 @@ let
   trousers = callPackage ../tools/security/trousers { };
 
   ttf2pt1 = callPackage ../tools/misc/ttf2pt1 { };
+
+  ttfautohint = callPackage ../tools/misc/ttfautohint { };
 
   tty-clock = callPackage ../tools/misc/tty-clock { };
 
@@ -3201,8 +3201,6 @@ let
   closurecompiler = callPackage ../development/compilers/closure { };
 
   cmucl_binary = callPackage ../development/compilers/cmucl/binary.nix { };
-
-  coan = callPackage ../development/tools/analysis/coan { };
 
   compcert = callPackage ../development/compilers/compcert {};
 
@@ -3725,6 +3723,8 @@ let
 
   mercury = callPackage ../development/compilers/mercury { };
 
+  microscheme = callPackage ../development/compilers/microscheme { };
+
   mitscheme = callPackage ../development/compilers/mit-scheme { };
 
   mlton = callPackage ../development/compilers/mlton { };
@@ -4082,6 +4082,8 @@ let
 
   ocaml_make = callPackage ../development/ocaml-modules/ocamlmake { };
 
+  ocaml-top = callPackage ../development/tools/ocaml/ocaml-top { };
+
   opa = callPackage ../development/compilers/opa {
     ocamlPackages = ocamlPackages_4_00_1;
   };
@@ -4282,6 +4284,8 @@ let
   lxappearance = callPackage ../applications/misc/lxappearance {};
 
   kona = callPackage ../development/interpreters/kona {};
+
+  lolcode = callPackage ../development/interpreters/lolcode { };
 
   love = callPackage ../development/interpreters/love {lua=lua5_1;};
   love_luajit = callPackage ../development/interpreters/love {lua=luajit;};
@@ -4728,6 +4732,8 @@ let
   chruby = callPackage ../development/tools/misc/chruby { rubies = null; };
 
   "cl-launch" = callPackage ../development/tools/misc/cl-launch {};
+
+  coan = callPackage ../development/tools/analysis/coan { };
 
   complexity = callPackage ../development/tools/misc/complexity { };
 
@@ -7412,6 +7418,8 @@ let
 
   vcdimager = callPackage ../development/libraries/vcdimager { };
 
+  vid-stab = callPackage ../development/libraries/vid-stab { };
+
   vigra = callPackage ../development/libraries/vigra {
     inherit (pkgs.pythonPackages) numpy;
   };
@@ -8147,7 +8155,11 @@ let
 
   oracleXE = callPackage ../servers/sql/oracle-xe { };
 
-  OVMF = callPackage ../applications/virtualization/OVMF { };
+  OVMF = callPackage ../applications/virtualization/OVMF { seabios=false; openssl=null; };
+  OVMF-CSM = callPackage ../applications/virtualization/OVMF { openssl=null; };
+  #WIP: OVMF-secureBoot = callPackage ../applications/virtualization/OVMF { seabios=false; secureBoot=true; };
+
+  seabios = callPackage ../applications/virtualization/seabios { };
 
   pgpool92 = callPackage ../servers/sql/pgpool/default.nix {
     postgresql = postgresql92;
@@ -8323,7 +8335,7 @@ let
   zookeeper = callPackage ../servers/zookeeper { };
 
   zookeeper_mt = callPackage ../development/libraries/zookeeper_mt { };
-  
+
   xquartz = callPackage ../servers/x11/xquartz { };
   quartz-wm = callPackage ../servers/x11/quartz-wm { stdenv = clangStdenv; };
 
@@ -8543,6 +8555,8 @@ let
   ebtables = callPackage ../os-specific/linux/ebtables { };
 
   eject = utillinux;
+
+  fatrace = callPackage ../os-specific/linux/fatrace { };
 
   ffado = callPackage ../os-specific/linux/ffado { };
 
@@ -10926,6 +10940,12 @@ let
     fontsConf = makeFontsConf { fontDirectories = [ freefont_ttf ]; };
   };
 
+  librep = callPackage ../development/libraries/librep { };
+
+  rep-gtk = callPackage ../development/libraries/rep-gtk { };
+
+  sawfish = callPackage ../applications/window-managers/sawfish { };
+
   sxhkd = callPackage ../applications/window-managers/sxhkd { };
 
   msmtp = callPackage ../applications/networking/msmtp { };
@@ -11200,6 +11220,8 @@ let
   rdesktop = callPackage ../applications/networking/remote/rdesktop { };
 
   recode = callPackage ../tools/text/recode { };
+
+  remotebox = callPackage ../applications/virtualization/remotebox { };
 
   retroshare = callPackage ../applications/networking/p2p/retroshare {
     qt = qt4;

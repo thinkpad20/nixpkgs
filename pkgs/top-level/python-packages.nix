@@ -4247,13 +4247,13 @@ let
   };
 
   flexget = buildPythonPackage rec {
-    version = "1.2.234";
+    version = "1.2.278";
     name = "FlexGet-${version}";
     disabled = isPy3k;
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/F/FlexGet/${name}.tar.gz";
-      md5 = "0897b6db25e8a28e809d131a8ad017e4";
+      md5 = "9c8e41d9e59d53cf2c720661b2880719";
     };
 
     doCheck = false;
@@ -13109,7 +13109,22 @@ let
     };
   };
 
+  moreItertools = buildPythonPackage rec {
+    name = "more-itertools-2.2";
 
+    src = pkgs.fetchurl {
+      url = "https://github.com/erikrose/more-itertools/archive/2.2.tar.gz";
+      sha256 = "4606417182e0a1289e23fb7f964a64ca9fdaafb7c1999034dc4fa0cc5850c478";
+    };
+   
+    propagatedBuildInputs = with self; [ nose ];
+
+    meta = {
+      homepage = "https://more-itertools.readthedocs.org";
+      description = "Expansion of the itertools module.";
+      license = licenses.mit;
+    };
+  };
 
 # python2.7 specific packages
 } // optionalAttrs isPy27 (
@@ -13395,5 +13410,37 @@ let
       license = licenses.gpl2;
     };
   };
+
+  parsimonious = buildPythonPackage rec {
+    name = "parsimonious-0.6.0";
+    src = pkgs.fetchurl {
+      url = "https://github.com/erikrose/parsimonious/archive/0.6.tar.gz";
+      sha256 = "7ad992448b69a3f3d943bac0be132bced3f13937c8ca150ba2fd1d7b6534f846";
+    };
+
+    propagatedBuildInputs = with self; [ nose ];
+
+    meta = {
+      homepage = "https://github.com/erikrose/parsimonious";
+      description = "Fast arbitrary-lookahead packrat parser written in pure Python.";
+      license = licenses.mit;
+    };
+  };
+
+  funcy = buildPythonPackage rec {
+    name = "funcy-1.4";
+
+    src = pkgs.fetchurl {
+        url = "https://github.com/Suor/funcy/archive/1.4.tar.gz";
+        sha256 = "694e29aa67d03a6ab006f1854740b65f4f87e581afb33853f80e647ddb5f24e7";
+    };
+
+    meta = with stdenv.lib; {
+      description = "Collection of fancy functional tools focused on practicality.";
+      homepage = "http://funcy.readthedocs.org/";
+      license = stdenv.lib.licenses.bsd3;
+    };
+  };
+
 
 }); in pythonPackages
