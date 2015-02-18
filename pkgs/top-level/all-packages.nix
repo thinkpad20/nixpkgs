@@ -8500,6 +8500,7 @@ let
 
     # TODO: goes away once we get a proper binutils
     cxxfilt = callPackage ../os-specific/darwin/cxxfilt {};
+    sw_vers = callPackage ../os-specific/darwin/sw_vers {};
   };
 
   devicemapper = lvm2;
