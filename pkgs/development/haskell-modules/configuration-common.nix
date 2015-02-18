@@ -531,6 +531,16 @@ self: super: {
 
   # https://github.com/athanclark/lucid-foundation/issues/1
   lucid-foundation = markBroken super.lucid-foundation;
+  digestive-foundation-lucid = markBroken super.digestive-foundation-lucid;
+
+  # Depends on broken lmdb package.
+  vcache = markBroken super.vcache;
+
+  # https://github.com/osa1/language-lua/issues/14
+  language-lua = dontCheck super.language-lua;
+
+  # https://github.com/afcowie/http-streams/issues/80
+  http-streams = dontCheck super.http-streams;
 
 } // {
 

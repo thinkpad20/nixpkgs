@@ -1817,6 +1817,8 @@ let
 
   man_db = callPackage ../tools/misc/man-db { };
 
+  mawk = callPackage ../tools/text/mawk { };
+
   mbox = callPackage ../tools/security/mbox { };
 
   memtest86 = callPackage ../tools/misc/memtest86 { };
@@ -7435,6 +7437,8 @@ let
     libpng = libpng12;
   };
 
+  wavpack = callPackage ../development/libraries/wavpack { };
+
   wayland = callPackage ../development/libraries/wayland { };
 
   webkit = webkitgtk;
@@ -8492,6 +8496,8 @@ let
     libobjc = apple-source-releases.objc4;
 
     binutils = callPackage ../os-specific/darwin/binutils { inherit cctools; };
+
+    sw_vers = callPackage ../os-specific/darwin/sw_vers {};
   };
 
   devicemapper = lvm2;
