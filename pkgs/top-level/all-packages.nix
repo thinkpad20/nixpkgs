@@ -5080,7 +5080,7 @@ let
 
   sparse = callPackage ../development/tools/analysis/sparse { };
 
-  speedtest_cli = callPackage ../tools/networking/speedtest-cli { };
+  speedtest-cli = callPackage ../tools/networking/speedtest-cli { };
 
   spin = callPackage ../development/tools/analysis/spin { };
 
@@ -6302,10 +6302,15 @@ let
 
   libgsf = callPackage ../development/libraries/libgsf { };
 
+  # glibc provides libiconv so systems with glibc don't need to build libiconv
+  # separately, but we also provide libiconvReal, which will always be a
+  # standalone libiconv, just in case you want it
   libiconv =
     if stdenv.isGlibc
     then stdenv.cc.libc
     else callPackage ../development/libraries/libiconv { };
+
+  libiconvReal = callPackage ../development/libraries/libiconv { };
 
   # On non-GNU systems we need GNU Gettext for libintl.
   libintlOrEmpty = stdenv.lib.optional (!stdenv.isLinux) gettext;
@@ -7499,6 +7504,8 @@ let
 
   xapianBindings10 = callPackage ../development/libraries/xapian/bindings/1.0.x.nix {  # TODO perl php Java, tcl, C#, python
   };
+
+  xavs = callPackage ../development/libraries/xavs { };
 
   Xaw3d = callPackage ../development/libraries/Xaw3d { };
 
@@ -9192,7 +9199,7 @@ let
   uclibc = callPackage ../os-specific/linux/uclibc { };
 
   uclibcCross = lowPrio (callPackage ../os-specific/linux/uclibc {
-    inherit fetchurl stdenv libiconv;
+    inherit fetchurl stdenv libiconvReal;
     linuxHeaders = linuxHeadersCross;
     gccCross = gccCrossStageStatic;
     cross = assert crossSystem != null; crossSystem;
@@ -9936,6 +9943,13 @@ let
     stdenv = pkgs.clangStdenv;
   });
   emacs24Macport = self.emacs24Macport_24_4;
+
+  emacsMelpa = import ./emacs-melpa-packages.nix {
+    inherit stdenv pkgs fetchurl fetchgit fetchFromGitHub emacs texinfo;
+    external = {
+      inherit (haskellngPackages) ghc-mod structured-haskell-mode;
+    };
+  };
 
   emacsPackages = emacs: self: let callPackage = newScope self; in rec {
     inherit emacs;
@@ -13642,6 +13656,7 @@ let
   youtubeDL = youtube-dl;  # added 2014-10-26
   rdiff_backup = rdiff-backup;  # added 2014-11-23
   htmlTidy = html-tidy;  # added 2014-12-06
+  speedtest_cli = speedtest-cli;  # added 2015-02-17
   sqliteInteractive = sqlite-interactive;  # added 2014-12-06
   nfsUtils = nfs-utils;  # added 2014-12-06
   buildbotSlave = buildbot-slave;  # added 2014-12-09
