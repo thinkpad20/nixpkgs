@@ -36,7 +36,7 @@ stdenv.mkDerivation rec {
   ];
 
   nativeBuildInputs = optional gold bison;
-  buildInputs = [ zlib ];
+  buildInputs = [ zlib ] ++ libintlOrEmpty;
 
   inherit noSysDirs;
 

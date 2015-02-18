@@ -5,9 +5,7 @@ stdenv.mkDerivation {
   buildCommand = ''
     mkdir -p $out/bin $out/include
 
-    for i in ${binutils-raw}/bin/*; do
-      ln -s "$i" "$out/bin/$(basename $i)"
-    done
+    ln -s ${binutils-raw}/bin/c++filt $out/bin/c++filt
 
     # We specifically need:
     # - ld: binutils doesn't provide it on darwin
@@ -19,7 +17,8 @@ stdenv.mkDerivation {
     # - install_name_tool: we use it to rewrite stuff in our bootstrap tools
     # - strip: the binutils one seems to break mach-o files
     # - lipo: gcc build assumes it exists
-    for i in ar ranlib as dsymutil install_name_tool ld strip otool lipo; do
+    # - nm: the gnu one doesn't understand many new load commands
+    for i in ar ranlib as dsymutil install_name_tool ld strip otool lipo nm strings size; do
       ln -sf "${cctools}/bin/$i" "$out/bin/$i"
     done
 
