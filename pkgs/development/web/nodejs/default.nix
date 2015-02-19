@@ -1,5 +1,6 @@
 { stdenv, fetchurl, openssl, python, zlib, v8, utillinux, http-parser
-, pkgconfig, runCommand, which, unstableVersion ? stdenv.isDarwin, CoreServices, ApplicationServices
+, pkgconfig, runCommand, which, unstableVersion ? stdenv.isDarwin
+, libtool, CoreServices, ApplicationServices
 }:
 
 let
@@ -51,7 +52,7 @@ in stdenv.mkDerivation {
 
   buildInputs = [ python which ]
     ++ (optional stdenv.isLinux utillinux)
-    ++ optionals stdenv.isDarwin [ pkgconfig openssl CoreServices ApplicationServices ];
+    ++ optionals stdenv.isDarwin [ pkgconfig openssl libtool CoreServices ApplicationServices ];
   setupHook = ./setup-hook.sh;
 
   enableParallelBuilding = true;

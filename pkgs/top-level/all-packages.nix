@@ -8513,6 +8513,7 @@ let
     libobjc = apple-source-releases.objc4;
 
     binutils = callPackage ../os-specific/darwin/binutils { inherit cctools; };
+    libtool = callPackage ../os-specific/darwin/libtool { inherit cctools; };
 
     sw_vers = callPackage ../os-specific/darwin/sw_vers {};
   };
