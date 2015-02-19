@@ -711,6 +711,8 @@ let
 
   consul-alerts = callPackage ../servers/consul/alerts.nix { };
 
+  consul-template = callPackage ../servers/consul/template.nix { };
+
   corosync = callPackage ../servers/corosync { };
 
   cherrytree = callPackage ../applications/misc/cherrytree { };
@@ -1431,6 +1433,10 @@ let
   grails = callPackage ../development/web/grails { jdk = null; };
 
   graphviz = callPackage ../tools/graphics/graphviz { };
+
+  graphviz-nox = callPackage ../tools/graphics/graphviz {
+    xlibs = null;
+  };
 
   /* Readded by Michael Raskin. There are programs in the wild
    * that do want 2.0 but not 2.22. Please give a day's notice for
@@ -2374,6 +2380,8 @@ let
   qjoypad = callPackage ../tools/misc/qjoypad { };
 
   qpdf = callPackage ../development/libraries/qpdf { };
+
+  qprint = callPackage ../tools/text/qprint { };
 
   qscintilla = callPackage ../development/libraries/qscintilla {
     qt = qt4;
@@ -3856,6 +3864,8 @@ let
     eff = callPackage ../development/interpreters/eff { };
 
     eliom = callPackage ../development/ocaml-modules/eliom { };
+
+    erm_xml = callPackage ../development/ocaml-modules/erm_xml { };
 
     ezjsonm = callPackage ../development/ocaml-modules/ezjsonm {
       lwt = ocaml_lwt;
@@ -6903,7 +6913,7 @@ let
   };
 
   # this ctl version is needed by openexr_viewers
-  openexr_ctl = callPackage ../development/libraries/openexr_ctl { };
+  openexr_ctl = ctl;
 
   openexr = callPackage ../development/libraries/openexr { };
 
