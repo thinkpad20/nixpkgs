@@ -10,6 +10,10 @@
 , libiconv, libobjc
 }:
 
+# FIXME: building this on darwin will freeze your entire computer for unknown reasons
+# remove this assertion at your own risk
+assert (!stdenv.isDarwin);
+
 let
   op = stdenv.lib.optional;
   ops = stdenv.lib.optionals;

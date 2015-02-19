@@ -10,6 +10,10 @@
 , libobjc, libiconv, libunwind
 }:
 
+# FIXME: building this on darwin will freeze your entire computer for unknown reasons
+# remove this at your own risk
+assert (!stdenv.isDarwin);
+
 let
   op = stdenv.lib.optional;
   ops = stdenv.lib.optionals;
@@ -36,7 +40,7 @@ stdenv.mkDerivation rec {
   # Have `configure' avoid `/usr/bin/nroff' in non-chroot builds.
   NROFF = "${groff}/bin/nroff";
 
-  buildInputs = [ libiconv libunwind ]
+  buildInputs = [ libiconv libunwind  ]
     ++ ops useRailsExpress [ autoreconfHook bison ]
     ++ (op fiddleSupport libffi)
     ++ (ops cursesSupport [ ncurses readline ])
