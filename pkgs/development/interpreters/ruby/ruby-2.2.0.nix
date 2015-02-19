@@ -7,6 +7,7 @@
 , libyaml, yamlSupport ? true
 , libffi, fiddleSupport ? true
 , ruby_2_2_0, autoreconfHook, bison, useRailsExpress ? true
+, libobjc, libiconv, libunwind
 }:
 
 let
@@ -35,7 +36,8 @@ stdenv.mkDerivation rec {
   # Have `configure' avoid `/usr/bin/nroff' in non-chroot builds.
   NROFF = "${groff}/bin/nroff";
 
-  buildInputs = ops useRailsExpress [ autoreconfHook bison ]
+  buildInputs = [ libiconv libunwind ]
+    ++ ops useRailsExpress [ autoreconfHook bison ]
     ++ (op fiddleSupport libffi)
     ++ (ops cursesSupport [ ncurses readline ])
     ++ (op docSupport groff)
@@ -47,7 +49,8 @@ stdenv.mkDerivation rec {
     # support is not enabled, so add readline to the build inputs if curses
     # support is disabled (if it's enabled, we already have it) and we're
     # running on darwin
-    ++ (op (!cursesSupport && stdenv.isDarwin) readline);
+    ++ (op (!cursesSupport && stdenv.isDarwin) readline)
+    ++ (op stdenv.isDarwin libobjc);
 
   enableParallelBuilding = true;
 
