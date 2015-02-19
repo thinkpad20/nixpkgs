@@ -136,12 +136,6 @@ self: super: {
   lss = markBrokenVersion "0.1.0.0" super.lss;                  # https://github.com/dbp/lss/issues/2
   snaplet-lss = markBrokenVersion "0.1.0.0" super.snaplet-lss;  # https://github.com/dbp/lss/issues/2
 
-  fsnotify = super.fsnotify.override {
-    hinotify = if pkgs.stdenv.isDarwin
-      then super.hfsevents
-      else super.hinotify;
-  };
-
   # https://github.com/haskell/vector/issues/47
   vector = if pkgs.stdenv.isi686 then appendConfigureFlag super.vector "--ghc-options=-msse2" else super.vector;
 
