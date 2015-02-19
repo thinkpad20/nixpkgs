@@ -40,7 +40,7 @@ stdenv.mkDerivation rec {
   # Have `configure' avoid `/usr/bin/nroff' in non-chroot builds.
   NROFF = "${groff}/bin/nroff";
 
-  buildInputs = [ libiconv libunwind  ]
+  buildInputs = [ libiconv libunwind ]
     ++ ops useRailsExpress [ autoreconfHook bison ]
     ++ (op fiddleSupport libffi)
     ++ (ops cursesSupport [ ncurses readline ])
