@@ -5,7 +5,7 @@
 , ncurses, readline, cursesSupport ? true
 , groff, docSupport ? false
 , ruby_1_8_7, autoreconfHook, bison, useRailsExpress ? true
-, libiconv
+, libiconv, libobjc
 }:
 
 let
@@ -39,7 +39,8 @@ stdenv.mkDerivation rec {
     ++ (op docSupport groff )
     ++ (op zlibSupport zlib)
     ++ (op opensslSupport openssl)
-    ++ (op gdbmSupport gdbm);
+    ++ (op gdbmSupport gdbm)
+    ++ (op stdenv.isDarwin libobjc);
 
   patches = ops useRailsExpress [
     "${patchSet}/patches/ruby/1.8.7/p374/railsexpress/01-ignore-generated-files.patch"
