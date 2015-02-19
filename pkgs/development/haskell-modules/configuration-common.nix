@@ -12,7 +12,6 @@ self: super: {
 
   # These fail in the darwin sandbox.
   network = dontCheckOn "x86_64-darwin" super.network;
-  system-fileio = dontCheckOn "x86_64-darwin" super.system-fileio;
   yaml = dontCheckOn "x86_64-darwin" super.yaml;
   http-reverse-proxy = dontCheckOn "x86_64-darwin" super.http-reverse-proxy;
 
