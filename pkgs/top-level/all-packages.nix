@@ -9840,6 +9840,8 @@ let
     imagemagick = imagemagick;
   };
 
+  cutecom = callPackage ../tools/misc/cutecom { };
+
   cvs = callPackage ../applications/version-management/cvs { };
 
   cvsps = callPackage ../applications/version-management/cvsps { };
@@ -10045,6 +10047,8 @@ let
     loremIpsum = callPackage ../applications/editors/emacs-modes/lorem-ipsum { };
 
     magit = callPackage ../applications/editors/emacs-modes/magit { };
+
+    marathon = callPackage ../applications/networking/cluster/marathon { };
 
     maudeMode = callPackage ../applications/editors/emacs-modes/maude { };
 
