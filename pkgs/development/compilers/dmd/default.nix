@@ -8,6 +8,8 @@ stdenv.mkDerivation {
     sha256 = "1qifwgrl6h232zsnvcx3kmb5d0fsy7j9zv17r3b4vln7x5rvzc66";
   };
 
+  patches = stdenv.lib.optional stdenv.isDarwin ./darwin-stdenv-fix.patch;
+
   buildInputs = [ unzip curl ];
 
   buildPhase = ''
