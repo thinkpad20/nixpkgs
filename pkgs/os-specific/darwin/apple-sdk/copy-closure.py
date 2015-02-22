@@ -1,6 +1,6 @@
 import sys
 from os import makedirs, system, symlink, unlink, listdir, walk, readlink
-from os.path import basename, splitext, isdir, islink, lexists, join, realpath, relpath
+from os.path import basename, dirname, splitext, isdir, islink, lexists, join, realpath, relpath
 from shutil import copytree, ignore_patterns, copyfile
 import re
 from macholib.MachO import MachO
@@ -21,7 +21,7 @@ libs   = out +  "/.libs"
 sdksrc = sdk +  "/System/Library/"
 
 def adjustPath(owner, path):
-  if path.endswith(basename(owner)):
+  if basename(path) == basename(owner):
     return join(links, basename(owner))
   else:
     return "@rpath/" + basename(path)
@@ -42,9 +42,15 @@ def adjustLibrary(f):
   symlink(f, linkpath)
   macho = MachO(f)
 
+  header = macho.headers[0]
+
+  rel = relpath(links, dirname(f))
+
+  header.rewriteInstallNameCommand(join(links, basename(f)).encode(sys.getfilesystemencoding()))
+
   # Copy closure of the dependencies
-  for idx, name, filename in macho.headers[0].walkRelocatables():
-    deplinkpath = links + "/" + basename(filename)
+  for idx, name, filename in header.walkRelocatables():
+    deplinkpath = join(links, basename(filename))
     if not lexists(deplinkpath):
       # A placeholder for us to find and replace later
       symlink("MISSING", deplinkpath)
@@ -54,8 +60,14 @@ def adjustLibrary(f):
       fpath = join(match.group(1), match.group(2))
       copyFramework(fpath)
 
-  # Repoint all our dependencies to the common rpath, which uses far less header space
-  macho.headers[0].rewriteLoadCommands(lambda path: adjustPath(f, path))
+    if name == 'reexport_dylib':
+      data = join(links, basename(filename))
+      header.rewriteDataForCommand(idx, data.encode(sys.getfilesystemencoding()))
+    else:
+      data = join("@rpath", basename(filename))
+      header.rewriteDataForCommand(idx, data.encode(sys.getfilesystemencoding()))
+
+
   with open(f, 'rb+') as fh:
     try:
       macho.write(fh)
