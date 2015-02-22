@@ -63,7 +63,8 @@ appleDerivation {
     c++ -I. -O3 -c ZoneCompaction.cpp
     c++ -I. -O3 -c BlockRef.cpp
 
-    c++ -Wl,-no_dtrace_dof --stdlib=libc++ -dynamiclib -install_name $out/lib/libauto.dylib -o libauto.dylib *.o
+    c++ -Wl,-no_dtrace_dof --stdlib=libc++ -dynamiclib -install_name $out/lib/libauto.dylib \
+       -compatibility_version 1.0 -current_version 1.0 -o libauto.dylib *.o
   '';
 
   installPhase = ''
