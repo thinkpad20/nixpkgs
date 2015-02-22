@@ -358,6 +358,14 @@ let
     };
   };
 
+  altgraph = buildPythonPackage rec {
+    name = "altgraph-0.12";
+    src = pkgs.fetchurl {
+      url    = "https://pypi.python.org/packages/source/a/altgraph/${name}.tar.gz";
+      sha256 = "1cnayzrdgvyk0zyz4b6fjjb26qsb68ysx5ba5clcx7kdlgdv03dr";
+    };
+  };
+
 
   anyjson = buildPythonPackage rec {
     name = "anyjson-0.3.3";
@@ -5647,6 +5655,15 @@ let
       description = "python-magic is a python interface to the libmagic file type identification library";
       homepage = https://github.com/ahupp/python-magic;
     };
+  };
+
+  macholib = buildPythonPackage rec {
+    name = "macholib-1.7";
+    src = pkgs.fetchurl {
+      url    = "https://pypi.python.org/packages/source/m/macholib/${name}.tar.gz";
+      sha256 = "0fhhp23m66fwxcfwhj2w6m8nm8vkxgxx2b6qafb68c81qpcbwr8q";
+    };
+    propagatedBuildInputs = with self; [ altgraph setuptools ];
   };
 
   magic = buildPythonPackage rec {
