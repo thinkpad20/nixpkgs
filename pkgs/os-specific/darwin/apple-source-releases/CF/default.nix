@@ -14,7 +14,6 @@ appleDerivation {
       --replace "/bin/" "" \
       --replace "INSTALLNAME=/System" "INSTALLNAME=$out" \
       --replace "install_name_tool -id /System" "install_name_tool -id $out" \
-      --replace "-licucore.A" "-licui18n -licuuc" \
       --replace 'chown -RH -f root:wheel $(DSTBASE)/CoreFoundation.framework' "" \
       --replace 'chmod -RH' 'chmod -R'
 
