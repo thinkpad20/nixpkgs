@@ -1769,6 +1769,8 @@ let
 
   librdmacm = callPackage ../development/libraries/librdmacm { };
 
+  libutil = if stdenv.isDarwin then darwin.libutil else glibc;
+
   limesurvey = callPackage ../servers/limesurvey { };
 
   logcheck = callPackage ../tools/system/logcheck {
