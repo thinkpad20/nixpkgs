@@ -11180,7 +11180,7 @@ let
 
   eiskaltdcpp = callPackage ../applications/networking/p2p/eiskaltdcpp { lua5 = lua5_1; };
 
-  qemu = callPackage ../applications/virtualization/qemu { };
+  qemu = callPackage ../applications/virtualization/qemu { inherit (darwin) IOKit; };
 
   qmmp = callPackage ../applications/audio/qmmp { };
 
