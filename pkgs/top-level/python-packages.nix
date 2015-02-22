@@ -5663,6 +5663,14 @@ let
       url    = "https://pypi.python.org/packages/source/m/macholib/${name}.tar.gz";
       sha256 = "0fhhp23m66fwxcfwhj2w6m8nm8vkxgxx2b6qafb68c81qpcbwr8q";
     };
+
+    # TODO: upstream this, but the repo doesn't appear very active :(
+    patchPhase = ''
+      sed -i '/# relocatable commands that should be used for dependency walking/aLC_LOAD_UPWARD_DYLIB,LC_LAZY_LOAD_DYLIB,' \
+        macholib/MachO.py
+      sed -i '/_RELOCATABLE_NAMES = {/aLC_LOAD_UPWARD_DYLIB: "load_upward_dylib",LC_LAZY_LOAD_DYLIB: "lazy_load_dylib",' \
+        macholib/MachO.py
+    '';
     propagatedBuildInputs = with self; [ altgraph setuptools ];
   };
 
