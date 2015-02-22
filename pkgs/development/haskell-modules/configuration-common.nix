@@ -106,7 +106,7 @@ self: super: {
   markdown-unlit = dontHaddock super.markdown-unlit;
   network-conduit = dontHaddock super.network-conduit;
   shakespeare-text = dontHaddock super.shakespeare-text;
-  uhc-light = dontHaddock super.uhc-light;                      # https://github.com/UU-ComputerScience/uhc/issues/45
+  types-compat = dontHaddock super.types-compat;                # https://github.com/philopon/apiary/issues/15
   wai-test = dontHaddock super.wai-test;
 
   # jailbreak doesn't get the job done because the Cabal file uses conditionals a lot.
@@ -536,6 +536,44 @@ self: super: {
 
   # https://github.com/afcowie/http-streams/issues/80
   http-streams = dontCheck super.http-streams;
+
+  # https://github.com/vincenthz/hs-asn1/issues/12
+  asn1-encoding = dontCheck super.asn1-encoding;
+
+  # https://github.com/NixOS/nixpkgs/issues/6343
+  c2hs = dontCheck super.c2hs;
+
+  # wxc needs help deciding which version of GTK to use.
+  wxc = overrideCabal (super.wxc.override { wxGTK = pkgs.wxGTK29; }) (drv: {
+    patches = [ ./wxc-no-ldconfig.patch ];
+    doHaddock = false;
+    postInstall = "cp -v dist/build/libwxc.so.${drv.version} $out/lib/libwxc.so";
+  });
+  wxcore = super.wxcore.override { wxGTK = pkgs.wxGTK29; };
+
+  # Depends on obsolete QuickCheck 1.x.
+  test-framework-quickcheck = markBroken super.test-framework-quickcheck;
+
+  # Depends on broken test-framework-quickcheck.
+  apiary = dontCheck super.apiary;
+  apiary-authenticate = dontCheck super.apiary-authenticate;
+  apiary-clientsession = dontCheck super.apiary-clientsession;
+  apiary-cookie = dontCheck super.apiary-cookie;
+  apiary-eventsource = dontCheck super.apiary-eventsource;
+  apiary-logger = dontCheck super.apiary-logger;
+  apiary-memcached = dontCheck super.apiary-memcached;
+  apiary-mongoDB = dontCheck super.apiary-mongoDB;
+  apiary-persistent = dontCheck super.apiary-persistent;
+  apiary-purescript = dontCheck super.apiary-purescript;
+  apiary-session = dontCheck super.apiary-session;
+  apiary-websockets = dontCheck super.apiary-websockets;
+
+  # https://github.com/fumieval/elevator/issues/2
+  elevator = markBroken super.elevator;
+  minioperational = markBroken super.minioperational;
+
+  # https://github.com/mikeizbicki/hmm/issues/12
+  hmm = markBroken super.hmm;
 
 } // {
 
