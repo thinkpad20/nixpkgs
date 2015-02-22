@@ -1,10 +1,31 @@
-{ stdenv, fetchurl, xar, gzip, cpio }:
+{
+  stdenv, fetchurl, xar, gzip, cpio, python, macholib,
+  configd, openbsm, libobjc, libauto, zlib, openpam, bzip2,
+  icu, curl, libcxx, libxml2, libxslt, sqlite, Libsystem,
+  libutil, libiconv
+}:
 
 let
-  # I'd rather not "export" this, since they're somewhat monolithic and encourage bad habits.
+  # TODO: flesh this out
+  frameworkSpecs = {
+    Accelerate          = [];
+    AppKit              = [];
+    ApplicationServices = [];
+    Carbon              = [];
+    Cocoa               = [];
+    CoreAudio           = [];
+    CoreData            = [];
+    CoreFoundation      = [];
+    CoreServices        = [];
+    Foundation          = [];
+    IOKit               = [];
+    Security            = [];
+  };
+
+  # I'd rather not "export" these, since they're somewhat monolithic and encourage bad habits.
   # Also, the include directory inside here should be captured (almost?) entirely by our more
   # precise Apple package structure, so with any luck it's unnecessary.
-  sdk = stdenv.mkDerivation rec {
+  raw = stdenv.mkDerivation rec {
     version = "10.9";
     name    = "MacOS_SDK-${version}";
 
@@ -15,105 +36,70 @@ let
 
     buildInputs = [ xar gzip cpio ];
 
-    phases = [ "unpackPhase" "installPhase" "fixupPhase" ];
+    __impureHostDeps = [ "/System/Library/Frameworks" ];
 
-    unpackPhase = ''
+    buildCommand = ''
       xar -x -f $src
-    '';
-
-    installPhase = ''
-      start="$(pwd)"
-      mkdir -p $out
+      mkdir $out
       cd $out
-      cat $start/Payload | gzip -d | cpio -idm
+      cat $NIX_BUILD_TOP/Payload | gzip -d | cpio -idm
 
-      mv usr/* .
-      rmdir usr
+      versionsPaths="$(find . -name "Versions")"
 
-      mv System/* .
-      rmdir System
+      for versionsPath in $versionsPaths; do
+        local root="''${versionsPath:1}"
+        cp -P "$root/Current" "$versionsPath"
 
-      cd Library/Frameworks/QuartzCore.framework/Versions/A/Headers
-      for file in CI*.h; do
-        rm $file
-        ln -s ../Frameworks/CoreImage.framework/Versions/A/Headers/$file
+        if [ -d "$versionsPath/Current/Frameworks" ]; then
+          ln -s "Versions/Current/Frameworks" "$versionsPath/../Frameworks"
+        fi
       done
     '';
-
-    meta = with stdenv.lib; {
-      description = "Apple SDK ${version}";
-      maintainers = with maintainers; [ copumpkin ];
-      platforms   = platforms.darwin;
-    };
   };
 
-  framework = name: deps: stdenv.mkDerivation {
-    name = "apple-framework-${name}";
+  sdk = stdenv.mkDerivation rec {
+    name = "Apple-SDK-${raw.version}";
 
-    phases = [ "installPhase" "fixupPhase" ];
+    # TODO: substitute our CoreFoundation and SystemConfiguration in
+    external = [
+      configd openbsm xar libobjc libauto zlib openpam bzip2 icu curl libcxx
+      libxml2 libxslt sqlite Libsystem libutil libiconv
 
-    installPhase = ''
-      linkFramework() {
-        local path="$1"
-        local dest="$out/Library/Frameworks/$path"
-        local name="$(basename "$path" .framework)"
-        local current="$(readlink "/System/Library/Frameworks/$path/Versions/Current")"
+      "/usr/lib/system"
+    ];
+    frameworks = builtins.attrNames frameworkSpecs;
 
-        mkdir -p "$dest"
-        pushd "$dest" >/dev/null
+    buildInputs = [ python macholib ] ++ external;
 
-        ln -s "${sdk}/Library/Frameworks/$path/Versions/$current/Headers"
-        ln -s -L "/System/Library/Frameworks/$path/Versions/$current/$name"
-        ln -s -L "/System/Library/Frameworks/$path/Versions/$current/Resources"
+    buildCommand = ''
+      python ${./copy-closure.py} "$out" "${raw}" "$external" "$frameworks"
 
-        if [ -f "/System/Library/Frameworks/$path/module.map" ]; then
-          ln -s "/System/Library/Frameworks/$path/module.map"
-        fi
-
-        pushd "${sdk}/Library/Frameworks/$path/Versions/$current" >/dev/null
-        local children=$(echo Frameworks/*.framework)
-        popd >/dev/null
-
-        for child in $children; do
-          childpath="$path/Versions/$current/$child"
-          linkFramework "$childpath"
-        done
-
-        if [ -d "$dest/Versions/$current" ]; then
-          mv $dest/Versions/$current/* .
-        fi
-
-        popd >/dev/null
-      }
-
-      linkFramework "${name}.framework"
+      mkdir -p $out/include
+      cp -r ${raw}/usr/include/xpc $out/include
     '';
 
-    propagatedBuildInputs = deps;
+    # Not propagated, because we just copy the files into our store
+    # (this package is super unfree and impure, unsurprisingly)
+    __impureHostDeps = [
+      "/usr/lib/system/libxpc.dylib"
+      "/System/Library/Frameworks"
+      "/System/Library/PrivateFrameworks"
 
-    # Not going to bother being more precise than this...
-    __propagatedImpureHostDeps = [ "/System/Library/Frameworks/${name}.framework/Versions" ];
+      "/usr/lib/liblangid.dylib"
+      "/usr/lib/libOpenScriptingUtil.dylib"
+      "/usr/lib/libcsfde.dylib"
+      "/usr/lib/libCoreStorage.dylib"
 
-    meta = with stdenv.lib; {
-      description = "Apple SDK framework ${name}";
-      maintainers = with maintainers; [ copumpkin ];
-      platforms   = platforms.darwin;
-    };
+      # TODO: these shouldn't be necessary
+      "/usr/lib/libCRFSuite.dylib"
+      "/usr/lib/libcups.2.dylib"
+      "/usr/lib/libbz2.1.0.dylib"
+
+      # TODO: this is a more minimal version of libasn1.dylib from heimdal.
+      # Figure out if we can just use ours or if it's meaningfully different
+      "/usr/lib/libheimdal-asn1.dylib"
+    ];
   };
-in rec {
-  libs = {
-    xpc = stdenv.mkDerivation {
-      name   = "apple-lib-xpc";
-      phases = [ "installPhase" "fixupPhase" ];
-
-      installPhase = ''
-        mkdir -p $out/include
-        pushd $out/include >/dev/null
-        ln -s "${sdk}/include/xpc"
-        popd >/dev/null
-      '';
-    };
-  };
-
-  frameworks = stdenv.lib.mapAttrs framework (import ./frameworks.nix { inherit frameworks libs; });
+in {
+  frameworks = stdenv.lib.mapAttrs (_: _: sdk) frameworkSpecs;
 }

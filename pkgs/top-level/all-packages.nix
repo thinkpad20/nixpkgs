@@ -1721,10 +1721,10 @@ let
   ninka = callPackage ../development/tools/misc/ninka { };
 
   nodejs = callPackage ../development/web/nodejs {
-    inherit (darwin.apple_sdk.frameworks) CoreServices ApplicationServices;
+    inherit (darwin.apple-sdk.frameworks) CoreServices ApplicationServices;
   };
   nodejs-unstable = callPackage ../development/web/nodejs {
-    inherit (darwin.apple_sdk.frameworks) CoreServices ApplicationServices;
+    inherit (darwin.apple-sdk.frameworks) CoreServices ApplicationServices;
     unstableVersion = true;
   };
 
@@ -4846,7 +4846,7 @@ let
 
   doxygen = callPackage ../development/tools/documentation/doxygen {
     qt4 = null;
-    inherit (darwin.apple_sdk.frameworks) CoreServices;
+    inherit (darwin.apple-sdk.frameworks) CoreServices;
   };
 
   doxygen_gui = lowPrio (doxygen.override { inherit qt4; });
@@ -5318,7 +5318,7 @@ let
 
   cgui = callPackage ../development/libraries/cgui {};
 
-  check = callPackage ../development/libraries/check { inherit (darwin.apple_sdk.frameworks) CoreServices; };
+  check = callPackage ../development/libraries/check { inherit (darwin.apple-sdk.frameworks) CoreServices; };
 
   chipmunk = builderDefsPackage (import ../development/libraries/chipmunk) {
     inherit cmake freeglut mesa;
@@ -8543,14 +8543,18 @@ let
     cmdline_sdk   = cmdline.sdk;
     cmdline_tools = cmdline.tools;
 
-    apple_sdk = callPackage ../os-specific/darwin/apple-sdk {};
-
     libobjc = apple-source-releases.objc4;
 
     binutils = callPackage ../os-specific/darwin/binutils { inherit cctools; };
     libtool = callPackage ../os-specific/darwin/libtool { inherit cctools; };
 
     sw_vers = callPackage ../os-specific/darwin/sw_vers {};
+
+    apple-sdk = callPackage ../os-specific/darwin/apple-sdk {
+      inherit (pythonPackages) python macholib;
+      inherit (apple-source-releases) configd libauto Libsystem;
+      inherit libobjc;
+    };
   };
 
   devicemapper = lvm2;
@@ -10818,7 +10822,7 @@ let
 
   mercurial = callPackage ../applications/version-management/mercurial {
     inherit (pythonPackages) curses docutils;
-    inherit (darwin.apple_sdk.frameworks) ApplicationServices;
+    inherit (darwin.apple-sdk.frameworks) ApplicationServices;
     guiSupport = false; # use mercurialFull to get hgk GUI
   };
 
@@ -11680,7 +11684,7 @@ let
   };
 
   vim = callPackage ../applications/editors/vim {
-    inherit (darwin.apple_sdk.frameworks) CoreServices Cocoa Foundation CoreData;
+    inherit (darwin.apple-sdk.frameworks) CoreServices Cocoa Foundation CoreData;
     inherit (darwin) libobjc;
   };
 
