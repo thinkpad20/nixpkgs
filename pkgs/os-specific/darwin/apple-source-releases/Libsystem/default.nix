@@ -108,7 +108,7 @@ appleDerivation rec {
     ld -macosx_version_min 10.7 \
        -arch x86_64 \
        -dylib \
-       -o $out/lib/libSystem.dylib \
+       -o $out/lib/libSystem.B.dylib \
        CompatibilityHacks.o init.o \
        -compatibility_version 1.0 \
        -current_version ${version} \
@@ -116,6 +116,8 @@ appleDerivation rec {
        -reexport_library $out/lib/system/libsystem_kernel.dylib \
         ${stdenv.lib.concatStringsSep " "
           (map (l: "-reexport_library /usr/lib/system/lib${l}.dylib") systemlibs)}
+
+    ln -s libSystem.B.dylib $out/lib/libSystem.dylib
 
     # Set up links to pretend we work like a conventional unix (Apple's design, not mine!)
     for name in c dbm dl info m mx poll proc pthread rpcsvc gcc_s.10.4 gcc_s.10.5; do
