@@ -8398,7 +8398,12 @@ let
   zookeeper_mt = callPackage ../development/libraries/zookeeper_mt { };
 
   xquartz = callPackage ../servers/x11/xquartz { };
-  quartz-wm = callPackage ../servers/x11/quartz-wm { stdenv = clangStdenv; };
+  quartz-wm = callPackage ../servers/x11/quartz-wm {
+    stdenv = clangStdenv;
+    inherit (darwin.apple_sdk.frameworks) Foundation CoreData;
+    inherit (darwin) libobjc;
+    inherit (darwin.apple_sdk.libs) Xplugin;
+  };
 
   xorg = recurseIntoAttrs (import ../servers/x11/xorg/default.nix {
     inherit clangStdenv fetchurl fetchgit fetchpatch stdenv pkgconfig intltool freetype fontconfig
