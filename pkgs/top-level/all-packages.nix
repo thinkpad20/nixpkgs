@@ -13716,7 +13716,9 @@ let
 
   dart = callPackage ../development/interpreters/dart { };
 
-  httrack = callPackage ../tools/backup/httrack { };
+  httrack = callPackage ../tools/backup/httrack {
+    libiconv = if stdenv.isLinux then null else libiconv;
+  };
 
   mg = callPackage ../applications/editors/mg { };
 

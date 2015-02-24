@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, zlib, openssl }:
+{ stdenv, fetchurl, zlib, openssl, libiconv }:
 
 stdenv.mkDerivation rec {
   version = "3.48.20";
@@ -9,7 +9,7 @@ stdenv.mkDerivation rec {
     sha256 = "129cpf324ihqxc8mvvkqjfanl17g60zfiqy1zx8ri56dkrg52mii";
   };
 
-  buildInputs = [ zlib openssl ];
+  buildInputs = [ zlib openssl libiconv ];
 
   meta = {
     homepage = "http://www.httrack.com";
