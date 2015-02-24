@@ -113,6 +113,18 @@ in rec {
         popd >/dev/null
       '';
     };
+
+    Xplugin = stdenv.mkDerivation {
+      name   = "apple-lib-Xplugin";
+      phases = [ "installPhase" "fixupPhase" ];
+
+      installPhase = ''
+        mkdir -p $out/include
+        pushd $out/include >/dev/null
+        ln -s "${sdk}/include/Xplugin.h"
+        popd >/dev/null
+      '';
+    };
   };
 
   frameworks = stdenv.lib.mapAttrs framework (import ./frameworks.nix { inherit frameworks libs; });
