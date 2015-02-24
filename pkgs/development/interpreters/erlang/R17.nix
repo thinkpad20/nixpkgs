@@ -1,5 +1,5 @@
 { stdenv, fetchurl, perl, gnum4, ncurses, openssl
-, gnused, gawk, makeWrapper
+, gnused, gawk, makeWrapper, Carbon, Cocoa
 , odbcSupport ? false, unixODBC ? null
 , wxSupport ? false, mesa ? null, wxGTK ? null, xlibs ? null }:
 
@@ -20,7 +20,8 @@ stdenv.mkDerivation rec {
   buildInputs =
     [ perl gnum4 ncurses openssl makeWrapper
     ] ++ optional wxSupport [ mesa wxGTK xlibs.libX11 ]
-      ++ optional odbcSupport [ unixODBC ];
+      ++ optional odbcSupport [ unixODBC ]
+      ++ optional stdenv.isDarwin [ Carbon Cocoa ];
 
   patchPhase = '' sed -i "s@/bin/rm@rm@" lib/odbc/configure erts/configure '';
 

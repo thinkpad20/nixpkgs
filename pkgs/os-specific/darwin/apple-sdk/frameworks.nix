@@ -109,7 +109,7 @@ with frameworks; with libs; {
   # Umbrellas
   Accelerate          = [ CoreGraphics ];
   ApplicationServices = [ CoreFoundation CoreServices CoreText ImageIO ];
-  Carbon              = [ ApplicationServices CoreFoundation CoreServices HIToolbox Help IOKit Security ];
+  Carbon              = [ ApplicationServices CoreFoundation CoreServices IOKit Security ];
   CoreServices        = [ CFNetwork CoreFoundation DiskArbitration Security ];
   IOBluetooth         = [ IOKit ];
   JavaVM              = [];

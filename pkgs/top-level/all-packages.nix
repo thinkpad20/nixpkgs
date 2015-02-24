@@ -4277,8 +4277,13 @@ let
   erlangR15 = callPackage ../development/interpreters/erlang/R15.nix { };
   erlangR16 = callPackage ../development/interpreters/erlang/R16.nix { };
   erlangR16_odbc = callPackage ../development/interpreters/erlang/R16.nix { odbcSupport = true; };
-  erlangR17 = callPackage ../development/interpreters/erlang/R17.nix { };
-  erlangR17_odbc = callPackage ../development/interpreters/erlang/R17.nix { odbcSupport = true; };
+  erlangR17 = callPackage ../development/interpreters/erlang/R17.nix {
+    inherit (darwin.apple_sdk.frameworks) Cocoa Carbon;
+  };
+  erlangR17_odbc = callPackage ../development/interpreters/erlang/R17.nix {
+    inherit (darwin.apple_sdk.frameworks) Cocoa Carbon;
+    odbcSupport = true;
+  };
   erlang = erlangR17;
   erlang_odbc = erlangR17_odbc;
 
