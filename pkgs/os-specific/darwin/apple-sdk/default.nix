@@ -125,6 +125,19 @@ in rec {
         popd >/dev/null
       '';
     };
+
+    utmp = stdenv.mkDerivation {
+      name   = "apple-lib-utmp";
+      phases = [ "installPhase" "fixupPhase" ];
+
+      installPhase = ''
+        mkdir -p $out/include
+        pushd $out/include >/dev/null
+        ln -s "${sdk}/include/utmp.h"
+        ln -s "${sdk}/include/utmpx.h"
+        popd >/dev/null
+      '';
+    };
   };
 
   frameworks = stdenv.lib.mapAttrs framework (import ./frameworks.nix { inherit frameworks libs; });
