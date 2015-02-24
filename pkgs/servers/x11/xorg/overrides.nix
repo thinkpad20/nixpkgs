@@ -74,6 +74,11 @@ in
     patches = [ ./libpciaccess-apple.patch ];
   };
 
+  libAppleWM = attrs@{ buildInputs ? [], ... } : attrs // {
+    buildInputs = buildInputs ++ stdenv.lib.optionals stdenv.isDarwin
+      (with args.frameworks; [ CoreServices ApplicationServices ]);
+  };
+
   libX11 = attrs: attrs // {
     preConfigure = setMalloc0ReturnsNullCrossCompiling + ''
       sed 's,^as_dummy.*,as_dummy="\$PATH",' -i configure
