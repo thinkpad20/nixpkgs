@@ -1,16 +1,12 @@
 { stdenv, fetchgit }:
 
-let
-  version = "17657c35869baa999b454e868cd3d5a7e1656425";
-  shortVersion = stdenv.lib.substring 0 7 version;
-in
 stdenv.mkDerivation {
-  name = "firmware-linux-nonfree-${shortVersion}";
+  name = "firmware-linux-nonfree-2015-02-27";
 
   src = fetchgit {
     url = "git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git";
-    rev = version;
-    sha256 = "15lv58wf3vjs4dpxvx3a7wn0pj83952wa2ab6ajfl3pbdhcvkzjb";
+    rev = "cef33368c4d3425f11306496f0250f8ef1cf3c1f";
+    sha256 = "0az6b7fbhanqdc9v9dl651yqqnfbm1npdibip196vnmd5qlv2iw4";
   };
 
   preInstall = ''

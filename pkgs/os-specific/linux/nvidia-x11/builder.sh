@@ -36,6 +36,22 @@ installPhase() {
     cp -prd *.so.* tls "$out/lib/"
     rm "$out"/lib/lib{glx,nvidia-wfb}.so.* # handled separately
 
+    if test -z "$libsOnly"; then
+        # Install the X drivers.
+        mkdir -p $out/lib/xorg/modules
+        cp -p libnvidia-wfb.* $out/lib/xorg/modules/
+        mkdir -p $out/lib/xorg/modules/drivers
+        cp -p nvidia_drv.so $out/lib/xorg/modules/drivers
+        mkdir -p $out/lib/xorg/modules/extensions
+        cp -p libglx.so.* $out/lib/xorg/modules/extensions
+
+        # Install the kernel module.
+        mkdir -p $out/lib/modules/$kernelVersion/misc
+        cp kernel/nvidia.ko $out/lib/modules/$kernelVersion/misc
+        cp kernel/uvm/nvidia-uvm.ko $out/lib/modules/$kernelVersion/misc
+    fi
+
+    # All libs except GUI-only are in $out now, so fixup them.
     for libname in `find "$out/lib/" -name '*.so.*'`
     do
       # I'm lazy to differentiate needed libs per-library, as the closure is the same.
@@ -52,35 +68,8 @@ installPhase() {
     #patchelf --set-rpath $cudaPath $out/lib/libcuda.so.*.*
     #patchelf --set-rpath $openclPath $out/lib/libnvidia-opencl.so.*.*
 
-
     if test -z "$libsOnly"; then
-        # Install the kernel module.
-        mkdir -p $out/lib/modules/$kernelVersion/misc
-        cp kernel/nvidia.ko $out/lib/modules/$kernelVersion/misc
-        cp kernel/uvm/nvidia-uvm.ko $out/lib/modules/$kernelVersion/misc
-
-        # Install the X driver.
-        mkdir -p $out/lib/xorg/modules
-        cp -p libnvidia-wfb.* $out/lib/xorg/modules/
-        mkdir -p $out/lib/xorg/modules/drivers
-        cp -p nvidia_drv.so $out/lib/xorg/modules/drivers
-        mkdir -p $out/lib/xorg/modules/extensions
-        cp -p libglx.so.* $out/lib/xorg/modules/extensions
-
-        #patchelf --set-rpath $out/lib $out/lib/xorg/modules/extensions/libglx.so.*.*
-
-        # Install the programs.
-        mkdir -p $out/bin
-
-        for i in nvidia-settings nvidia-smi; do
-            cp $i $out/bin/$i
-            patchelf --interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" \
-                --set-rpath $out/lib:$programPath:$glPath $out/bin/$i
-        done
-
-        patchelf --set-rpath $glPath:$gtk3Path $out/lib/libnvidia-gtk3.so.*.*
-
-        # Header files etc.
+        # Install headers and /share files etc.
         mkdir -p $out/include/nvidia
         cp -p *.h $out/include/nvidia
 
@@ -99,13 +88,26 @@ installPhase() {
             --replace '__UTILS_PATH__' $out/bin \
             --replace '__PIXMAP_PATH__' $out/share/pixmaps
 
+
+        # Install the programs.
+        mkdir -p $out/bin
+
+        for i in nvidia-settings nvidia-smi; do
+            cp $i $out/bin/$i
+            patchelf --interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" \
+                --set-rpath $out/lib:$programPath:$glPath $out/bin/$i
+        done
+
+        patchelf --set-rpath $glPath:$gtkPath $out/lib/libnvidia-gtk2.so.*.*
+
         # Test a bit.
         $out/bin/nvidia-settings --version
     else
-        rm $out/lib/libnvidia-gtk3.*
+        rm $out/lib/libnvidia-gtk2.*
     fi
-    # for simplicity and dependency reduction, don't support the gtk2 interface
-    rm $out/lib/libnvidia-gtk2.*
+
+    # For simplicity and dependency reduction, don't support the gtk3 interface.
+    rm $out/lib/libnvidia-gtk3.*
 }
 
 

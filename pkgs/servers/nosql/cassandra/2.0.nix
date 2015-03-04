@@ -8,13 +8,19 @@
 , getopt
 }:
 
-let version = "2.1.2";
-in stdenv.mkDerivation rec {
+let
+
+  version = "2.0.12";
+  sha256 = "125yga0h155fwp5kvgv57y5yyv7x4inib4fp9xsckmc7n7kmjvxg";
+
+in
+
+stdenv.mkDerivation rec {
   name = "cassandra-${version}";
 
   src = fetchurl {
+    inherit sha256;
     url = "http://apache.cs.utah.edu/cassandra/${version}/apache-${name}-bin.tar.gz";
-    sha256 = "1glpv3d1c63ccqnfjzz76cxb508qyvbgva26h5j7k8dd5av84lcr";
   };
 
   buildInputs = [ makeWrapper ];
@@ -39,6 +45,6 @@ in stdenv.mkDerivation rec {
     description = "A massively scalable open source NoSQL database";
     platforms = with platforms; all;
     license = with licenses; asl20;
-    maintainers = with maintainers; [ nckx ];
+    maintainers = with maintainers; [ nckx rushmorem ];
   };
 }
