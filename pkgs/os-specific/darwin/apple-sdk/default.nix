@@ -118,11 +118,17 @@ in rec {
       name   = "apple-lib-Xplugin";
       phases = [ "installPhase" "fixupPhase" ];
 
+      # Not enough
+      __propagatedImpureHostDeps = [ "/usr/lib/libXplugin.1.dylib" ];
+
+      propagatedBuildInputs = with frameworks; [
+        OpenGL ApplicationServices Carbon IOKit CoreFoundation CoreGraphics CoreServices CoreText
+      ];
+
       installPhase = ''
-        mkdir -p $out/include
-        pushd $out/include >/dev/null
-        ln -s "${sdk}/include/Xplugin.h"
-        popd >/dev/null
+        mkdir -p $out/include $out/lib
+        ln -s "${sdk}/include/Xplugin.h" $out/include/Xplugin.h
+        ln -s "/usr/lib/libXplugin.1.dylib" $out/lib/libXplugin.dylib
       '';
     };
 
