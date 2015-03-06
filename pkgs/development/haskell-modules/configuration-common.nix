@@ -42,11 +42,11 @@ self: super: {
   zeromq4-haskell = super.zeromq4-haskell.override { zeromq = pkgs.zeromq4; };
 
   # These changes are required to support Darwin.
-  git-annex = (disableSharedExecutables super.git-annex).override {
+  git-annex = addBuildDepends((disableSharedExecutables super.git-annex).override {
     dbus = if pkgs.stdenv.isLinux then self.dbus else null;
     fdo-notify = if pkgs.stdenv.isLinux then self.fdo-notify else null;
     hinotify = if pkgs.stdenv.isLinux then self.hinotify else self.fsnotify;
-  };
+  }) (pkgs.lib.optionals pkgs.stdenv.isDarwin [pkgs.darwin.apple_sdk.frameworks.Cocoa]);
 
   # CUDA needs help finding the SDK headers and libraries.
   cuda = overrideCabal super.cuda (drv: {
@@ -154,7 +154,19 @@ self: super: {
 
   # cabal2nix likes to generate dependencies on hinotify when hfsevents is really required
   # on darwin: https://github.com/NixOS/cabal2nix/issues/146
-  hinotify = if pkgs.stdenv.isDarwin then super.hfsevents else super.hinotify;
+  hinotify = if pkgs.stdenv.isDarwin then self.hfsevents else super.hinotify;
+
+  # c2hs is hard-coded to look for gcc, which it won't find on pure-darwin;
+  # this is fine if we don't run the tests, since many of the packages which
+  # depend on c2hs do not find this to be a problem.  The proper answer is to
+  # either build gcc just to satisfy the dependencies, or change the tests to
+  # work with clang.
+  c2hs = if pkgs.stdenv.isDarwin then dontCheck super.c2hs else super.c2hs;
+
+  hfsevents =
+    if pkgs.stdenv.isDarwin
+    then addBuildDepends super.hfsevents [pkgs.darwin.apple_sdk.frameworks.CoreServices]
+    else super.hfsevents;
 
   # FSEvents API is very buggy and tests are unreliable. See
   # http://openradar.appspot.com/10207999 and similar issues
