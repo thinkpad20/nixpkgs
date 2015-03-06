@@ -8462,7 +8462,9 @@ let
       libxslt expat libpng zlib perl mesa_drivers spice_protocol
       dbus libuuid openssl gperf m4 libevdev tradcpp
       autoconf automake libtool xmlto asciidoc flex bison python mtdev pixman;
+    inherit (darwin) libobjc;
     inherit (darwin.apple_sdk) frameworks;
+    inherit (darwin.apple_sdk.libs) Xplugin;
     bootstrap_cmds = if stdenv.isDarwin then darwin.bootstrap_cmds else null;
     mesa = mesa_noglu;
     udev = if stdenv.isLinux then udev else null;

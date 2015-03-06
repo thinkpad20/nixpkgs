@@ -267,7 +267,9 @@ in
   xorgserver = with xorg; attrs: attrs //
     (let
       version = (builtins.parseDrvName attrs.name).version;
-      commonBuildInputs = attrs.buildInputs ++ [ xtrans ];
+      commonBuildInputs = attrs.buildInputs ++ [ xtrans ] ++
+        stdenv.lib.optionals stdenv.isDarwin
+          (with args.frameworks; [ Carbon Foundation Cocoa args.libobjc args.Xplugin ]);
       commonPropagatedBuildInputs = [
         args.zlib args.mesa args.dbus.libs
         xf86bigfontproto glproto xf86driproto
