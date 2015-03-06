@@ -62,6 +62,9 @@ self: super: {
     '';
   });
 
+  # The package doesn't know about the AL include hierarchy.
+  al = appendConfigureFlag super.al "--extra-include-dirs=${pkgs.openal}/include/AL";
+
   # Depends on code distributed under a non-free license.
   bindings-yices = dontDistribute super.bindings-yices;
   yices = dontDistribute super.yices;
@@ -119,9 +122,11 @@ self: super: {
   hxt = dontHaddock super.hxt;                                  # https://github.com/UweSchmidt/hxt/issues/38
   markdown-unlit = dontHaddock super.markdown-unlit;
   network-conduit = dontHaddock super.network-conduit;
+  shakespeare-js = dontHaddock super.shakespeare-js;
   shakespeare-text = dontHaddock super.shakespeare-text;
   types-compat = dontHaddock super.types-compat;                # https://github.com/philopon/apiary/issues/15
   wai-test = dontHaddock super.wai-test;
+  zlib-conduit = dontHaddock super.zlib-conduit;
 
   # jailbreak doesn't get the job done because the Cabal file uses conditionals a lot.
   darcs = overrideCabal super.darcs (drv: {
@@ -243,12 +248,14 @@ self: super: {
   Hclip = dontCheck super.Hclip;
   HList = dontCheck super.HList;
   memcached-binary = dontCheck super.memcached-binary;
+  persistent-zookeeper = dontCheck super.persistent-zookeeper;
+  pocket-dns = dontCheck super.pocket-dns;
   postgresql-simple = dontCheck super.postgresql-simple;
   postgrest = dontCheck super.postgrest;
   snowball = dontCheck super.snowball;
   test-sandbox = dontCheck super.test-sandbox;
   wai-middleware-hmac = dontCheck super.wai-middleware-hmac;
-  wai-middleware-throttle = dontCheck super.wai-middleware-throttle;
+  wai-middleware-throttle = dontCheck super.wai-middleware-throttle; # https://github.com/creichert/wai-middleware-throttle/issues/1
   xmlgen = dontCheck super.xmlgen;
 
   # These packages try to access the network.
@@ -343,6 +350,7 @@ self: super: {
   hedn = dontCheck super.hedn;
   hgdbmi = dontCheck super.hgdbmi;
   hi = dontCheck super.hi;
+  hierarchical-clustering = dontCheck super.hierarchical-clustering;
   hmatrix-tests = dontCheck super.hmatrix-tests;
   hPDB-examples = dontCheck super.hPDB-examples;
   hquery = dontCheck super.hquery;
@@ -357,7 +365,6 @@ self: super: {
   http-client-openssl = dontCheck super.http-client-openssl;
   http-client-tls = dontCheck super.http-client-tls;
   ihaskell = dontCheck super.ihaskell;
-  influxdb = dontCheck super.influxdb;
   itanium-abi = dontCheck super.itanium-abi;
   katt = dontCheck super.katt;
   language-slice = dontCheck super.language-slice;
@@ -523,9 +530,6 @@ self: super: {
   # https://github.com/NixOS/nixpkgs/issues/6350
   paypal-adaptive-hoops = overrideCabal super.paypal-adaptive-hoops (drv: { testTarget = "local"; });
 
-  # https://github.com/anton-k/temporal-csound/issues/2
-  temporal-csound = markBrokenVersion "0.4.1" super.temporal-csound;
-
   # https://github.com/seanparsons/wiring/issues/1
   wiring = markBrokenVersion super.wiring;
 
@@ -614,6 +618,39 @@ self: super: {
 
   # https://github.com/megantti/rtorrent-rpc/issues/1
   rtorrent-rpc = markBroken super.rtorrent-rpc;
+
+  # https://github.com/PaulJohnson/geodetics/issues/1
+  geodetics = dontCheck super.geodetics;
+
+  # https://github.com/AndrewRademacher/aeson-casing/issues/1
+  aeson-casing = dontCheck super.aeson-casing;
+
+  # https://github.com/junjihashimoto/test-sandbox-compose/issues/2
+  test-sandbox-compose = dontCheck super.test-sandbox-compose;
+
+  # Broken by GLUT update.
+  Monadius = markBroken super.Monadius;
+
+  # https://github.com/maoe/influxdb-haskell/issues/24
+  influxdb = markBroken super.influxdb;
+  snaplet-influxdb = markBroken super.snaplet-influxdb;
+
+  # We don't have the groonga package these libraries bind to.
+  haroonga = markBroken super.haroonga;
+  haroonga-httpd = markBroken super.haroonga-httpd;
+
+  # Cannot find pkg-config data for "webkit-1.0".
+  webkit = markBroken super.webkit;
+  websnap = markBroken super.websnap;
+
+  # https://github.com/victoredwardocallaghan/hlibBladeRF/issues/4
+  hlibBladeRF = dontCheck super.hlibBladeRF;
+
+  # https://github.com/frasertweedale/hs-persona-idp/issues/1
+  persona-idp = markBroken super.persona-idp;
+
+  # Build is broken and no contact info available.
+  hopenpgp-tools = markBroken super.hopenpgp-tools;
 
 } // {
 

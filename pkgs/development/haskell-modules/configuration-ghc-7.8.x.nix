@@ -78,15 +78,17 @@ self: super: {
   hosc = dontDistribute super.hosc;
   tidal-midi = dontDistribute super.tidal-midi;
 
-  # Needs mtl 2.2.x due to "plailude".
-  clac = dontDistribute super.clac;
-
   # These packages need mtl 2.2.x directly or indirectly via dependencies.
   apiary-purescript = markBroken super.apiary-purescript;
+  clac = dontDistribute super.clac;
   highlighter2 = markBroken super.highlighter2;
   hypher = markBroken super.hypher;
+  miniforth = markBroken super.miniforth;
   purescript = markBroken super.purescript;
+  xhb-atom-cache = markBroken super.xhb-atom-cache;
+  xhb-ewmh = markBroken super.xhb-ewmh;
   yesod-purescript = markBroken super.yesod-purescript;
+  yabi-muno = markBroken super.yabi-muno;
   yet-another-logger = markBroken super.yet-another-logger;
 
   # https://github.com/frosch03/arrowVHDL/issues/2
@@ -94,6 +96,7 @@ self: super: {
 
   # https://ghc.haskell.org/trac/ghc/ticket/9625
   wai-middleware-preprocessor = dontCheck super.wai-middleware-preprocessor;
+  incremental-computing = dontCheck super.incremental-computing;
 
 }
 
@@ -132,7 +135,8 @@ self: super: {
   amazonka-ecs = super.amazonka-ecs.overrideScope amazonkaEnv;
   amazonka-glacier = super.amazonka-glacier.overrideScope amazonkaEnv;
   amazonka-kms = super.amazonka-kms.overrideScope amazonkaEnv;
+  amazonka-ssm = super.amazonka-ssm.overrideScope amazonkaEnv;
 in {
   inherit amazonkaEnv;
-  inherit amazonka amazonka-cloudwatch amazonka-core amazonka-ecs amazonka-kms amazonka-glacier;
+  inherit amazonka amazonka-cloudwatch amazonka-core amazonka-ecs amazonka-kms amazonka-glacier amazonka-ssm;
 })

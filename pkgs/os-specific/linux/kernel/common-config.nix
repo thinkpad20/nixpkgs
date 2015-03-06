@@ -3,19 +3,9 @@
 with stdenv.lib;
 
 ''
-  # Power management and debugging.
+  # Debugging.
   DEBUG_KERNEL y
-  PM_ADVANCED_DEBUG y
-  ${optionalString (versionOlder version "3.19") ''
-    PM_RUNTIME y
-  ''}
-  ${optionalString (versionAtLeast version "3.10") ''
-    X86_INTEL_PSTATE y
-  ''}
   TIMER_STATS y
-  ${optionalString (versionOlder version "3.10") ''
-    USB_SUSPEND y
-  ''}
   BACKTRACE_SELF_TEST n
   CPU_NOTIFIER_ERROR_INJECT? n
   DEBUG_DEVRES n
@@ -27,6 +17,20 @@ with stdenv.lib;
   RCU_TORTURE_TEST n
   SCHEDSTATS n
   DETECT_HUNG_TASK y
+
+  # Power management.
+  ${optionalString (versionOlder version "3.19") ''
+    PM_RUNTIME y
+  ''}
+  PM_ADVANCED_DEBUG y
+  ${optionalString (versionAtLeast version "3.10") ''
+    X86_INTEL_PSTATE y
+  ''}
+  INTEL_IDLE y
+  CPU_FREQ_DEFAULT_GOV_PERFORMANCE y
+  ${optionalString (versionOlder version "3.10") ''
+    USB_SUSPEND y
+  ''}
 
   # Support drivers that need external firmware.
   STANDALONE n
@@ -151,7 +155,9 @@ with stdenv.lib;
   EXT2_FS_XATTR y
   EXT2_FS_POSIX_ACL y
   EXT2_FS_SECURITY y
-  EXT2_FS_XIP y # Ext2 execute in place support
+  ${optionalString (versionOlder version "4.0") ''
+    EXT2_FS_XIP y # Ext2 execute in place support
+  ''}
   EXT3_FS_POSIX_ACL y
   EXT3_FS_SECURITY y
   EXT4_FS_POSIX_ACL y
@@ -263,9 +269,6 @@ with stdenv.lib;
   SLIP_COMPRESSED y # CSLIP compressed headers
   SLIP_SMART y
   THERMAL_HWMON y # Hardware monitoring support
-  ${optionalString (versionAtLeast version "3.15") ''
-    UEVENT_HELPER n
-  ''}
   USB_DEBUG? n
   USB_EHCI_ROOT_HUB_TT y # Root Hub Transaction Translators
   USB_EHCI_TT_NEWSCHED y # Improved transaction translator scheduling
