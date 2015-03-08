@@ -122,6 +122,12 @@ let
   in stdenv.mkDerivation ({
     inherit src;
 
+    __impureHostDeps = [
+      "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation"
+      "/usr/lib/libicucore.A.dylib"
+      "/usr/lib/libz.1.dylib"
+    ];
+
     configurePhase = ''
       runHook preConfigure
 
