@@ -7,17 +7,24 @@ in
 stdenv.mkDerivation {
   name = pname + "-" + version;
 
-  src = fetchurl {
+  # Apple was kind enough to modify its ICU in nontrivial ways, so we need to
+  # use theirs if we want any hope of relinking their binaries against ours
+  src = if stdenv.isDarwin then fetchurl {
+    url    = "http://www.opensource.apple.com/tarballs/ICU/ICU-511.35.tar.gz";
+    sha256 = "1iaapsa66098902z6vlvgk2axrpk2k5s09a82kmsvwl1qpbyj8v5";
+  } else fetchurl {
     url = "http://download.icu-project.org/files/${pname}/${version}/${pname}-"
       + (stdenv.lib.replaceChars ["."] ["_"] version) + "-src.tgz";
     sha256 = "0a4sg9w054640zncb13lhrcjqn7yg1qilwd1mczc4w60maslz9vg";
   };
 
+  sourceRoot = if stdenv.isDarwin then "ICU-511.35/icuSources" else null;
+
   # FIXME: This fixes dylib references in the dylibs themselves, but
   # not in the programs in $out/bin.
   buildInputs = stdenv.lib.optional stdenv.isDarwin fixDarwinDylibNames;
 
-  postUnpack = ''
+  postUnpack = if stdenv.isDarwin then null else ''
     sourceRoot=''${sourceRoot}/source
     echo Source root reset to ''${sourceRoot}
   '';

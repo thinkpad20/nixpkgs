@@ -1722,6 +1722,7 @@ let
 
   nodejs = callPackage ../development/web/nodejs {
     inherit (darwin.apple-sdk.frameworks) CoreServices ApplicationServices;
+    libtool = if stdenv.isDarwin then darwin.libtool else libtool;
   };
   nodejs-unstable = callPackage ../development/web/nodejs {
     inherit (darwin.apple-sdk.frameworks) CoreServices ApplicationServices;
@@ -9992,6 +9993,8 @@ let
   });
   emacs24Macport_24_4 = lowPrio (callPackage ../applications/editors/emacs-24/macport-24.4.nix {
     stdenv = pkgs.clangStdenv;
+    inherit (darwin) libobjc;
+    inherit (darwin.apple-sdk) frameworks;
   });
   emacs24Macport = self.emacs24Macport_24_4;
 

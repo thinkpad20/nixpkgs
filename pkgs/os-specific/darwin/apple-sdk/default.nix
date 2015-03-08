@@ -7,6 +7,7 @@
 
 let
   # TODO: flesh this out
+  # As much as it pains me, this should probably stay monolithic until multi-output derivations support cycles
   frameworkSpecs = {
     Accelerate          = [];
     AppKit              = [];
@@ -19,7 +20,11 @@ let
     CoreServices        = [];
     Foundation          = [];
     IOKit               = [];
+    OSAKit              = [];
     Security            = [];
+    Quartz              = [];
+    QuartzCore          = [];
+    WebKit              = [];
   };
 
   # I'd rather not "export" these, since they're somewhat monolithic and encourage bad habits.
@@ -58,7 +63,8 @@ let
   };
 
   sdk = stdenv.mkDerivation rec {
-    name = "Apple-SDK-${raw.version}";
+    # Lengthening this name makes binary patching/relinking more painful so tread with caution
+    name = "OSXSDK";
 
     # TODO: substitute our CoreFoundation and SystemConfiguration in
     external = [
@@ -76,6 +82,10 @@ let
 
       mkdir -p $out/include
       cp -r ${raw}/usr/include/xpc $out/include
+
+      find $out/Library \( -name "*.bridgesupport" -or -name "*.plist" \) -print0 | xargs -0 \
+        sed -i -e "s|/System/Library/Frameworks|$out/Library/Frameworks|g" \
+               -e "s|/System/Library/PrivateFrameworks|$out/Library/PrivateFrameworks|g"
     '';
 
     # Not propagated, because we just copy the files into our store
@@ -84,6 +94,7 @@ let
       "/usr/lib/system/libxpc.dylib"
       "/System/Library/Frameworks"
       "/System/Library/PrivateFrameworks"
+      "/System/Library/TextEncodings"
 
       "/usr/lib/liblangid.dylib"
       "/usr/lib/libOpenScriptingUtil.dylib"
@@ -94,6 +105,15 @@ let
       "/usr/lib/libCRFSuite.dylib"
       "/usr/lib/libcups.2.dylib"
       "/usr/lib/libbz2.1.0.dylib"
+
+      "/usr/lib/libiconv.2.dylib"
+      "/usr/lib/libbsm.0.dylib"
+
+      "/usr/lib/libpcap.A.dylib"
+
+      "/usr/lib/libsandbox.1.dylib"
+      "/usr/lib/libsqlite3.dylib"
+      "/usr/lib/libMatch.1.dylib"
 
       # TODO: this is a more minimal version of libasn1.dylib from heimdal.
       # Figure out if we can just use ours or if it's meaningfully different

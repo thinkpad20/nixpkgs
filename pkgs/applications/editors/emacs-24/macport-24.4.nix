@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, ncurses, pkgconfig, texinfo, libxml2, gnutls
+{ stdenv, fetchurl, ncurses, pkgconfig, texinfo, libxml2, gnutls, libobjc, frameworks
 }:
 
 stdenv.mkDerivation rec {
@@ -19,7 +19,7 @@ stdenv.mkDerivation rec {
 
   patches = [ ./darwin-new-sections.patch ];
 
-  buildInputs = [ ncurses pkgconfig texinfo libxml2 gnutls ];
+  buildInputs = [ ncurses pkgconfig texinfo libxml2 gnutls libobjc frameworks.Carbon ];
 
   postUnpack = ''
     mv $emacsName $name
