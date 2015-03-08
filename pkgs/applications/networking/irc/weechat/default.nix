@@ -1,5 +1,5 @@
 { stdenv, fetchurl, ncurses, openssl, perl, python, aspell, gnutls
-, zlib, curl , pkgconfig, libgcrypt, ruby, lua5, tcl, guile
+, zlib, curl , pkgconfig, libgcrypt, ruby, lua5, tcl, guile, libiconv
 , pythonPackages, cacert, cmake, makeWrapper, libobjc
 , extraBuildInputs ? [] }:
 
@@ -27,6 +27,8 @@ stdenv.mkDerivation rec {
       --prefix PYTHONPATH : "$PYTHONPATH" \
       --prefix PYTHONPATH : "$NIX_PYTHONPATH"
   '';
+
+  cmakeFlags = "-DICONV_LIBRARY=${libiconv}/lib/libiconv.dylib";
 
   meta = {
     homepage = http://www.weechat.org/;
