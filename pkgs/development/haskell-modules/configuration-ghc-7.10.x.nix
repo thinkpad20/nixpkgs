@@ -93,6 +93,16 @@ self: super: {
   ReadArgs = dontCheck super.ReadArgs;
 
   # Until the changes have been pushed to Hackage
+  blaze-html = overrideCabal super.blaze-html (drv: {
+    patchPhase = ''
+      substituteInPlace blaze-html.cabal --replace " >= 0.4  && < 0.5" ""
+    '';
+  });
+  blaze-markup = overrideCabal super.blaze-markup (drv: {
+    patchPhase = ''
+      substituteInPlace blaze-markup.cabal --replace " >= 0.4  && < 0.5" ""
+    '';
+  });
   haskell-src-meta = appendPatch super.haskell-src-meta (pkgs.fetchpatch {
     url = "https://github.com/bmillwood/haskell-src-meta/pull/31.patch";
     sha256 = "0ij5zi2sszqns46mhfb87fzrgn5lkdv8yf9iax7cbrxb4a2j4y1w";
@@ -108,24 +118,18 @@ self: super: {
   });
   stringsearch = appendPatch super.stringsearch (pkgs.fetchpatch {
     url = "https://bitbucket.org/api/2.0/repositories/dafis/stringsearch/pullrequests/3/patch";
-    sha256 = "13n7wipaa1j2rghg2j68yjnda8a5galpv5sfz4j4d9509xakz25g";
-  });
-  mono-traversable = appendPatch super.mono-traversable (pkgs.fetchpatch {
-    url = "https://github.com/snoyberg/mono-traversable/pull/68.patch";
-    sha256 = "11hqf6hi3sc34wl0fn4rpigdf7wfklcjv6jwp8c3129yphg8687h";
+    sha256 = "1j2a327m3bjl8k4dipc52nlh2ilg94gdcj9hdmdq62yh2drslvgx";
   });
   conduit-combinators = appendPatch super.conduit-combinators (pkgs.fetchpatch {
     url = "https://github.com/fpco/conduit-combinators/pull/16.patch";
-    sha256 = "0jpwpi3shdn5rms3lcr4srajbhhfp5dbwy7pl23c9kmlil3d9mk3";
+    sha256 = "1c9b1d3dxr820i107b6yly2g1apv6bbsg9ag26clcikca7dfz5qr";
   });
-  wai-extra = appendPatch super.wai-extra (pkgs.fetchpatch {
-    url = "https://github.com/yesodweb/wai/pull/339.patch";
-    sha256 = "1rmz1ijfch143v7jg4d5r50lqq9r46zhcmdafq8p9g9pjxlyc590";
-    stripLen = 1;
-  });
-  yesod-auth = appendPatch super.yesod-auth (pkgs.fetchpatch {
-    url = "https://github.com/yesodweb/yesod/pull/941.patch";
-    sha256 = "1fycvjfr1l9wa03k30bnppl3ns99lffh9kmp9r7sr8b6yiydcajq";
-    stripLen = 1;
+  wreq = overrideCabal super.wreq (drv: {
+    patchPhase = ''
+      substituteInPlace Network/Wreq/Internal/AWS.hs --replace System.Locale Data.Time.Format
+      substituteInPlace Network/Wreq/Cache.hs \
+        --replace System.Locale Data.Time.Format \
+        --replace RecordWildCards "RecordWildCards, FlexibleContexts"
+    '';
   });
 }

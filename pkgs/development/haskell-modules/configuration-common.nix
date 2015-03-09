@@ -649,6 +649,9 @@ self: super: {
   # https://github.com/frasertweedale/hs-persona-idp/issues/1
   persona-idp = markBroken super.persona-idp;
 
+  # sandbox violations, not a bug in system-fileio
+  system-fileio = if pkgs.stdenv.isDarwin then dontCheck super.system-fileio else super.system-fileio;
+
   # Build is broken and no contact info available.
   hopenpgp-tools = markBroken super.hopenpgp-tools;
 

@@ -59,6 +59,8 @@ self: super: {
     patchPhase = "sed -i -e 's|base >= 3 && < 4.8|base|' utf8-string.cabal";
   });
 
+  bytestring-builder = dontHaddock super.bytestring-builder;
+
   # bos/attoparsec#92
   attoparsec = dontCheck super.attoparsec;
 
