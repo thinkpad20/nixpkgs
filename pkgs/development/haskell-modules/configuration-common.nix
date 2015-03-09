@@ -242,6 +242,7 @@ self: super: {
   # These packages try to execute non-existent external programs.
   cmaes = dontCheck super.cmaes;                        # http://hydra.cryp.to/build/498725/log/raw
   dbmigrations = dontCheck super.dbmigrations;
+  euler = dontCheck super.euler;                        # https://github.com/decomputed/euler/issues/1
   filestore = dontCheck super.filestore;
   graceful = dontCheck super.graceful;
   hakyll = dontCheck super.hakyll;
@@ -254,6 +255,7 @@ self: super: {
   postgrest = dontCheck super.postgrest;
   snowball = dontCheck super.snowball;
   test-sandbox = dontCheck super.test-sandbox;
+  users-postgresql-simple = dontCheck super.users-postgresql-simple;
   wai-middleware-hmac = dontCheck super.wai-middleware-hmac;
   wai-middleware-throttle = dontCheck super.wai-middleware-throttle; # https://github.com/creichert/wai-middleware-throttle/issues/1
   xmlgen = dontCheck super.xmlgen;
@@ -365,6 +367,7 @@ self: super: {
   http-client-openssl = dontCheck super.http-client-openssl;
   http-client-tls = dontCheck super.http-client-tls;
   ihaskell = dontCheck super.ihaskell;
+  influxdb = dontCheck super.influxdb;
   itanium-abi = dontCheck super.itanium-abi;
   katt = dontCheck super.katt;
   language-slice = dontCheck super.language-slice;
@@ -387,7 +390,7 @@ self: super: {
   persistent-redis = dontCheck super.persistent-redis;
   pipes-extra = dontCheck super.pipes-extra;
   pipes-websockets = dontCheck super.pipes-websockets;
-  postgresql-binary = dontCheck super.postgresql-binary;# needs a running postgresql server
+  postgresql-binary = dontCheck super.postgresql-binary; # needs a running postgresql server
   postgresql-simple-migration = dontCheck super.postgresql-simple-migration;
   process-streaming = dontCheck super.process-streaming;
   punycode = dontCheck super.punycode;
@@ -415,7 +418,6 @@ self: super: {
   WebBits = dontCheck super.WebBits;                    # http://hydra.cryp.to/build/499604/log/raw
   webdriver-angular = dontCheck super.webdriver-angular;
   webdriver = dontCheck super.webdriver;
-  xcffib = dontCheck super.xcffib;
   xsd = dontCheck super.xsd;
   yesod-pagination = dontCheck super.yesod-pagination;
 
@@ -455,9 +457,6 @@ self: super: {
 
   # https://github.com/vincenthz/hs-crypto-pubkey/issues/20
   crypto-pubkey = dontCheck super.crypto-pubkey;
-
-  # https://github.com/rrnewton/haskell-lockfree/issues/44
-  chaselev-deque = markBrokenVersion "0.5.0.3" super.chaselev-deque;
 
   # https://github.com/zouppen/stratum-tool/issues/14
   stratum-tool = markBrokenVersion "0.0.4" super.stratum-tool;
@@ -544,6 +543,7 @@ self: super: {
 
   # Depends on broken lmdb package.
   vcache = markBroken super.vcache;
+  vcache-trie = markBroken super.vcache-trie;
 
   # https://github.com/afcowie/http-streams/issues/80
   http-streams = dontCheck super.http-streams;
@@ -560,7 +560,6 @@ self: super: {
   wxcore = super.wxcore.override { wxGTK = pkgs.wxGTK29; };
 
   # Depends on QuickCheck 1.x.
-  ersatz = dontCheck (super.ersatz.override { QuickCheck = self.QuickCheck_1_2_0_1; }); # https://github.com/ekmett/ersatz/issues/8
   HaVSA = super.HaVSA.override { QuickCheck = self.QuickCheck_1_2_0_1; };
   test-framework-quickcheck = super.test-framework-quickcheck.override { QuickCheck = self.QuickCheck_1_2_0_1; };
 
@@ -591,7 +590,6 @@ self: super: {
   karakuri = markBroken super.karakuri;
 
   # Upstream notified by e-mail.
-  snowglobe = markBroken super.snowglobe;
   gearbox = markBroken super.gearbox;
 
   # https://github.com/deech/fltkhs/issues/7
@@ -631,10 +629,6 @@ self: super: {
   # Broken by GLUT update.
   Monadius = markBroken super.Monadius;
 
-  # https://github.com/maoe/influxdb-haskell/issues/24
-  influxdb = markBroken super.influxdb;
-  snaplet-influxdb = markBroken super.snaplet-influxdb;
-
   # We don't have the groonga package these libraries bind to.
   haroonga = markBroken super.haroonga;
   haroonga-httpd = markBroken super.haroonga-httpd;
@@ -643,17 +637,23 @@ self: super: {
   webkit = markBroken super.webkit;
   websnap = markBroken super.websnap;
 
-  # https://github.com/victoredwardocallaghan/hlibBladeRF/issues/4
-  hlibBladeRF = dontCheck super.hlibBladeRF;
-
-  # https://github.com/frasertweedale/hs-persona-idp/issues/1
-  persona-idp = markBroken super.persona-idp;
-
   # sandbox violations, not a bug in system-fileio
   system-fileio = if pkgs.stdenv.isDarwin then dontCheck super.system-fileio else super.system-fileio;
 
   # Build is broken and no contact info available.
   hopenpgp-tools = markBroken super.hopenpgp-tools;
+
+  # https://github.com/hunt-framework/hunt/issues/99
+  hunt-server = markBrokenVersion "0.3.0.2" super.hunt-server;
+
+  # https://github.com/bjpop/blip/issues/16
+  blip = markBroken super.blip;
+
+  # https://github.com/tych0/xcffib/issues/37
+  xcffib = markBroken super.xcffib;
+
+  # https://github.com/snapframework/snap/issues/141
+  # snap = overrideCabal super.snap (drv: { preConfigure = "sed -i -e 's|lens .*<4.8|lens|' snap.cabal"; });
 
 } // {
 

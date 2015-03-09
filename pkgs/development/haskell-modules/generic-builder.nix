@@ -114,7 +114,7 @@ stdenv.mkDerivation ({
   name = "${optionalString hasActiveLibrary "haskell-"}${pname}-${version}";
 
   prePhases = ["setupCompilerEnvironmentPhase"];
-  preConfigurePhases = ["jailbreakPhase" "compileBuildDriverPhase"];
+  preConfigurePhases = ["compileBuildDriverPhase"];
   preInstallPhases = ["haddockPhase"];
 
   inherit src;
@@ -123,7 +123,14 @@ stdenv.mkDerivation ({
   propagatedNativeBuildInputs = optionals hasActiveLibrary propagatedBuildInputs;
 
   LANG = "en_US.UTF-8";         # GHC needs the locale configured during the Haddock phase.
-  LOCALE_ARCHIVE = optionalString stdenv.isLinux "${glibcLocales}/lib/locale/locale-archive";
+
+  prePatch = optionalString (editedCabalFile != null) ''
+    echo "Replacing Cabal file with edited version ${newCabalFile}."
+    cp ${newCabalFile} ${pname}.cabal
+  '' + optionalString jailbreak ''
+    echo "Running jailbreak-cabal to lift version restrictions on build inputs."
+    ${jailbreak-cabal}/bin/jailbreak-cabal ${pname}.cabal
+  '' + prePatch;
 
   setupCompilerEnvironmentPhase = ''
     runHook preSetupCompilerEnvironment
@@ -132,7 +139,7 @@ stdenv.mkDerivation ({
     export PATH="${ghc}/bin:$PATH"
     ${optionalString (hasActiveLibrary && hyperlinkSource) "export PATH=${hscolour}/bin:$PATH"}
 
-    packageConfDir="$TMP/package.conf.d"
+    packageConfDir="$TMPDIR/package.conf.d"
     mkdir -p $packageConfDir
 
     setupCompileFlags="${concatStringsSep " " setupCompileFlags}"
@@ -150,29 +157,13 @@ stdenv.mkDerivation ({
       if [ -d "$p/include" ]; then
         configureFlags+=" --extra-include-dirs=$p/include"
       fi
-      for d in lib{,64}; do
-        if [ -d "$p/$d" ]; then
-          configureFlags+=" --extra-lib-dirs=$p/$d"
-        fi
-      done
+      if [ -d "$p/lib" ]; then
+        configureFlags+=" --extra-lib-dirs=$p/lib"
+      fi
     done
     ghc-pkg --${packageDbFlag}="$packageConfDir" recache
 
     runHook postSetupCompilerEnvironment
-  '';
-
-  jailbreakPhase = ''
-    runHook preJailbreak
-
-    ${optionalString (editedCabalFile != null) ''
-      echo "Replacing Cabal file with edited version ${newCabalFile}."
-      cp ${newCabalFile} ${pname}.cabal
-    ''}${optionalString jailbreak ''
-      echo "Running jailbreak-cabal to lift version restrictions on build inputs."
-      ${jailbreak-cabal}/bin/jailbreak-cabal ${pname}.cabal
-    ''}
-
-    runHook postJailbreak
   '';
 
   compileBuildDriverPhase = ''
@@ -290,7 +281,6 @@ stdenv.mkDerivation ({
 // optionalAttrs (configureFlags != []) { inherit configureFlags; }
 // optionalAttrs (patches != [])        { inherit patches; }
 // optionalAttrs (patchPhase != "")     { inherit patchPhase; }
-// optionalAttrs (prePatch != "")       { inherit prePatch; }
 // optionalAttrs (postPatch != "")      { inherit postPatch; }
 // optionalAttrs (preConfigure != "")   { inherit preConfigure; }
 // optionalAttrs (postConfigure != "")  { inherit postConfigure; }
@@ -304,4 +294,5 @@ stdenv.mkDerivation ({
 // optionalAttrs (postInstall != "")    { inherit postInstall; }
 // optionalAttrs (preFixup != "")       { inherit preFixup; }
 // optionalAttrs (postFixup != "")      { inherit postFixup; }
+// optionalAttrs (stdenv.isLinux)       { LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive"; }
 )
