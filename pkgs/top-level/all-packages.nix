@@ -3524,6 +3524,12 @@ let
       regexCompat HsSyck random;
   };
 
+  uhc = callPackage ../development/compilers/uhc/default.nix ({
+    stdenv = clangStdenv;
+    ghcWithPackages = haskellngPackages.ghcWithPackages;
+    inherit (haskellngPackages) shuffle hashable mtl network uhc-util uulib;
+  });
+
   gcc-arm-embedded-4_7 = callPackage_i686 ../development/compilers/gcc-arm-embedded {
     version = "4.7-2013q3-20130916";
     releaseType = "update";
@@ -11516,7 +11522,12 @@ let
 
   dropbox-cli = callPackage ../applications/networking/dropbox-cli { };
 
-  lightdm = callPackage ../applications/display-managers/lightdm { };
+  lightdm = callPackage ../applications/display-managers/lightdm {
+    qt4 = null;
+    qt5 = null;
+  };
+
+  lightdm_qt = lightdm.override { qt5 = qt5; };
 
   lightdm_gtk_greeter = callPackage ../applications/display-managers/lightdm-gtk-greeter { };
 
@@ -13706,6 +13717,8 @@ let
   thinkfan = callPackage ../tools/system/thinkfan { };
 
   tup = callPackage ../development/tools/build-managers/tup { };
+
+  utf8proc = callPackage ../development/libraries/utf8proc { };
 
   vice = callPackage ../misc/emulators/vice {
     libX11 = xlibs.libX11;
