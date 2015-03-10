@@ -31,7 +31,13 @@ self: super: {
   xhtml = null;
 
   # We have Cabal 1.22.x.
-  jailbreak-cabal = super.jailbreak-cabal.override { Cabal = null; };
+  # Cabal 1.22 moved dependency representation, breaking jailbreak-cabal.
+  # https://github.com/peti/jailbreak-cabal/pull/6
+  jailbreak-cabal = appendPatch (super.jailbreak-cabal.override { Cabal = null; })
+    (pkgs.fetchpatch {
+      url = "https://github.com/peti/jailbreak-cabal/pull/6.patch";
+      sha256 = "0z8v270jbqh8rcldfcz75ckpvmj0hk6kg60ivyz4zv29k39lmcbj";
+    });
 
   # GHC 7.10.x's Haddock binary cannot generate hoogle files.
   # https://ghc.haskell.org/trac/ghc/ticket/9921
@@ -80,6 +86,9 @@ self: super: {
   # Test suite fails in "/tokens_bytestring_unicode.g.bin".
   alex = dontCheck super.alex;
 
+  # Test suite has graduated to hanging forever.
+  lens = dontCheck super.lens;
+
   # Upstream was notified about the over-specified constraint on 'base'
   # but refused to do anything about it because he "doesn't want to
   # support a moving target". Go figure.
@@ -93,16 +102,6 @@ self: super: {
   ReadArgs = dontCheck super.ReadArgs;
 
   # Until the changes have been pushed to Hackage
-  blaze-html = overrideCabal super.blaze-html (drv: {
-    patchPhase = ''
-      substituteInPlace blaze-html.cabal --replace " >= 0.4  && < 0.5" ""
-    '';
-  });
-  blaze-markup = overrideCabal super.blaze-markup (drv: {
-    patchPhase = ''
-      substituteInPlace blaze-markup.cabal --replace " >= 0.4  && < 0.5" ""
-    '';
-  });
   haskell-src-meta = appendPatch super.haskell-src-meta (pkgs.fetchpatch {
     url = "https://github.com/bmillwood/haskell-src-meta/pull/31.patch";
     sha256 = "0ij5zi2sszqns46mhfb87fzrgn5lkdv8yf9iax7cbrxb4a2j4y1w";
@@ -132,4 +131,27 @@ self: super: {
         --replace RecordWildCards "RecordWildCards, FlexibleContexts"
     '';
   });
+  contravariant = overrideCabal super.contravariant (drv: {
+    patchPhase = ''
+      substituteInPlace src/Data/Functor/Contravariant/Compose.hs \
+        --replace '<$>' '`fmap`'
+    '';
+  });
+} // {
+  # for now, GHC bug makes profunctors 4.4 un-compilable (9 GB+ of RAM)
+  profunctors = self.callPackage
+    ({ mkDerivation, base, comonad, distributive, semigroupoids, tagged
+     , transformers
+     }:
+     mkDerivation {
+       pname = "profunctors";
+       version = "4.3.2";
+       sha256 = "06dv9bjz2hsm32kzfqqm6z54197dfjm3wycnbbgl9pib711w484v";
+       buildDepends = [
+         base comonad distributive semigroupoids tagged transformers
+       ];
+       homepage = "http://github.com/ekmett/profunctors/";
+       description = "Profunctors";
+       license = stdenv.lib.licenses.bsd3;
+     }) {};
 }
