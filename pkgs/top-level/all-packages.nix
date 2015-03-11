@@ -1607,7 +1607,7 @@ let
   ihaskell-with-packages = callPackage ../development/tools/haskell/ihaskell/ng-wrapper.nix {
     inherit (pythonPackages) ipython;
     inherit (haskellngPackages) ihaskell ghcWithPackages;
-    packages = self: [];
+    packages = self: config.ihaskell.packages or [];
   };
 
   imapproxy = callPackage ../tools/networking/imapproxy { };
@@ -1765,6 +1765,8 @@ let
   libestr = callPackage ../development/libraries/libestr { };
 
   libevdev = callPackage ../development/libraries/libevdev { };
+
+  libevhtp = callPackage ../development/libraries/libevhtp { };
 
   liboauth = callPackage ../development/libraries/liboauth { };
 
@@ -2994,6 +2996,8 @@ let
   };
 
   vlan = callPackage ../tools/networking/vlan { };
+
+  vmtouch = callPackage ../tools/misc/vmtouch { };
 
   volumeicon = callPackage ../tools/audio/volumeicon { };
 
@@ -5701,11 +5705,6 @@ let
     else throw "Unknown libc";
 
   libcCross = assert crossSystem != null; libcCrossChooser crossSystem.libc;
-
-  eglibc = callPackage ../development/libraries/eglibc {
-    kernelHeaders = linuxHeaders;
-    installLocales = config.glibc.locales or false;
-  };
 
   # Only supported on Linux
   glibcLocales = if stdenv.isLinux then callPackage ../development/libraries/glibc/locales.nix { } else null;
@@ -9196,6 +9195,8 @@ let
     config = config.pcmciaUtils.config or null;
   };
 
+  perf-tools = callPackage ../os-specific/linux/perf-tools { };
+
   plymouth = callPackage ../os-specific/linux/plymouth {
     automake = automake113x;
   };
@@ -10480,6 +10481,7 @@ let
     pythonSupport = false;
   };
   gitSVN = gitAndTools.gitSVN;
+  git-cola = gitAndTools.git-cola;
 
   gitRepo = callPackage ../applications/version-management/git-repo {
     python = python27;
@@ -12768,6 +12770,8 @@ let
       bluedevil = callPackage ../tools/bluetooth/bluedevil { };
 
       calligra = callPackage ../applications/office/calligra { eigen = eigen2; };
+
+      choqok = callPackage ../applications/networking/instant-messengers/choqok { };
 
       colord-kde = callPackage ../tools/misc/colord-kde { };
 
