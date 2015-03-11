@@ -33,6 +33,12 @@ in stdenv.mkDerivation {
              else "0cifd2qhpyrbxx71a4hsagzk24qas8m5zvwcyhx69cz9yhxf404p";
   };
 
+  __propagatedImpureHostDeps = [
+    "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation"
+    "/usr/lib/libicucore.A.dylib"
+    "/usr/lib/libz.1.dylib"
+  ];
+
   configureFlags = concatMap sharedConfigureFlags (builtins.attrNames deps) ++ [ "--without-dtrace" ];
 
   prePatch = ''
