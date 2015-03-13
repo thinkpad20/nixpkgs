@@ -49,7 +49,11 @@ self: super: {
     mtl = super.mtl_2_2_1;
   })) (drv: {
     jailbreak = true;           # idris is scared of lens 4.7
-    patchPhase = "find . -name '*.hs' -exec sed -i -s 's|-Werror||' {} +";
+    patchPhase = ''
+      runHook prePatch
+      find . -name '*.hs' -exec sed -i -s 's|-Werror||' {} +
+      runHook postPatch
+    '';
   });                           # warning: "Module ‘Control.Monad.Error’ is deprecated"
 
   # Depends on time == 0.1.5, which we don't have.
