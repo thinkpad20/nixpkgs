@@ -31,13 +31,8 @@ self: super: {
   xhtml = null;
 
   # We have Cabal 1.22.x.
-  # Cabal 1.22 moved dependency representation, breaking jailbreak-cabal.
   # https://github.com/peti/jailbreak-cabal/pull/6
-  jailbreak-cabal = appendPatch (super.jailbreak-cabal.override { Cabal = null; })
-    (pkgs.fetchpatch {
-      url = "https://github.com/peti/jailbreak-cabal/pull/6.patch";
-      sha256 = "0z8v270jbqh8rcldfcz75ckpvmj0hk6kg60ivyz4zv29k39lmcbj";
-    });
+  jailbreak-cabal = super.jailbreak-cabal.override { Cabal = null; };
 
   # GHC 7.10.x's Haddock binary cannot generate hoogle files.
   # https://ghc.haskell.org/trac/ghc/ticket/9921
