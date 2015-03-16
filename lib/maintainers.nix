@@ -81,6 +81,7 @@
   garrison = "Jim Garrison <jim@garrison.cc>";
   gavin = "Gavin Rogers <gavin@praxeology.co.uk>";
   gebner = "Gabriel Ebner <gebner@gebner.org>";
+  giogadi = "Luis G. Torres <lgtorres42@gmail.com>";
   globin = "Robin Gloster <robin@glob.in>";
   goibhniu = "Cillian de Róiste <cillian.deroiste@gmail.com>";
   gridaphobe = "Eric Seidel <eric@seidel.io>";
@@ -141,6 +142,7 @@
   orbitz = "Malcolm Matalka <mmatalka@gmail.com>";
   page = "Carles Pagès <page@cubata.homelinux.net>";
   paholg = "Paho Lurie-Gregg <paho@paholg.com>";
+  pakhfn = "Fedor Pakhomov <pakhfn@gmail.com>";
   pashev = "Igor Pashev <pashev.igor@gmail.com>";
   phausmann = "Philipp Hausmann <nix@314.ch>";
   phreedom = "Evgeny Egorochkin <phreedom@yandex.ru>";

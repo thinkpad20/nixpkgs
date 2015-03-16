@@ -695,6 +695,10 @@ let
 
   cdemu-client = callPackage ../misc/emulators/cdemu/client.nix { };
 
+  ceres-solver = callPackage ../development/libraries/ceres-solver {
+    google-gflags = null; # only required for examples/tests
+  };
+
   gcdemu = callPackage ../misc/emulators/cdemu/gui.nix { };
 
   image-analyzer = callPackage ../misc/emulators/cdemu/analyzer.nix { };
@@ -1078,6 +1082,10 @@ let
 
   detox = callPackage ../tools/misc/detox { };
 
+  ddccontrol = callPackage ../tools/misc/ddccontrol { };
+
+  ddccontrol-db = callPackage ../data/misc/ddccontrol-db { };
+
   ddclient = callPackage ../tools/networking/ddclient { };
 
   dd_rescue = callPackage ../tools/system/dd_rescue { };
@@ -1222,7 +1230,7 @@ let
 
   ettercap = callPackage ../applications/networking/sniffers/ettercap { };
 
-  euca2ools = callPackage ../tools/virtualization/euca2ools { pythonPackages = python26Packages; };
+  euca2ools = callPackage ../tools/virtualization/euca2ools { };
 
   evtest = callPackage ../applications/misc/evtest { };
 
@@ -1393,7 +1401,6 @@ let
   gifsicle = callPackage ../tools/graphics/gifsicle { };
 
   gitlab = callPackage ../applications/version-management/gitlab {
-    libiconv = libiconvOrLibc;
     ruby = ruby_2_1_3;
   };
 
@@ -2446,6 +2453,10 @@ let
   pytrainer = callPackage ../applications/misc/pytrainer { };
 
   openmpi = callPackage ../development/libraries/openmpi { };
+
+  qarte = callPackage ../applications/video/qarte {
+    sip = pythonPackages.sip_4_16;
+  };
 
   qastools = callPackage ../tools/audio/qastools {
     qt = qt4;
@@ -4187,6 +4198,8 @@ let
 
     xmlm = callPackage ../development/ocaml-modules/xmlm { };
 
+    xml-light = callPackage ../development/ocaml-modules/xml-light { };
+
     yojson = callPackage ../development/ocaml-modules/yojson { };
 
     zarith = callPackage ../development/ocaml-modules/zarith { };
@@ -4473,7 +4486,7 @@ let
   mesos = callPackage ../applications/networking/cluster/mesos {
     sasl = cyrus_sasl;
     inherit (pythonPackages) python boto setuptools distutils-cfg wrapPython;
-    pythonProtobuf = pythonPackages.protobuf;
+    pythonProtobuf = pythonPackages.protobuf2_5;
   };
 
   mesos-dns = callPackage ../servers/dns/mesos-dns { };
@@ -4779,6 +4792,8 @@ let
   autocutsel = callPackage ../tools/X11/autocutsel{ };
 
   automake = automake114x;
+
+  automake110x = callPackage ../development/tools/misc/automake/automake-1.10.x.nix { };
 
   automake111x = callPackage ../development/tools/misc/automake/automake-1.11.x.nix { };
 
@@ -6447,10 +6462,7 @@ let
   # glibc provides libiconv so systems with glibc don't need to build libiconv
   # separately, but we also provide libiconvReal, which will always be a
   # standalone libiconv, just in case you want it
-  libiconv =
-    if stdenv.isGlibc
-    then stdenv.cc.libc
-    else callPackage ../development/libraries/libiconv { };
+  libiconv = if stdenv.isGlibc then stdenv.cc.libc else libiconvReal;
 
   libiconvReal = callPackage ../development/libraries/libiconv { };
 
@@ -8223,6 +8235,8 @@ let
 
   mpd_clientlib = callPackage ../servers/mpd/clientlib.nix { };
 
+  mpdscribble = callPackage ../tools/misc/mpdscribble { };
+
   miniHttpd = callPackage ../servers/http/mini-httpd {};
 
   mlmmj = callPackage ../servers/mail/mlmmj { };
@@ -8600,6 +8614,13 @@ let
     bison = bison2;
     perl = perl516; # ${perl}/.../CORE/handy.h:124:34: error: 'bool' undeclared
   };
+
+  apparmor_2_9 = callPackage ../os-specific/linux/apparmor/2.9 { };
+  libapparmor = apparmor_2_9.libapparmor;
+  apparmor-pam = apparmor_2_9.apparmor-pam;
+  apparmor-parser = apparmor_2_9.apparmor-parser;
+  apparmor-profiles = apparmor_2_9.apparmor-profiles;
+  apparmor-utils = apparmor_2_9.apparmor-utils;
 
   atop = callPackage ../os-specific/linux/atop { };
 
@@ -9874,6 +9895,8 @@ let
   batik = callPackage ../applications/graphics/batik { };
 
   batti = callPackage ../applications/misc/batti { };
+
+  cbatticon = callPackage ../applications/misc/cbatticon { };
 
   bazaar = callPackage ../applications/version-management/bazaar { };
 
