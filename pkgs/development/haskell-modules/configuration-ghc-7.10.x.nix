@@ -31,7 +31,6 @@ self: super: {
   xhtml = null;
 
   # We have Cabal 1.22.x.
-  # https://github.com/peti/jailbreak-cabal/pull/6
   jailbreak-cabal = super.jailbreak-cabal.override { Cabal = null; };
 
   # GHC 7.10.x's Haddock binary cannot generate hoogle files.
@@ -92,6 +91,16 @@ self: super: {
 
   # https://github.com/kazu-yamamoto/unix-time/issues/30
   unix-time = dontCheck super.unix-time;
+
+  Glob = doJailbreak super.Glob;
+
+  ansi-wl-pprint = overrideCabal super.ansi-wl-pprint (drv: {
+    patchPhase = ''
+      substituteInPlace Text/PrettyPrint/ANSI/Leijen.hs \
+        --replace 'fold (<$>)' 'fold (Text.PrettyPrint.ANSI.Leijen.<$>)' \
+        --replace ', (<$>)' ', (Text.PrettyPrint.ANSI.Leijen.<$>)' \
+    '';
+  });
 
   # Until the changes have been pushed to Hackage
   haskell-src-meta = appendPatch super.haskell-src-meta (pkgs.fetchpatch {
