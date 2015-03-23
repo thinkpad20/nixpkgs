@@ -1,4 +1,4 @@
-{ stdenv, appleDerivation }:
+{ stdenv, fetchurl, appleDerivation, libsecurity_asn1, osx_private_sdk }:
 
 appleDerivation {
   phases = [ "unpackPhase" "installPhase" ];
@@ -112,5 +112,7 @@ appleDerivation {
     cp libsecurity_transform/lib/SecTransform.h              $dest
     cp libsecurity_transform/lib/SecTransformReadTransform.h $dest
 
+    private=${osx_private_sdk}
+    cp $private/System/Library/Frameworks/Security.framework/Versions/A/PrivateHeaders/*.h $dest
   '';
 }

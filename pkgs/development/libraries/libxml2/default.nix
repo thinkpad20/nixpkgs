@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, zlib, xz, python ? null, pythonSupport ? true, findXMLCatalogs }:
+{ stdenv, fetchurl, zlib, xz, libiconv, python ? null, pythonSupport ? true, findXMLCatalogs }:
 
 assert pythonSupport -> python != null;
 
@@ -22,7 +22,7 @@ stdenv.mkDerivation (rec {
     # RUNPATH for that, leading to undefined references for its users.
     ++ (stdenv.lib.optional stdenv.isFreeBSD xz);
 
-  propagatedBuildInputs = [ zlib findXMLCatalogs ];
+  propagatedBuildInputs = [ zlib findXMLCatalogs libiconv ];
 
   passthru = { inherit pythonSupport version; };
 

@@ -8699,9 +8699,9 @@ let
     xcode = callPackage ../os-specific/darwin/xcode {};
 
     osx_sdk = callPackage ../os-specific/darwin/osx-sdk {};
-    osx_private_sdk = callPackage ../os-specific/darwin/osx-private-sdk { inherit osx_sdk; };
+    osx_private_sdk = callPackage ../os-specific/darwin/osx-private-sdk {};
 
-    security_tool = callPackage ../os-specific/darwin/security-tool { inherit osx_private_sdk; };
+    security_tool = (newScope (darwin.apple_sdk.frameworks // darwin)) ../os-specific/darwin/security-tool { };
 
     cmdline_sdk   = cmdline.sdk;
     cmdline_tools = cmdline.tools;
@@ -8714,6 +8714,12 @@ let
     libtool = callPackage ../os-specific/darwin/libtool { inherit cctools; };
 
     sw_vers = callPackage ../os-specific/darwin/sw_vers {};
+  };
+
+  gnustep-make = callPackage ../development/tools/build-managers/gnustep/make {};
+  gnustep-xcode = callPackage ../development/tools/build-managers/gnustep/xcode {
+    inherit (darwin.apple_sdk.frameworks) Foundation;
+    inherit (darwin) libobjc;
   };
 
   devicemapper = lvm2;

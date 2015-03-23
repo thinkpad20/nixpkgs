@@ -101,6 +101,7 @@ let
     };
   };
 in rec {
+  inherit sdk;
   libs = {
     xpc = stdenv.mkDerivation {
       name   = "apple-lib-xpc";

@@ -138,6 +138,13 @@ self: super: {
         --replace '<$>' '`fmap`'
     '';
   });
+
+  process-extras = overrideCabal super.process-extras (drv: {
+    patchPhase = ''
+      substituteInPlace src/System/Process/Common.hs \
+        --replace 'import System.Process' 'import System.Process hiding (readCreateProcess, readCreateProcessWithExitCode)'
+    '';
+  });
 } // {
   # for now, GHC bug makes profunctors 4.4 un-compilable (9 GB+ of RAM)
   profunctors = self.callPackage
