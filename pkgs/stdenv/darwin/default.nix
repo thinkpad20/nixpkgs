@@ -270,15 +270,7 @@ in rec {
     initialPath = import ../common-path.nix { inherit pkgs; };
     shell       = "${pkgs.bash}/bin/bash";
 
-    cc = import ../../build-support/cc-wrapper {
-      inherit stdenv shell;
-      nativeTools = false;
-      nativeLibc  = false;
-      inherit (pkgs) coreutils binutils;
-      inherit (pkgs.darwin) dyld;
-      cc   = pkgs.llvmPackages.clang;
-      libc = pkgs.darwin.Libsystem;
-    };
+    cc = pkgs.llvmPackages.clang;
 
     extraBuildInputs = with pkgs; [ darwin.CF libcxx ];
 
