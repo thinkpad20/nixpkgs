@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, fetchgit, apparmor }:
+{ stdenv, fetchurl }:
 
 let
 
@@ -65,17 +65,17 @@ rec {
   };
 
   grsecurity_stable = grsecPatch
-    { kversion  = "3.14.35";
-      revision  = "201503092203";
+    { kversion  = "3.14.36";
+      revision  = "201503182218";
       branch    = "stable";
-      sha256    = "0l8m0ixh0qcgwy8vcmfl8pal93wc03ahc3ci3sca79nx33a050v9";
+      sha256    = "14njc3xih3v38fnh7wrx7xdapqi67032qa6gp2qzhp41f5q7i4i8";
     };
 
   grsecurity_unstable = grsecPatch
-    { kversion  = "3.19.1";
-      revision  = "201503122205";
+    { kversion  = "3.19.2";
+      revision  = "201503201903";
       branch    = "test";
-      sha256    = "0g22wfmlim163gmsl4cn4nq4zif8zni3cpkk7cr93z92r9kafp4y";
+      sha256    = "0ha4hvf2c9im9cyq9sxdbdx165i6ngywf46899aq3giyw74gnpf3";
     };
 
   grsec_fix_path =

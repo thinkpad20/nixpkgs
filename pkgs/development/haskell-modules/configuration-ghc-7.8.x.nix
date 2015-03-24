@@ -45,7 +45,7 @@ self: super: {
     mkDerivation = drv: super.mkDerivation (drv // { doCheck = false; });
     transformers = super.transformers_0_4_3_0;
     transformers-compat = disableCabalFlag super.transformers-compat "three";
-    haskeline = self.haskeline_0_7_1_3;
+    haskeline = self.haskeline_0_7_2_0;
     mtl = super.mtl_2_2_1;
   })) (drv: {
     jailbreak = true;           # idris is scared of lens 4.7
@@ -79,8 +79,8 @@ self: super: {
   seqid-streams = super.seqid-streams_0_1_0;
 
   # Need binary >= 0.7.2, but our compiler has only 0.7.1.0.
-  hosc = dontDistribute super.hosc;
-  tidal-midi = dontDistribute super.tidal-midi;
+  hosc = super.hosc.overrideScope (self: super: { binary = self.binary_0_7_4_0; });
+  tidal-midi = super.tidal-midi.overrideScope (self: super: { binary = self.binary_0_7_4_0; });
 
   # These packages need mtl 2.2.x directly or indirectly via dependencies.
   amazonka = markBroken super.amazonka;
