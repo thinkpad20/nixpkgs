@@ -11,6 +11,11 @@ stdenv.mkDerivation rec {
     sha256 = "145llhj6gq2bh9b7p8xkxc388krrximq80b87f3cn4w4d4k9fhqp";
   };
 
+  __impureHostDeps = [
+    "/System/Library/PrivateFrameworks/UIFoundation.framework/Versions/A/UIFoundation"
+    "/usr/lib/libextension.dylib"
+  ];
+
   enableParallelBuilding = true;
 
   buildInputs = [ ncurses pkgconfig ] ++ stdenv.lib.optionals stdenv.isDarwin [
