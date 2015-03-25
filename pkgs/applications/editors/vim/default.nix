@@ -5,11 +5,6 @@ stdenv.mkDerivation rec {
 
   version = "7.4.410";
 
-  __impureHostDeps = [
-    "/System/Library/PrivateFrameworks/UIFoundation.framework/Versions/A/UIFoundation"
-    "/usr/lib/libextension.dylib"
-  ];
-
   src = fetchhg {
     url = "https://vim.googlecode.com/hg/";
     rev = "v7-4-410";

@@ -20,8 +20,8 @@ stdenv.mkDerivation rec {
   name = "ghc-${version}";
 
   src = fetchurl {
-    url = "https://downloads.haskell.org/~ghc/7.10.1-rc3/${name}-src.tar.xz";
-    sha256 = "0a54hd7njg4inbjhbs8rbvhhnibp1bnq78b6j4ql49qkh84gw50g";
+    url = "https://downloads.haskell.org/~ghc/7.10.1-rc3/${name}-src.tar.bz2";
+    sha256 = "0cqazqf90rsp2nl7pk46gki7lln9jks0h166i0bd1qsp5gc1xv13";
   };
 
   buildInputs = [ ghc perl ];

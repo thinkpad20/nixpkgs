@@ -492,6 +492,8 @@ let
 
   ahcpd = callPackage ../tools/networking/ahcpd { };
 
+  aiccu = callPackage ../tools/networking/aiccu { };
+
   aide = callPackage ../tools/security/aide { };
 
   aircrackng = callPackage ../tools/networking/aircrack-ng { };
@@ -997,6 +999,8 @@ let
 
   biosdevname = callPackage ../tools/networking/biosdevname { };
 
+  checkbashism = callPackage ../development/tools/misc/checkbashisms { };
+
   clamav = callPackage ../tools/security/clamav { };
 
   clex = callPackage ../tools/misc/clex { };
@@ -1307,6 +1311,8 @@ let
 
   flpsed = callPackage ../applications/editors/flpsed { };
 
+  fluentd = callPackage ../tools/misc/fluentd { };
+
   flvstreamer = callPackage ../tools/networking/flvstreamer { };
 
   libbsd = callPackage ../development/libraries/libbsd { };
@@ -1514,6 +1520,7 @@ let
 
   grub = callPackage_i686 ../tools/misc/grub {
     buggyBiosCDSupport = config.grub.buggyBiosCDSupport or true;
+    automake = automake112x; # fails with 13 and 14
   };
 
   trustedGrub = callPackage_i686 ../tools/misc/grub/trusted.nix {
@@ -1617,6 +1624,8 @@ let
   highlight = callPackage ../tools/text/highlight {
     lua = lua5;
   };
+
+  honcho = callPackage ../tools/system/honcho { };
 
   host = callPackage ../tools/networking/host { };
 
@@ -1786,16 +1795,12 @@ let
     unstableVersion = true;
   };
 
-  nodePackages = recurseIntoAttrs (
-    callPackage ./node-packages.nix { self = nodePackages; }
-  );
+  nodePackages = callPackage ./node-packages.nix { self = nodePackages; };
 
   iojs = callPackage ../development/web/iojs { libuv = libuvVersions.v1_4_0; };
   iojs-nightly = callPackage ../development/web/iojs { libuv = libuvVersions.v1_4_0; nightly = true; };
 
-  iojsPackages = recurseIntoAttrs (
-    callPackage ./node-packages.nix { self = iojsPackages; nodejs = iojs; }
-  );
+  iojsPackages = callPackage ./node-packages.nix { self = iojsPackages; nodejs = iojs; };
 
   ldapvi = callPackage ../tools/misc/ldapvi { };
 
@@ -2262,6 +2267,8 @@ let
 
   owncloudclient = callPackage ../applications/networking/owncloud-client { };
 
+  p2pvc = callPackage ../applications/video/p2pvc {};
+
   p7zip = callPackage ../tools/archivers/p7zip { };
 
   pal = callPackage ../tools/misc/pal { };
@@ -2278,7 +2285,9 @@ let
 
   panomatic = callPackage ../tools/graphics/panomatic { };
 
-  par2cmdline = callPackage ../tools/networking/par2cmdline { };
+  par2cmdline = callPackage ../tools/networking/par2cmdline {
+    automake = automake112x; # fails with 14
+  };
 
   parallel = callPackage ../tools/misc/parallel { };
 
@@ -2291,7 +2300,6 @@ let
   pitivi = callPackage ../applications/video/pitivi {
     gst = gst_all_1;
     clutter-gtk = clutter_gtk;
-    inherit (gnome3) gnome_icon_theme gnome_icon_theme_symbolic;
   };
 
   p0f = callPackage ../tools/security/p0f { };
@@ -2401,7 +2409,9 @@ let
 
   ponysay = callPackage ../tools/misc/ponysay { };
 
-  povray = callPackage ../tools/graphics/povray { };
+  povray = callPackage ../tools/graphics/povray {
+    automake = automake113x; # fails with 14
+  };
 
   ppl = callPackage ../development/libraries/ppl { };
 
@@ -2410,6 +2420,8 @@ let
   pptp = callPackage ../tools/networking/pptp {};
 
   prey-bash-client = callPackage ../tools/security/prey { };
+
+  profile-cleaner = callPackage ../tools/misc/profile-cleaner { };
 
   profile-sync-daemon = callPackage ../tools/misc/profile-sync-daemon { };
 
@@ -2770,6 +2782,8 @@ let
   privoxy = callPackage ../tools/networking/privoxy { };
 
   swaks = callPackage ../tools/networking/swaks { };
+
+  t = callPackage ../tools/misc/t { };
 
   t1utils = callPackage ../tools/misc/t1utils { };
 
@@ -3272,8 +3286,9 @@ let
 
   ccl = callPackage ../development/compilers/ccl { };
 
-  clang = wrapCC llvmPackages.clang;
+  clang = llvmPackages.clang;
 
+  clang_36 = llvmPackages.clang;
   clang_35 = wrapCC llvmPackages_35.clang;
   clang_34 = wrapCC llvmPackages_34.clang;
   clang_33 = wrapCC (clangUnwrapped llvm_33 ../development/compilers/llvm/3.3/clang.nix);
@@ -3302,8 +3317,8 @@ let
   };
 
   #Use this instead of stdenv to build with clang
-  clangStdenv  = if stdenv.isDarwin then stdenv else lowPrio (stdenvAdapters.overrideCC stdenv clang);
-  libcxxStdenv = if stdenv.isDarwin then stdenv else stdenvAdapters.overrideCC stdenv (clangWrapSelf llvmPackages.clang);
+  clangStdenv = if stdenv.isDarwin then stdenv else lowPrio llvmPackages.stdenv;
+  libcxxStdenv = stdenvAdapters.overrideCC stdenv (clangWrapSelf llvmPackages.clang-unwrapped);
 
   clean = callPackage ../development/compilers/clean { };
 
@@ -3660,6 +3675,7 @@ let
   };
 
   haxe = callPackage ../development/compilers/haxe { };
+  hxcpp = callPackage ../development/compilers/haxe/hxcpp.nix { };
 
   hhvm = callPackage ../development/compilers/hhvm { };
   hiphopvm = hhvm; /* Compatibility alias */
@@ -3817,12 +3833,15 @@ let
 
   llvm = llvmPackages.llvm;
 
+  llvm_36 = llvmPackages_36.llvm;
   llvm_35 = llvmPackages_35.llvm;
   llvm_34 = llvmPackages_34.llvm;
   llvm_33 = llvm_v ../development/compilers/llvm/3.3/llvm.nix;
 
   llvm_v = path: callPackage path { };
 
+  # uncomment once llvm 3.6 stops segfaulting
+  # llvmPackages = llvmPackages_36;
   llvmPackages = llvmPackages_35;
 
   llvmPackages_34 = recurseIntoAttrs (import ../development/compilers/llvm/3.4 {
@@ -3832,7 +3851,12 @@ let
   llvmPackagesSelf = import ../development/compilers/llvm/3.4 { inherit newScope fetchurl; isl = isl_0_12; stdenv = libcxxStdenv; };
 
   llvmPackages_35 = import ../development/compilers/llvm/3.5 {
-    inherit pkgs stdenv newScope fetchurl isl;
+    inherit pkgs stdenv newScope fetchurl isl wrapCC;
+  };
+
+  llvmPackages_36 = import ../development/compilers/llvm/3.6 {
+    inherit pkgs stdenv newScope fetchurl isl wrapCC;
+    inherit (stdenvAdapters) overrideCC;
   };
 
   manticore = callPackage ../development/compilers/manticore { };
@@ -3978,6 +4002,8 @@ let
     csv = callPackage ../development/ocaml-modules/csv { };
 
     deriving = callPackage ../development/tools/ocaml/deriving { };
+
+    dolog = callPackage ../development/ocaml-modules/dolog { };
 
     easy-format = callPackage ../development/ocaml-modules/easy-format { };
 
@@ -4172,6 +4198,10 @@ let
 
     pycaml = callPackage ../development/ocaml-modules/pycaml { };
 
+    qtest = callPackage ../development/ocaml-modules/qtest {
+      oasis = ocaml_oasis;
+    };
+
     re = callPackage ../development/ocaml-modules/re { };
 
     safepass = callPackage ../development/ocaml-modules/safepass { };
@@ -4239,8 +4269,7 @@ let
   opam_1_1 = callPackage ../development/tools/ocaml/opam/1.1.nix {
     inherit (ocamlPackages_4_01_0) ocaml;
   };
-  opam_1_2_0 = callPackage ../development/tools/ocaml/opam/1.2.0.nix { };
-  opam = opam_1_2_0;
+  opam = callPackage ../development/tools/ocaml/opam { };
 
   ocamlnat = let callPackage = newScope pkgs.ocamlPackages_3_12_1; in callPackage ../development/ocaml-modules/ocamlnat { };
 
@@ -4882,6 +4911,10 @@ let
 
   cgdb = callPackage ../development/tools/misc/cgdb { };
 
+  chefdk = callPackage ../development/tools/chefdk {
+    ruby = ruby_2_0_0;
+  };
+
   chromedriver = callPackage ../development/tools/selenium/chromedriver { gconf = gnome.GConf; };
 
   chrpath = callPackage ../development/tools/misc/chrpath { };
@@ -4904,6 +4937,9 @@ let
 
   cmake = callPackage ../development/tools/build-managers/cmake { };
 
+  cmake-3_2 = callPackage ../development/tools/build-managers/cmake/3.2.nix {
+    jsoncpp = jsoncpp-1_6;
+  };
   cmake-3_0 = callPackage ../development/tools/build-managers/cmake/3.0.nix { };
   cmake264 = callPackage ../development/tools/build-managers/cmake/264.nix { };
 
@@ -4929,8 +4965,8 @@ let
 
   csslint = callPackage ../development/web/csslint { };
 
-  libcxx = llvmPackages_35.libcxx;
-  libcxxabi = llvmPackages_35.libcxxabi;
+  libcxx = llvmPackages.libcxx;
+  libcxxabi = llvmPackages.libcxxabi;
 
   libsigrok = callPackage ../development/tools/libsigrok { };
 
@@ -5028,7 +5064,7 @@ let
   gnumake382 = callPackage ../development/tools/build-managers/gnumake/3.82 { };
   gnumake40 = callPackage ../development/tools/build-managers/gnumake/4.0 { };
   gnumake41 = callPackage ../development/tools/build-managers/gnumake/4.1 { };
-  gnumake = gnumake382;
+  gnumake = gnumake41;
 
   gob2 = callPackage ../development/tools/misc/gob2 { };
 
@@ -5564,7 +5600,7 @@ let
 
   dssi = callPackage ../development/libraries/dssi {};
 
-  dragonegg = llvmPackages.dragonegg;
+  dragonegg = llvmPackages_35.dragonegg;
 
   dxflib = callPackage ../development/libraries/dxflib {};
 
@@ -5616,6 +5652,7 @@ let
   ffmpeg_1_2 = callPackage ../development/libraries/ffmpeg/1.2.nix { };
   ffmpeg_2_2 = callPackage ../development/libraries/ffmpeg/2.2.nix { };
   ffmpeg_2_5 = callPackage ../development/libraries/ffmpeg/2.5.nix { };
+  ffmpeg_2_6 = callPackage ../development/libraries/ffmpeg/2.6.nix { };
   # Aliases
   ffmpeg_0 = ffmpeg_0_11;
   ffmpeg_1 = ffmpeg_1_2;
@@ -5720,7 +5757,7 @@ let
 
   giblib = callPackage ../development/libraries/giblib { };
 
-  libgit2 = callPackage ../development/libraries/git2 { };
+  libgit2 = callPackage ../development/libraries/git2 { cmake = cmake-3_2; };
 
   glew = callPackage ../development/libraries/glew { };
 
@@ -6071,6 +6108,7 @@ let
   json_c = callPackage ../development/libraries/json-c { };
 
   jsoncpp = callPackage ../development/libraries/jsoncpp { };
+  jsoncpp-1_6 = callPackage ../development/libraries/jsoncpp/1.6.nix { };
 
   libjson = callPackage ../development/libraries/libjson { };
 
@@ -6146,7 +6184,9 @@ let
 
   libassuan = callPackage ../development/libraries/libassuan { };
 
-  libassuan2_1 = callPackage ../development/libraries/libassuan/git.nix { };
+  libassuan2_1 = callPackage ../development/libraries/libassuan/git.nix {
+    automake = automake112x; # fails with 13 and 14
+  };
 
   libatomic_ops = callPackage ../development/libraries/libatomic_ops {};
 
@@ -6602,6 +6642,8 @@ let
 
   libosip_3 = callPackage ../development/libraries/osip/3.nix {};
 
+  libosmpbf = callPackage ../development/libraries/libosmpbf {};
+
   libotr = callPackage ../development/libraries/libotr {
     libgcrypt = libgcrypt_1_6;
   };
@@ -6746,7 +6788,11 @@ let
     then darwin.libunwind
     else callPackage ../development/libraries/libunwind { };
 
-  libuvVersions = recurseIntoAttrs (callPackage ../development/libraries/libuv { });
+  libunwindNative = callPackage ../development/libraries/libunwind/native.nix {};
+
+  libuvVersions = recurseIntoAttrs (callPackage ../development/libraries/libuv {
+    automake = automake113x; # fails with 14
+  });
 
   libv4l = lowPrio (v4l_utils.override {
     withQt4 = false;
@@ -6865,6 +6911,10 @@ let
   log4cplus = callPackage ../development/libraries/log4cplus { };
 
   loudmouth = callPackage ../development/libraries/loudmouth { };
+
+  luabind = callPackage ../development/libraries/luabind { lua = lua5_1; };
+
+  luabind_luajit = callPackage ../development/libraries/luabind { lua = luajit; };
 
   lzo = callPackage ../development/libraries/lzo { };
 
@@ -7104,15 +7154,6 @@ let
   boringssl = callPackage ../development/libraries/boringssl { };
 
   openssl = callPackage ../development/libraries/openssl {
-    fetchurl = fetchurlBoot;
-    cryptodevHeaders = linuxPackages.cryptodev.override {
-      fetchurl = fetchurlBoot;
-      onlyHeaders = true;
-    };
-  };
-
-  # bitcoin 0.9.3 requires openssl 1.0.1j
-  openssl_1_0_1j = callPackage ../development/libraries/openssl/1.0.1j.nix {
     fetchurl = fetchurlBoot;
     cryptodevHeaders = linuxPackages.cryptodev.override {
       fetchurl = fetchurlBoot;
@@ -7470,6 +7511,8 @@ let
   srtp = callPackage ../development/libraries/srtp {};
 
   srtp_linphone = callPackage ../development/libraries/srtp/linphone.nix { };
+
+  stxxl = callPackage ../development/libraries/stxxl { parallel = true; };
 
   sqlite = lowPrio (callPackage ../development/libraries/sqlite { });
 
@@ -7929,6 +7972,13 @@ let
 
   planetary_annihilation = callPackage ../games/planetaryannihilation { };
 
+  sqitchPg = callPackage ../development/tools/misc/sqitch {
+    inherit stdenv perl makeWrapper;
+    name = "sqitch-pg";
+    databaseModule = perlPackages.DBDPg;
+    sqitchModule = perlPackages.AppSqitch;
+  };
+
   ### DEVELOPMENT / PYTHON MODULES
 
   # python function with default python interpreter
@@ -8160,12 +8210,11 @@ let
     erlang = erlangR16;
   };
 
-  prosody = recurseIntoAttrs (
-    callPackage ../servers/xmpp/prosody {
-      lua5 = lua5_1;
-      inherit (lua51Packages) luasocket luasec luaexpat luafilesystem luabitop luaevent;
-      withLibevent = true;
-  });
+  prosody = callPackage ../servers/xmpp/prosody {
+    lua5 = lua5_1;
+    inherit (lua51Packages) luasocket luasec luaexpat luafilesystem luabitop luaevent;
+    withLibevent = true;
+  };
 
   elasticmq = callPackage ../servers/elasticmq { };
 
@@ -8205,8 +8254,6 @@ let
   jetty92 = callPackage ../servers/http/jetty/9.2.nix { };
 
   joseki = callPackage ../servers/http/joseki {};
-
-  kafka = callPackage ../servers/kafka { };
 
   rdkafka = callPackage ../development/libraries/rdkafka { };
 
@@ -8269,6 +8316,10 @@ let
   openresty = callPackage ../servers/http/openresty { };
 
   opensmtpd = callPackage ../servers/mail/opensmtpd { };
+
+  osrm-backend = callPackage ../servers/osrm-backend { };
+
+  osrm-backend_luajit = callPackage ../servers/osrm-backend { luabind = luabind_luajit; };
 
   petidomo = callPackage ../servers/mail/petidomo { };
 
@@ -8389,6 +8440,22 @@ let
 
   postgresql_jdbc = callPackage ../servers/sql/postgresql/jdbc { };
 
+  prometheus = callPackage ../servers/monitoring/prometheus { };
+  prometheus-alertmanager =
+    callPackage ../servers/monitoring/prometheus/alertmanager { };
+  prometheus-cli =
+    callPackage ../servers/monitoring/prometheus/cli { };
+  prometheus-haproxy-exporter =
+    callPackage ../servers/monitoring/prometheus/haproxy_exporter { };
+  prometheus-mesos-exporter =
+    callPackage ../servers/monitoring/prometheus/mesos_exporter { };
+  prometheus-node-exporter =
+    callPackage ../servers/monitoring/prometheus/node_exporter { };
+  prometheus-pushgateway =
+    callPackage ../servers/monitoring/prometheus/pushgateway { };
+  prometheus-statsd-bridge =
+    callPackage ../servers/monitoring/prometheus/statsd_bridge { };
+
   psqlodbc = callPackage ../servers/sql/postgresql/psqlodbc { };
 
   pyIRCt = builderDefsPackage (import ../servers/xmpp/pyIRCt) {
@@ -8505,6 +8572,8 @@ let
 
   storm = callPackage ../servers/computing/storm { };
 
+  slurm-llnl = callPackage ../servers/computing/slurm { };
+
   tomcat5 = callPackage ../servers/http/tomcat/5.0.nix { };
 
   tomcat6 = callPackage ../servers/http/tomcat/6.0.nix { };
@@ -8596,6 +8665,8 @@ let
   alfred = callPackage ../os-specific/linux/batman-adv/alfred.nix { };
 
   alienfx = callPackage ../os-specific/linux/alienfx { };
+
+  alsa-firmware = callPackage ../os-specific/linux/alsa-firmware { };
 
   alsaLib = callPackage ../os-specific/linux/alsa-lib { };
 
@@ -9254,17 +9325,11 @@ let
 
   pam_ccreds = callPackage ../os-specific/linux/pam_ccreds { };
 
-  pam_console = callPackage ../os-specific/linux/pam_console {
-    libtool = libtool_1_5;
-  };
-
   pam_devperm = callPackage ../os-specific/linux/pam_devperm { };
 
   pam_krb5 = callPackage ../os-specific/linux/pam_krb5 { };
 
   pam_ldap = callPackage ../os-specific/linux/pam_ldap { };
-
-  pam_login = callPackage ../os-specific/linux/pam_login { };
 
   pam_mount = callPackage ../os-specific/linux/pam_mount { };
 
@@ -9283,9 +9348,7 @@ let
 
   perf-tools = callPackage ../os-specific/linux/perf-tools { };
 
-  plymouth = callPackage ../os-specific/linux/plymouth {
-    automake = automake113x;
-  };
+  plymouth = callPackage ../os-specific/linux/plymouth { };
 
   pmount = callPackage ../os-specific/linux/pmount { };
 
@@ -10754,6 +10817,8 @@ let
 
   hydrogen = callPackage ../applications/audio/hydrogen { };
 
+  spectrwm = callPackage ../applications/window-managers/spectrwm { };
+
   i3 = callPackage ../applications/window-managers/i3 {
     xcb-util-cursor = if stdenv.isDarwin then xcb-util-cursor-HEAD else xcb-util-cursor;
   };
@@ -10859,6 +10924,10 @@ let
   kdeApps_14_12 = recurseIntoAttrs (callPackage ../applications/kde-apps-14.12 {
     kf5 = kf57;
     qt5 = qt54;
+    pkgs = pkgs // {
+      cmake = cmake-3_2;
+    };
+    kde4 = kde4.override { inherit (kdeApps_14_12) kdelibs; };
   });
   kdeApps_stable = kdeApps_14_12;
   kdeApps_latest = kdeApps_14_12;
@@ -11191,10 +11260,10 @@ let
     withSidebar = true;
   };
 
-  panamax_api = callPackage ../applications/networking/cluster/panamax/api.nix {
+  panamax_api = callPackage ../applications/networking/cluster/panamax/api {
     ruby = ruby_2_1;
   };
-  panamax_ui = callPackage ../applications/networking/cluster/panamax/ui.nix {
+  panamax_ui = callPackage ../applications/networking/cluster/panamax/ui {
     ruby = ruby_2_1;
   };
 
@@ -11515,6 +11584,8 @@ let
   rofi = callPackage ../applications/misc/rofi {
     automake = automake114x;
   };
+
+  rstudio = callPackage ../applications/editors/rstudio { };
 
   rsync = callPackage ../applications/networking/sync/rsync {
     enableACLs = !(stdenv.isDarwin || stdenv.isSunOS || stdenv.isFreeBSD);
@@ -12857,11 +12928,12 @@ let
     }) ../desktops/kde-4.14;
 
   kdePackagesFor = self: dir:
-    let callPackageOrig = callPackage; in
+    let callPackageOrig = newScope { cmake = cmake-3_2; }; in
     let
-      callPackage = newScope self;
+      callPackage = newScope (self // { cmake = cmake-3_2; });
       kde4 = callPackageOrig dir {
         inherit callPackage callPackageOrig;
+        kdelibs = kdeApps_stable.kdelibs;
       };
     in kde4 // {
       inherit kde4;

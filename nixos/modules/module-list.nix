@@ -110,6 +110,7 @@
   ./services/cluster/panamax.nix
   ./services/computing/torque/server.nix
   ./services/computing/torque/mom.nix
+  ./services/computing/slurm/slurm.nix
   ./services/continuous-integration/jenkins/default.nix
   ./services/continuous-integration/jenkins/slave.nix
   ./services/databases/4store-endpoint.nix
@@ -160,6 +161,7 @@
   ./services/hardware/udisks2.nix
   ./services/hardware/upower.nix
   ./services/hardware/thermald.nix
+  ./services/logging/fluentd.nix
   ./services/logging/klogd.nix
   ./services/logging/logcheck.nix
   ./services/logging/logrotate.nix
@@ -232,6 +234,7 @@
   ./services/network-filesystems/diod.nix
   ./services/network-filesystems/u9fs.nix
   ./services/network-filesystems/yandex-disk.nix
+  ./services/networking/aiccu.nix
   ./services/networking/amuled.nix
   ./services/networking/atftpd.nix
   ./services/networking/avahi-daemon.nix
@@ -328,6 +331,7 @@
   ./services/security/fprot.nix
   ./services/security/frandom.nix
   ./services/security/haveged.nix
+  ./services/security/munge.nix
   ./services/security/torify.nix
   ./services/security/tor.nix
   ./services/security/torsocks.nix

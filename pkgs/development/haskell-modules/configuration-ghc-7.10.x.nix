@@ -145,6 +145,12 @@ self: super: {
         --replace 'import System.Process' 'import System.Process hiding (readCreateProcess, readCreateProcessWithExitCode)'
     '';
   });
+
+  # https://github.com/batterseapower/ansi-wl-pprint/issues/13
+  ansi-wl-pprint = appendPatch super.ansi-wl-pprint (pkgs.fetchpatch {
+    url = "https://github.com/hvr/ansi-wl-pprint/commit/7e489ea6b546899074b1cdccf37d2e49ab313098.patch";
+    sha256 = "0j20cwbph1wg82gfad5a6gfc5gy42cf4vz514jrpfg8d9qvyfhlj";
+  });
 } // {
   # for now, GHC bug makes profunctors 4.4 un-compilable (9 GB+ of RAM)
   profunctors = self.callPackage

@@ -95,6 +95,7 @@
   iyzsong = "Song Wenwu <iyzsong@gmail.com>";
   j-keck = "Jürgen Keck <jhyphenkeck@gmail.com>";
   jagajaga = "Arseniy Seroka <ars.seroka@gmail.com>";
+  jb55 = "William Casarin <bill@casarin.me>";
   jcumming = "Jack Cummings <jack@mudshark.org>";
   jgeerds = "Jascha Geerds <jg@ekby.de>";
   jirkamarsik = "Jirka Marsik <jiri.marsik89@gmail.com>";
@@ -190,6 +191,7 @@
   thoughtpolice = "Austin Seipp <aseipp@pobox.com>";
   titanous = "Jonathan Rudenberg <jonathan@titanous.com>";
   tomberek = "Thomas Bereknyei <tomberek@gmail.com>";
+  trino = "Hubert Mühlhans <muehlhans.hubert@ekodia.de>";
   tstrobel = "Thomas Strobel <ts468@cam.ac.uk>";
   ttuegel = "Thomas Tuegel <ttuegel@gmail.com>";
   tv = "Tomislav Viljetić <tv@shackspace.de>";
