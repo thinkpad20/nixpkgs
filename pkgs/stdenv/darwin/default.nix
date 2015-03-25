@@ -227,7 +227,7 @@ in rec {
       coreutils findutils diffutils patchutils;
 
     llvmPackages = orig.llvmPackages // {
-      inherit (llvmPackages) llvm clang;
+      inherit (llvmPackages) llvm clang-unwrapped;
     };
 
     darwin = orig.darwin // {
@@ -248,7 +248,7 @@ in rec {
       coreutils findutils diffutils patchutils binutils binutils-raw;
 
     llvmPackages = orig.llvmPackages // {
-      inherit (llvmPackages) llvm clang;
+      inherit (llvmPackages) llvm clang-unwrapped;
     };
 
     darwin = orig.darwin // {
@@ -276,7 +276,7 @@ in rec {
       nativeLibc  = false;
       inherit (pkgs) coreutils binutils;
       inherit (pkgs.darwin) dyld;
-      cc   = pkgs.llvmPackages.clang;
+      cc   = pkgs.llvmPackages.clang-unwrapped;
       libc = pkgs.darwin.Libsystem;
     };
 
@@ -291,7 +291,7 @@ in rec {
     allowedRequisites = (with pkgs; [
       xz libcxx libcxxabi icu gmp gnumake findutils bzip2 llvm zlib libffi
       coreutils ed diffutils gnutar gzip ncurses libiconv gnused bash gawk
-      gnugrep llvmPackages.clang patch pcre binutils-raw binutils gettext
+      gnugrep llvmPackages.clang-unwrapped patch pcre binutils-raw binutils gettext
     ]) ++ (with pkgs.darwin; [
       dyld Libsystem CF cctools
     ]);

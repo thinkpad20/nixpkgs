@@ -1530,6 +1530,27 @@ let
     };
   };
 
+  clf = buildPythonPackage rec {
+    name = "clf-${version}";
+    version = "0.5.2";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/c/clf/${name}.tar.gz";
+      sha256 = "04lqd2i4fjs606b0q075yi9xksk567m0sfph6v6j80za0hvzqyy5";
+    };
+
+    # Error when running tests:
+    # No local packages or download links found for requests
+    doCheck = false;
+
+    meta = with stdenv.lib; {
+      homepage = https://github.com/ncrocfer/clf;
+      description = "Command line tool to search snippets on Commandlinefu.com";
+      license = licenses.mit;
+      maintainers = [ maintainers.koral ];
+    };
+  };
+
   click = buildPythonPackage rec {
     name = "click-3.3";
 
@@ -3926,15 +3947,15 @@ let
     };
   };
 
-  django = self.django_1_6;
+  django = self.django_1_7;
 
   django_1_7 = buildPythonPackage rec {
     name = "Django-${version}";
-    version = "1.7.6";
+    version = "1.7.7";
 
     src = pkgs.fetchurl {
       url = "http://www.djangoproject.com/m/releases/1.7/${name}.tar.gz";
-      sha256 = "142cim55wnv5q0zg039rankwah1gbpq46dgmp9yg78jrzq7mxwdh";
+      sha256 = "0crfpnf246c25887by2fjlxinp4rnhya4ksqfydcls9m0s9gh5j8";
     };
 
     # error: invalid command 'test'
@@ -3948,11 +3969,11 @@ let
 
   django_1_6 = buildPythonPackage rec {
     name = "Django-${version}";
-    version = "1.6.6";
+    version = "1.6.11";
 
     src = pkgs.fetchurl {
       url = "http://www.djangoproject.com/m/releases/1.6/${name}.tar.gz";
-      sha256 = "143yp984n8a2bs1dflxjp1s7skmji0cwkw05s9ikbfikwmabsv2k";
+      sha256 = "0misvia78c14y07zs5xsb9lv54q0v217jpaindrmhhw4wiryal3y";
     };
 
     # error: invalid command 'test'
@@ -3966,11 +3987,11 @@ let
 
   django_1_5 = buildPythonPackage rec {
     name = "Django-${version}";
-    version = "1.5.9";
+    version = "1.5.12";
 
     src = pkgs.fetchurl {
       url = "http://www.djangoproject.com/m/releases/1.5/${name}.tar.gz";
-      sha256 = "1lm0pa6m9f4cd6pv239lqj32z1snf8xjbvlbh8bqihs6a1f51kj7";
+      sha256 = "1vbcvn6ncg7hq5i1w95h746vkq9lmp120vx63h3p56z5nsz7gpmk";
     };
 
     # error: invalid command 'test'
@@ -3984,11 +4005,11 @@ let
 
   django_1_4 = buildPythonPackage rec {
     name = "Django-${version}";
-    version = "1.4.14";
+    version = "1.4.20";
 
     src = pkgs.fetchurl {
       url = "http://www.djangoproject.com/m/releases/1.4/${name}.tar.gz";
-      sha256 = "173ci9ml2vs1z2x51wahssfn8mrmhd02varmg9kibm8z460svvc1";
+      sha256 = "1cgb23afinmbvbaryvy3yj5m40h68mq6gvadcqyv3j64cja73b2q";
     };
 
     # error: invalid command 'test'
@@ -5338,6 +5359,23 @@ let
       description = "A comprehensive HTTP client library";
       license = licenses.mit;
       maintainers = [ stdenv.lib.maintainers.garbas ];
+    };
+  };
+
+  hypothesis = pythonPackages.buildPythonPackage rec {
+    name = "hypothesis-0.7.0";
+
+    doCheck = false;
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/h/hypothesis/hypothesis-0.7.0.tar.gz";
+      md5 = "0c4112bab04b71979286387b033921b5";
+    };
+
+    meta = with stdenv.lib; {
+      description = "A Python library for property based testing";
+      homepage = https://github.com/DRMacIver/hypothesis;
+      license = licenses.mpl20;
     };
   };
 
@@ -7488,10 +7526,10 @@ let
 
   pgcli = buildPythonPackage rec {
     name = "pgcli-${version}";
-    version = "0.16.1";
+    version = "0.16.2";
 
     src = pkgs.fetchFromGitHub {
-      sha256 = "1sysx67inf0fcfa4qhqcii97y59zpg98f4kcvz15rlbnsi357css";
+      sha256 = "1f30f9v2iz2206aqzwc6jjadlxd7snicazrp9bcy5sizpha3r55i";
       rev = "v${version}";
       repo = "pgcli";
       owner = "amjith";
@@ -7938,6 +7976,25 @@ let
     };
   });
 
+  pyasn1-modules = buildPythonPackage rec {
+    name = "pyasn1-modules-${version}";
+    version = "0.0.5";
+    disabled = isPyPy;
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/p/pyasn1-modules/${name}.tar.gz";
+      sha256 = "0hcr6klrzmw4d9j9s5wrhqva5014735pg4zk3rppac4fs87g0rdy";
+    };
+
+    propagatedBuildInputs = with self; [ pyasn1 ];
+
+    meta = {
+      description = "A collection of ASN.1-based protocols modules";
+      homepage = https://pypi.python.org/pypi/pyasn1-modules;
+      license = stdenv.lib.licenses.bsd3;
+      platforms = stdenv.lib.platforms.unix;  # same as pyasn1
+    };
+  };
 
   pyaudio = pkgs.stdenv.mkDerivation rec {
     name = "python-pyaudio-${version}";
@@ -9304,11 +9361,12 @@ let
 
 
   requests2 = buildPythonPackage rec {
-    name = "requests-2.5.1";
+    name = "requests-${version}";
+    version = "2.6.0";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/r/requests/${name}.tar.gz";
-      sha256 = "0rnyg6164jp7x7slgwnhigqza18d705hdvzwr4yk5qmisgpkaxvv";
+      sha256 = "0xadnw27m257scrhjcc66zm4z3ikg8n9h6g9akpkavr31qgyvnqw";
     };
 
     meta = {
@@ -10899,13 +10957,13 @@ let
   };
 
   syncthing-gtk = buildPythonPackage rec {
-    version = "0.6.2";
+    version = "0.6.3";
     name = "syncthing-gtk-${version}";
     src = pkgs.fetchFromGitHub {
       owner = "syncthing";
       repo = "syncthing-gtk";
       rev = "v${version}";
-      sha256 = "0dfs5kzdj9ld20i23w6ldj7z761rwnnbqkr0l12wkgcxi58jcqds";
+      sha256 = "1qa5bw2qizjiqvkms8i31wsjf8cw9p0ciamxgfgq6n37wcalv6ms";
     };
 
     disabled = isPy3k;
@@ -11112,6 +11170,40 @@ let
       description = "A module to generate a formatted text table, using ASCII characters";
       homepage = http://foutaise.org/code/;
       license = licenses.lgpl2;
+    };
+  };
+
+  tlslite = buildPythonPackage rec {
+    name = "tlslite-${version}";
+    version = "0.4.8";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/t/tlslite/${name}.tar.gz";
+      sha256 = "1fxx6d3nw5r1hqna1h2jvqhcygn9fyshlm0gh3gp0b1ji824gd6r";
+    };
+
+    meta = {
+      description = "A pure Python implementation of SSL and TLS";
+      homepage = https://pypi.python.org/pypi/tlslite;
+      license = stdenv.lib.licenses.bsd3;
+    };
+  };
+
+  qrcode = buildPythonPackage rec {
+    name = "qrcode-${version}";
+    version = "5.1";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/q/qrcode/${name}.tar.gz";
+      sha256 = "0skzrvhjnnacrz52jml4i050vdx5lfcd3np172srxjaghdgfxg9k";
+    };
+
+    propagatedBuildInputs = with self; [ six ];
+
+    meta = {
+      description = "Quick Response code generation for Python";
+      home = "https://pypi.python.org/pypi/qrcode";
+      license = stdenv.lib.licenses.bsd3;
     };
   };
 
@@ -13900,5 +13992,21 @@ let
     };
   };
 
+  networkx = buildPythonPackage rec {
+    name = "networkx-1.9.1";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/n/networkx/networkx-1.9.1.tar.gz";
+      sha256 = "6380eb38d0b5770d7e50813c8a48ff7c373b2187b4220339c1adce803df01c59";
+    };
+
+    buildInputs = with self; [ nose decorator ];
+
+    meta = {
+      homepage = "https://networkx.github.io/";
+      description = "Library for the creation, manipulation, and study of the structure, dynamics, and functions of complex networks.";
+      license = licenses.bsd3;
+    };
+  };
 
 }); in pythonPackages
