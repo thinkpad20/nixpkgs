@@ -3840,7 +3840,9 @@ let
 
   llvm_v = path: callPackage path { };
 
-  llvmPackages = llvmPackages_36;
+  # uncomment once llvm 3.6 stops segfaulting
+  # llvmPackages = llvmPackages_36;
+  llvmPackages = llvmPackages_35;
 
   llvmPackages_34 = recurseIntoAttrs (import ../development/compilers/llvm/3.4 {
     inherit stdenv newScope fetchurl;
@@ -3849,7 +3851,7 @@ let
   llvmPackagesSelf = import ../development/compilers/llvm/3.4 { inherit newScope fetchurl; isl = isl_0_12; stdenv = libcxxStdenv; };
 
   llvmPackages_35 = import ../development/compilers/llvm/3.5 {
-    inherit pkgs stdenv newScope fetchurl isl;
+    inherit pkgs stdenv newScope fetchurl isl wrapCC;
   };
 
   llvmPackages_36 = import ../development/compilers/llvm/3.6 {
