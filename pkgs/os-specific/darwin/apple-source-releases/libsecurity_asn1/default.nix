@@ -9,5 +9,5 @@ appleDerivation {
     "/System/Library/Frameworks/Security.framework/Versions"
   ];
 
-  buildInputs = [ libsecurity_utilities libsecurity_cdsa_utilities ];
+  propagatedBuildInputs = [ libsecurity_utilities libsecurity_cdsa_utilities ];
 }

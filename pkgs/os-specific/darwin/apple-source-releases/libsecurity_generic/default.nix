@@ -42,7 +42,12 @@ in applePackage name version sha256 (args // {
       "${n}_HEADER_FILES_INSTALL_DIR=$(out)/include/${n}"
       "GNUSTEP_HEADERS="
     ];
-    NIX_CFLAGS_COMPILE = "-F${pkgs.darwin.Security}/Library/Frameworks -Wno-deprecated-declarations";
+    NIX_CFLAGS_COMPILE = [
+      "-isystem lib"
+      "-iframework ${pkgs.darwin.Security}/Library/Frameworks"
+      "-Wno-deprecated-declarations"
+      "-g"
+    ];
     NIX_LDFLAGS = (with pkgs.darwin; with apple_sdk.frameworks; [
       "-L${libobjc}/lib"
       "-F${Foundation}/Library/Frameworks"

@@ -86,13 +86,25 @@ let
     Security              = applePackage  "Security"              "55471.14.18" "1nv0dczf67dhk17hscx52izgdcyacgyy12ag0jh6nl5hmfzsn8yy" {};
     xnu                   = applePackage  "xnu"                   "2422.115.4"  "1ssw5fzvgix20bw6y13c39ib0zs7ykpig3irlwbaccpjpci5jl0s" {};
 
+    libsecurity_apple_csp      = libsecPackage "libsecurity_apple_csp"      "55003" "1ngyn1ik27n4x981px3kfd1z1n8zx7r5w812b6qfjpy5nw4h746w" {};
+    libsecurity_apple_cspdl      = libsecPackage "libsecurity_apple_cspdl"      "55000" "1svqa5fhw7p7njzf8bzg7zgc5776aqjhdbnlhpwmr5hmz5i0x8r7" {};
+    libsecurity_apple_file_dl      = libsecPackage "libsecurity_apple_file_dl"      "55000" "1dfqani3n135i3iqmafc1k9awmz6s0a78zifhk15rx5a8ps870bl" {};
+    libsecurity_apple_x509_cl      = libsecPackage "libsecurity_apple_x509_cl"      "55004" "1gji2i080560s08k1nigsla1zdmi6slyv97xaj5vqxjpxb0g1xf5" {};
+    libsecurity_apple_x509_tp      = libsecPackage "libsecurity_apple_x509_tp" "55009.3" "1bsms3nvi62wbvjviwjhjhzhylad8g6vmvlj3ngd0wyd0ywxrs46" {};
     libsecurity_asn1      = libsecPackage "libsecurity_asn1"      "55000.2"     "0i8aakjxdfj0lqcgqmbip32g7r4h57xhs8w0sxfvfl45q22s782w" {};
     libsecurity_cdsa_client = libsecPackage "libsecurity_cdsa_client" "55000"     "127jxnypkycy8zqwicfv333h11318m00gd37jnswbrpg44xd1wdy" {};
+    libsecurity_cdsa_plugin = libsecPackage "libsecurity_cdsa_plugin" "55001"     "0ifmx85rs51i7zjm015s8kc2dqyrlvbr39lw9xzxgd2ds33i4lfj" {};
     libsecurity_cdsa_utilities = libsecPackage "libsecurity_cdsa_utilities" "55006"     "1kzsl0prvfa8a0m3j3pcxq06aix1csgayd3lzx27iqg84c8mhzan" {};
     libsecurity_cdsa_utils = libsecPackage "libsecurity_cdsa_utils" "55000"     "0q55jizav6n0lkj7lcmcr2mjdhnbnnn525fa9ipwgvzbspihw0g6" {};
+    libsecurity_codesigning = libsecPackage "libsecurity_codesigning" "55037.15" "0vf5nj2g383b4hknlp51qll5pm8z4qbf56dnc16n3wm8gj82iasy" {};
     libsecurity_cssm = libsecPackage "libsecurity_cssm" "55005.5"     "0l6ia533bhr8kqp2wa712bnzzzisif3kbn7h3bzzf4nps4wmwzn4" {};
+    libsecurity_filedb = libsecPackage "libsecurity_filedb" "55016.1" "1r0ik95xapdl6l2lhd079vpq41jjgshz2hqb8490gpy5wyc49cxb" {};
     libsecurity_keychain = libsecPackage "libsecurity_keychain" "55050.9"     "15wf2slcgyns61kk7jndgm9h22vidyphh9x15x8viyprra9bkhja" {};
+    libsecurity_mds = libsecPackage "libsecurity_mds" "55000"     "0vin5hnzvkx2rdzaaj2gxmx38amxlyh6j24a8gc22y09d74p5lzs" {};
+    libsecurity_ocspd = libsecPackage "libsecurity_ocspd" "55010"     "1bxzpihc6w0ji4x8810a4lfkq83787yhjl60xm24bv1prhqcm73b" {};
+    libsecurity_pkcs12 = libsecPackage "libsecurity_pkcs12" "55000"     "1yq8p2sp39q40fxshb256b7jn9lvmpymgpm8yz9kqrf980xddgsg" {};
     libsecurity_utilities = libsecPackage "libsecurity_utilities" "55030.3"     "0ayycfy9jm0n0c7ih9f3m69ynh8hs80v8yicq47aa1h9wclbxg8r" {};
     libsecurityd = libsecPackage "libsecurityd" "55004"     "1ywm2qj8l7rhaxy5biwxsyavd0d09d4bzchm03nlvwl313p2747x" {};
+    security_dotmac_tp = libsecPackage "security_dotmac_tp" "55107.1"     "1l4fi9qhrghj0pkvywi8da22bh06c5bv3l40a621b5g258na50pl" {};
   };
 in packages

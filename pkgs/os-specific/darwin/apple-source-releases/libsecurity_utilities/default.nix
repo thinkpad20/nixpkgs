@@ -12,6 +12,7 @@ appleDerivation {
     substituteInPlace lib/ccaudit.cpp --replace '<bsm/libbsm.h>' '"bsm/libbsm.h"'
 
     cp ${osx_private_sdk}/usr/include/security_utilities/utilities_dtrace.h lib
+    cp ${osx_private_sdk}/usr/include/security_utilities/osxcode.h lib
     cp -R ${osx_private_sdk}/usr/local/include/bsm lib
   '';
 }
