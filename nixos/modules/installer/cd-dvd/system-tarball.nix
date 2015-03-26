@@ -73,6 +73,11 @@ in
       inherit (config.tarball) contents storeContents;
     };
 
+    system.build.system = import ../../../lib/make-system.nix {
+      inherit (pkgs) stdenv perl pathsFromGraph;
+      inherit (config.tarball) contents storeContents;
+    };
+
     boot.postBootCommands =
       ''
         # After booting, register the contents of the Nix store on the
