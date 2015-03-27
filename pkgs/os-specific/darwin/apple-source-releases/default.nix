@@ -103,6 +103,7 @@ let
     libsecurity_mds = libsecPackage "libsecurity_mds" "55000"     "0vin5hnzvkx2rdzaaj2gxmx38amxlyh6j24a8gc22y09d74p5lzs" {};
     libsecurity_ocspd = libsecPackage "libsecurity_ocspd" "55010"     "1bxzpihc6w0ji4x8810a4lfkq83787yhjl60xm24bv1prhqcm73b" {};
     libsecurity_pkcs12 = libsecPackage "libsecurity_pkcs12" "55000"     "1yq8p2sp39q40fxshb256b7jn9lvmpymgpm8yz9kqrf980xddgsg" {};
+    libsecurity_sd_cspdl      = libsecPackage "libsecurity_sd_cspdl"      "55003" "10v76xycfnvz1n0zqfbwn3yh4w880lbssqhkn23iim3ihxgm5pbd" {};
     libsecurity_utilities = libsecPackage "libsecurity_utilities" "55030.3"     "0ayycfy9jm0n0c7ih9f3m69ynh8hs80v8yicq47aa1h9wclbxg8r" {};
     libsecurityd = libsecPackage "libsecurityd" "55004"     "1ywm2qj8l7rhaxy5biwxsyavd0d09d4bzchm03nlvwl313p2747x" {};
     security_dotmac_tp = libsecPackage "security_dotmac_tp" "55107.1"     "1l4fi9qhrghj0pkvywi8da22bh06c5bv3l40a621b5g258na50pl" {};

@@ -1,4 +1,4 @@
-{ appleDerivation, libsecurity_cdsa_utilities, libsecurity_utilities,
+{ appleDerivation, stdenv, libsecurity_cdsa_utilities, libsecurity_utilities,
 libsecurity_cdsa_plugin, libsecurity_asn1, apple_sdk, osx_private_sdk,
 libsecurity_cdsa_utils }:
 
@@ -15,6 +15,10 @@ appleDerivation {
         '"CoreServices/../Frameworks/CarbonCore.framework/Headers/MacTypes.h"' \
         '"${apple_sdk.sdk}/include/MacTypes.h"'
     done
+
+    substituteInPlace lib/pbkdf2.c --replace \
+      '<CoreServices/../Frameworks/CarbonCore.framework/Headers/ConditionalMacros.h>' \
+      '"${stdenv.libc}/include/ConditionalMacros.h"'
 
     for file in lib/castContext.h lib/gladmanContext.h lib/desContext.h lib/rc4Context.h; do
       substituteInPlace $file --replace \

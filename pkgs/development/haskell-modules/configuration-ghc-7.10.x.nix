@@ -139,33 +139,9 @@ self: super: {
     '';
   });
 
-  process-extras = overrideCabal super.process-extras (drv: {
-    patchPhase = ''
-      substituteInPlace src/System/Process/Common.hs \
-        --replace 'import System.Process' 'import System.Process hiding (readCreateProcess, readCreateProcessWithExitCode)'
-    '';
-  });
-
   # https://github.com/batterseapower/ansi-wl-pprint/issues/13
   ansi-wl-pprint = appendPatch super.ansi-wl-pprint (pkgs.fetchpatch {
     url = "https://github.com/hvr/ansi-wl-pprint/commit/7e489ea6b546899074b1cdccf37d2e49ab313098.patch";
     sha256 = "0j20cwbph1wg82gfad5a6gfc5gy42cf4vz514jrpfg8d9qvyfhlj";
   });
-} // {
-  # for now, GHC bug makes profunctors 4.4 un-compilable (9 GB+ of RAM)
-  profunctors = self.callPackage
-    ({ mkDerivation, base, comonad, distributive, semigroupoids, tagged
-     , transformers
-     }:
-     mkDerivation {
-       pname = "profunctors";
-       version = "4.3.2";
-       sha256 = "06dv9bjz2hsm32kzfqqm6z54197dfjm3wycnbbgl9pib711w484v";
-       buildDepends = [
-         base comonad distributive semigroupoids tagged transformers
-       ];
-       homepage = "http://github.com/ekmett/profunctors/";
-       description = "Profunctors";
-       license = stdenv.lib.licenses.bsd3;
-     }) {};
 }

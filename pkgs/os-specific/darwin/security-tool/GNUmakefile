@@ -9,6 +9,6 @@ security_LDFLAGS = \
 	-lsecurity_cdsa_client -lsecurity_utilities -lsecurity_asn1 -lsecurity_mds \
 	-lsecurity_cdsa_plugin -lsecurity_pkcs12 -lsecurity_apple_csp -lsecurity_apple_cspdl \
 	-lsecurity_apple_file_dl -lsecurity_apple_x509_cl -lsecurity_apple_x509_tp \
-	-framework Security -framework PCSC
+	-lsecurity_sd_cspdl -lsecurity_filedb -lsecurityd -framework Security -framework PCSC
 
 include $(GNUSTEP_MAKEFILES)/tool.make

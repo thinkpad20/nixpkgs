@@ -9,6 +9,7 @@ name: version: sha256: args:
 let n = stdenv.lib.removePrefix "lib" name;
     makeFile = (../. + builtins.toPath "/${name}/GNUmakefile");
     appleDerivation = appleDerivation_ name version sha256;
+
 in applePackage name version sha256 (args // {
   appleDerivation = a: appleDerivation (stdenv.lib.mergeAttrsConcatenateValues a {
     __impureHostDeps = import ./impure_deps.nix;

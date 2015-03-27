@@ -3,7 +3,8 @@ libsecurity_utilities, libsecurity_cdsa_utilities, libobjc, CoreServices,
 libsecurity_cdsa_client, libsecurity_keychain, libsecurity_cssm, apple_sdk,
 libsecurity_cdsa_utils, libsecurity_mds, libsecurity_cdsa_plugin, libsecurity_apple_csp,
 libsecurity_apple_cspdl, PCSC, libsecurity_apple_file_dl, libsecurity_apple_x509_cl,
-libsecurity_apple_x509_tp, libsecurity_pkcs12 }:
+libsecurity_apple_x509_tp, libsecurity_pkcs12, libsecurity_sd_cspdl, libsecurity_filedb,
+libsecurityd }:
 
 stdenv.mkDerivation rec {
   version = "55115";
@@ -50,7 +51,8 @@ stdenv.mkDerivation rec {
   libsecurity_cdsa_utilities libobjc libsecurity_cdsa_client libsecurity_keychain
   libsecurity_cssm libsecurity_cdsa_utils libsecurity_mds libsecurity_cdsa_plugin
   libsecurity_apple_csp libsecurity_apple_cspdl libsecurity_apple_file_dl
-  libsecurity_apple_x509_cl libsecurity_apple_x509_tp libsecurity_pkcs12 ];
+  libsecurity_apple_x509_cl libsecurity_apple_x509_tp libsecurity_pkcs12
+  libsecurity_sd_cspdl libsecurity_filedb libsecurityd ];
 
   NIX_CFLAGS_COMPILE = [
     "-F${Security}/Library/Frameworks"
