@@ -84,19 +84,30 @@ let
 
   # Add a utility function to produce derivations that use this
   # stdenv and its shell.
-  mkDerivation = attrs:
+  mkDerivation =
+    { buildInputs ? []
+    , nativeBuildInputs ? []
+    , propagatedBuildInputs ? []
+    , propagatedNativeBuildInputs ? []
+    , crossConfig ? null
+    , meta ? {}
+    , passthru ? {}
+    , pos ? null # position used in error messages and for meta.position
+    , ... } @ attrs:
     let
-      pos =
-        if attrs.meta.description or null != null then
-          unsafeGetAttrPos "description" attrs.meta
+      pos' =
+        if pos != null then
+          pos
+        else if attrs.meta.description or null != null then
+          builtins.unsafeGetAttrPos "description" attrs.meta
         else
-          unsafeGetAttrPos "name" attrs;
-      pos' = if pos != null then "‘" + pos.file + ":" + toString pos.line + "’" else "«unknown-file»";
+          builtins.unsafeGetAttrPos "name" attrs;
+      pos'' = if pos' != null then "‘" + pos'.file + ":" + toString pos'.line + "’" else "«unknown-file»";
 
       throwEvalHelp = unfreeOrBroken: whatIsWrong:
         assert builtins.elem unfreeOrBroken ["Unfree" "Broken" "blacklisted"];
 
-        throw ("Package ‘${attrs.name or "«name-missing»"}’ in ${pos'} ${whatIsWrong}, refusing to evaluate."
+        throw ("Package ‘${attrs.name or "«name-missing»"}’ in ${pos''} ${whatIsWrong}, refusing to evaluate."
         + (lib.strings.optionalString (unfreeOrBroken != "blacklisted") ''
 
           For `nixos-rebuild` you can set
@@ -122,7 +133,7 @@ let
       assert licenseAllowed attrs;
 
       lib.addPassthru (derivation (
-        (removeAttrs attrs ["meta" "passthru" "crossAttrs"])
+        (removeAttrs attrs ["meta" "passthru" "crossAttrs" "pos"])
         // (let
           buildInputs = attrs.buildInputs or [];
           nativeBuildInputs = attrs.nativeBuildInputs or [];
@@ -167,15 +178,15 @@ let
         # include it in the result, it *is* available to nix-env for
         # queries.  We also a meta.position attribute here to
         # identify the source location of the package.
-        meta = attrs.meta or {} // (if pos != null then {
-          position = pos.file + ":" + (toString pos.line);
+        meta = meta // (if pos' != null then {
+          position = pos'.file + ":" + toString pos'.line;
         } else {});
-        passthru = attrs.passthru or {};
+        inherit passthru;
       } //
       # Pass through extra attributes that are not inputs, but
       # should be made available to Nix expressions using the
       # derivation (e.g., in assertions).
-      (attrs.passthru or {}));
+      passthru);
 
   # The stdenv that we are producing.
   result =

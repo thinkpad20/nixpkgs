@@ -3,7 +3,7 @@
 }:
 
 { pname
-, version
+, version, revision ? null
 , sha256 ? null
 , src ? fetchurl { url = "mirror://hackage/${pname}-${version}.tar.gz"; inherit sha256; }
 , buildDepends ? []
@@ -43,9 +43,10 @@
 , preFixup ? "", postFixup ? ""
 , coreSetup ? false # Use only core packages to build Setup.hs.
 , useCpphs ? false
-}:
+} @ args:
 
 assert pkgconfigDepends != [] -> pkgconfig != null;
+assert editedCabalFile != null -> revision != null;
 
 let
 
@@ -53,8 +54,9 @@ let
                        concatStringsSep enableFeature optionalAttrs;
 
   newCabalFile = fetchurl {
-    url = "http://hackage.haskell.org/package/${pname}-${version}/${pname}.cabal";
+    url = "http://hackage.haskell.org/package/${pname}-${version}/revision/${revision}.cabal";
     sha256 = editedCabalFile;
+    name = "${pname}-${version}-r${revision}.cabal";
   };
 
   defaultSetupHs = builtins.toFile "Setup.hs" ''
@@ -112,6 +114,8 @@ let
 in
 stdenv.mkDerivation ({
   name = "${optionalString hasActiveLibrary "haskell-"}${pname}-${version}";
+
+  pos = builtins.unsafeGetAttrPos "pname" args;
 
   prePhases = ["setupCompilerEnvironmentPhase"];
   preConfigurePhases = ["compileBuildDriverPhase"];
