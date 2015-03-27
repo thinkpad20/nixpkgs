@@ -181,14 +181,21 @@ self: super: {
   # http://openradar.appspot.com/10207999 and similar issues
   fsnotify = if pkgs.stdenv.isDarwin then dontCheck super.fsnotify else super.fsnotify;
 
-  # Prevents needing to add security_tool as a build tool to all of x509-system's
-  # dependencies.
-  # TODO: use pkgs.darwin.security_tool once we can build it
-  x509-system = let security_tool = "/usr";
-  in overrideCabal super.x509-system (drv: {
-    patchPhase = (drv.patchPhase or "") + pkgs.stdenv.lib.optionalString pkgs.stdenv.isDarwin ''
-      substituteInPlace System/X509/MacOS.hs --replace security ${security_tool}/bin/security
-    '';
+  # x509-system uses the security tool to read the system certificate store.
+  x509-system = pkgs.stdenv.lib.overrideDerivation (
+    overrideCabal super.x509-system (drv: {
+      # propagates security_tool's impure dependencies
+      buildDepends = (drv.buildDepends or []) ++ [ pkgs.darwin.security_tool ];
+
+      patchPhase = (drv.patchPhase or "") + pkgs.stdenv.lib.optionalString pkgs.stdenv.isDarwin ''
+        substituteInPlace System/X509/MacOS.hs --replace security ${pkgs.darwin.security_tool}/bin/security
+      '';
+    })
+  ) (drv: {
+    # security_tool is used to read this file
+    __propagatedImpureHostDeps = drv.__propagatedImpureHostDeps ++ [
+      "/System/Library/Keychains/SystemRootCertificates.keychain"
+    ];
   });
 
   # Does not compile: <http://hydra.cryp.to/build/469842/nixlog/1/raw>.
