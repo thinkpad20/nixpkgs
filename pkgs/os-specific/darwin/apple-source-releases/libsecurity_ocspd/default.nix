@@ -1,9 +1,10 @@
-{ appleDerivation, osx_private_sdk, libsecurity_utilities, libsecurity_cdsa_utilities,
-bootstrap_cmds }:
-
+{ appleDerivation, bootstrap_cmds, libsecurity_cdsa_utilities, libsecurity_utilities, osx_private_sdk }:
 appleDerivation {
-  buildInputs = [ libsecurity_utilities libsecurity_cdsa_utilities bootstrap_cmds ];
-
+  buildInputs = [
+    libsecurity_utilities
+    libsecurity_cdsa_utilities
+    bootstrap_cmds
+  ];
   postUnpack = ''
     pushd libsecurity*
     mkdir lib
@@ -11,7 +12,6 @@ appleDerivation {
     cp client/* lib
     popd
   '';
-
   preBuild = ''
     make -f mig/mig.mk SRCROOT=. BUILT_PRODUCTS_DIR=. || exit 1
     cp derived_src/* lib

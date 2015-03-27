@@ -1,5 +1,4 @@
-{ appleDerivation, libsecurity_utilities, libsecurity_cdsa_utilities }:
-
+{ appleDerivation, libsecurity_cdsa_utilities, libsecurity_utilities }:
 appleDerivation {
   __propagatedImpureHostDeps = [
     "/System/Library/Frameworks/Security.framework/Security"
@@ -8,6 +7,8 @@ appleDerivation {
     "/System/Library/Frameworks/Security.framework/XPCServices"
     "/System/Library/Frameworks/Security.framework/Versions"
   ];
-
-  propagatedBuildInputs = [ libsecurity_utilities libsecurity_cdsa_utilities ];
+  propagatedBuildInputs = [
+    libsecurity_utilities
+    libsecurity_cdsa_utilities
+  ];
 }

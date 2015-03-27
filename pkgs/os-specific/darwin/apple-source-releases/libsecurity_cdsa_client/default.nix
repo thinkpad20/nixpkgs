@@ -1,5 +1,8 @@
-{ appleDerivation, libsecurity_utilities, libsecurity_cdsa_utilities, libsecurityd }:
-
+{ appleDerivation, libsecurity_cdsa_utilities, libsecurity_utilities, libsecurityd }:
 appleDerivation {
-  buildInputs = [ libsecurity_utilities libsecurity_cdsa_utilities libsecurityd ];
+  buildInputs = [
+    libsecurity_utilities
+    libsecurity_cdsa_utilities
+    libsecurityd
+  ];
 }
