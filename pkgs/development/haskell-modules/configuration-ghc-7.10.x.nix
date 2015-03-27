@@ -4,6 +4,9 @@ with import ./lib.nix { inherit pkgs; };
 
 self: super: {
 
+  # Suitable LLVM version.
+  llvmPackages = pkgs.llvmPackages_35;
+
   # Disable GHC 7.10.x core libraries.
   array = null;
   base = null;
@@ -137,11 +140,5 @@ self: super: {
       substituteInPlace src/Data/Functor/Contravariant/Compose.hs \
         --replace '<$>' '`fmap`'
     '';
-  });
-
-  # https://github.com/batterseapower/ansi-wl-pprint/issues/13
-  ansi-wl-pprint = appendPatch super.ansi-wl-pprint (pkgs.fetchpatch {
-    url = "https://github.com/hvr/ansi-wl-pprint/commit/7e489ea6b546899074b1cdccf37d2e49ab313098.patch";
-    sha256 = "0j20cwbph1wg82gfad5a6gfc5gy42cf4vz514jrpfg8d9qvyfhlj";
   });
 }
