@@ -329,6 +329,10 @@ let
 
   fetchgitrevision = import ../build-support/fetchgitrevision runCommand git;
 
+  fetchgitLocal = import ../build-support/fetchgitlocal {
+    inherit runCommand git;
+  };
+
   fetchmtn = callPackage ../build-support/fetchmtn (config.fetchmtn or {});
 
   packer = callPackage ../development/tools/packer { };
@@ -681,6 +685,8 @@ let
 
   boxfs = callPackage ../tools/filesystems/boxfs { };
 
+  brasero = callPackage ../tools/cd-dvd/brasero { };
+
   bro = callPackage ../applications/networking/ids/bro { };
 
   bsod = callPackage ../misc/emulators/bsod { };
@@ -730,6 +736,8 @@ let
   coprthr = callPackage ../development/libraries/coprthr {
     flex = flex_2_5_35;
   };
+
+  cpulimit = callPackage ../tools/misc/cpulimit { };
 
   crawlTiles = callPackage ../games/crawl { };
 
@@ -1064,6 +1072,8 @@ let
   cutter = callPackage ../tools/networking/cutter { };
 
   dadadodo = callPackage ../tools/text/dadadodo { };
+
+  daemonize = callPackage ../tools/system/daemonize { };
 
   daq = callPackage ../applications/networking/ids/daq { };
 
@@ -1759,6 +1769,8 @@ let
 
   logstash-forwarder = callPackage ../tools/misc/logstash-forwarder { };
 
+  lsdvd = callPackage ../tools/cd-dvd/lsdvd {};
+
   kippo = callPackage ../servers/kippo { };
 
   klavaro = callPackage ../games/klavaro {};
@@ -2177,8 +2189,6 @@ let
   objconv = callPackage ../development/tools/misc/objconv {};
 
   obnam = callPackage ../tools/backup/obnam { };
-
-  ocz-toolbox = callPackage ../os-specific/linux/ocz-toolbox { };
 
   odt2txt = callPackage ../tools/text/odt2txt { };
 
@@ -3573,6 +3583,14 @@ let
     langGo = true;
   });
 
+  gccgo49 = wrapCC (gcc49.cc.override {
+    name = "gccgo49";
+    langCC = true; #required for go.
+    langC = true;
+    langGo = true;
+    profiledCompiler = false;
+  });
+
   ghdl = wrapCC (import ../development/compilers/gcc/4.3 {
     inherit stdenv fetchurl gmp mpfr noSysDirs gnat;
     texinfo = texinfo4;
@@ -3672,7 +3690,6 @@ let
   haskellPackages_ghc784_no_profiling = recurseIntoAttrs haskell.packages_ghc784.noProfiling;
   haskellPackages_ghc784_profiling    = recurseIntoAttrs haskell.packages_ghc784.profiling;
   haskellPackages_ghc784              = recurseIntoAttrs haskell.packages_ghc784.highPrio;
-  haskellPackages_ghcjs = haskell.packages_ghcjs;
   haskellPackages = haskellPackages_ghc784;
 
   haskell-ng = callPackage ./haskell-ng.nix { };
@@ -4280,7 +4297,7 @@ let
   };
   opam = callPackage ../development/tools/ocaml/opam { };
 
-  ocamlnat = let callPackage = newScope pkgs.ocamlPackages_3_12_1; in callPackage ../development/ocaml-modules/ocamlnat { };
+  ocamlnat = newScope pkgs.ocamlPackages_3_12_1 ../development/ocaml-modules/ocamlnat { };
 
   qcmm = callPackage ../development/compilers/qcmm {
     lua   = lua4;
@@ -4656,8 +4673,6 @@ let
   pyrex095 = callPackage ../development/interpreters/pyrex/0.9.5.nix { };
 
   pyrex096 = callPackage ../development/interpreters/pyrex/0.9.6.nix { };
-
-  qi = callPackage ../development/compilers/qi { };
 
   racket = callPackage ../development/interpreters/racket { };
 
@@ -6082,8 +6097,6 @@ let
 
   indilib = callPackage ../development/libraries/indilib { };
 
-  indilib_0_9_9 = callPackage ../development/libraries/indilib/0_9_9.nix { };
-
   iniparser = callPackage ../development/libraries/iniparser { };
 
   intltool = callPackage ../development/tools/misc/intltool { };
@@ -6105,6 +6118,8 @@ let
   jansson = callPackage ../development/libraries/jansson { };
 
   jbig2dec = callPackage ../development/libraries/jbig2dec { };
+
+  jbigkit = callPackage ../development/libraries/jbigkit { };
 
   jemalloc = callPackage ../development/libraries/jemalloc { };
 
@@ -6342,7 +6357,9 @@ let
     extraOnly = true;
   };
 
-  libfprint = callPackage ../development/libraries/libfprint/master.nix { };
+  libfprint = callPackage ../development/libraries/libfprint { };
+
+  libfpx = callPackage ../development/libraries/libfpx { };
 
   libgadu = callPackage ../development/libraries/libgadu { };
 
@@ -6697,9 +6714,7 @@ let
 
   libqalculate = callPackage ../development/libraries/libqalculate { };
 
-  librsvg = callPackage ../development/libraries/librsvg {
-    gtk2 = null; gtk3 = null; # neither gtk version by default
-  };
+  librsvg = callPackage ../development/libraries/librsvg { };
 
   librsync = callPackage ../development/libraries/librsync { };
 
@@ -8730,6 +8745,9 @@ let
 
   bluez5 = lowPrio (callPackage ../os-specific/linux/bluez/bluez5.nix { });
 
+  # Needed for LibreOffice
+  bluez5_28 = lowPrio (callPackage ../os-specific/linux/bluez/bluez5_28.nix { });
+
   bluez = bluez4;
 
   inherit (pythonPackages) bedup;
@@ -8748,16 +8766,9 @@ let
 
   cifs_utils = callPackage ../os-specific/linux/cifs-utils { };
 
-  conky = callPackage ../os-specific/linux/conky {
-    mpdSupport   = config.conky.mpdSupport   or true;
-    x11Support   = config.conky.x11Support   or false;
-    xdamage      = config.conky.xdamage      or false;
-    wireless     = config.conky.wireless     or false;
-    luaSupport   = config.conky.luaSupport   or false;
-    rss          = config.conky.rss          or false;
-    weatherMetar = config.conky.weatherMetar or false;
-    weatherXoap  = config.conky.weatherXoap  or false;
-  };
+  conky = callPackage ../os-specific/linux/conky ({
+    lua = lua5_1; # conky can use 5.2, but toluapp can not
+  } // config.conky or {});
 
   conntrack_tools = callPackage ../os-specific/linux/conntrack-tools { };
 
@@ -10477,9 +10488,7 @@ let
 
   fbreader = callPackage ../applications/misc/fbreader { };
 
-  fetchmail = import ../applications/misc/fetchmail {
-    inherit stdenv fetchurl openssl;
-  };
+  fetchmail = callPackage ../applications/misc/fetchmail { };
 
   fldigi = callPackage ../applications/audio/fldigi { };
 
@@ -10869,12 +10878,44 @@ let
       AuthenPassphrase NetOpenIDConsumer LWPxParanoidAgent CryptSSLeay;
   };
 
-  imagemagick = callPackage ../applications/graphics/ImageMagick {
-    tetex = null;
+  imagemagick_light = imagemagick.override {
+    libcl = null;
+    perl = null;
+    jemalloc = null;
+    bzip2 = null;
+    zlib = null;
+    libX11 = null;
+    libXext = null;
+    libXt = null;
+    dejavu_fonts = null;
+    fftw = null;
+    libfpx = null;
+    djvulibre = null;
+    fontconfig = null;
+    freetype = null;
+    ghostscript = null;
+    graphviz = null;
+    jbigkit = null;
+    libjpeg = null;
+    lcms2 = null;
+    openjpeg = null;
+    liblqr1 = null;
+    xz = null;
+    openexr = null;
+    pango = null;
+    libpng = null;
     librsvg = null;
+    libtiff = null;
+    libwebp = null;
+    libxml2 = null;
   };
 
-  imagemagickBig = lowPrio (callPackage ../applications/graphics/ImageMagick { });
+  imagemagick = callPackage ../applications/graphics/ImageMagick {
+    ghostscript = if stdenv.isDarwin then null else ghostscript;
+    perl = null; # Currently Broken
+  };
+  
+  imagemagickBig = imagemagick;
 
   # Impressive, formerly known as "KeyJNote".
   impressive = callPackage ../applications/office/impressive {
@@ -10904,6 +10945,8 @@ let
   irssi_otr = callPackage ../applications/networking/irc/irssi/otr { };
 
   bip = callPackage ../applications/networking/irc/bip { };
+
+  jabref = callPackage ../applications/office/jabref/default.nix { };
 
   jack_capture = callPackage ../applications/audio/jack-capture { };
 
@@ -11028,6 +11071,7 @@ let
     harfbuzz = harfbuzz.override {
       withIcu = true; withGraphite2 = true;
     };
+    bluez5 = bluez5_28;
   };
 
   liferea = callPackage ../applications/networking/newsreaders/liferea {
@@ -11217,19 +11261,17 @@ let
 
   normalize = callPackage ../applications/audio/normalize { };
 
-  mplayer = callPackage ../applications/video/mplayer {
+  mplayer = callPackage ../applications/video/mplayer ({
     pulseSupport = config.pulseaudio or false;
-    vdpauSupport = config.mplayer.vdpauSupport or false;
-  };
+  } // (config.mplayer or {}));
 
   mplayer2 = callPackage ../applications/video/mplayer2 {
     ffmpeg = libav_9; # see https://trac.macports.org/ticket/44386
   };
 
   MPlayerPlugin = browser:
-    import ../applications/networking/browsers/mozilla-plugins/mplayerplug-in {
+    callPackage ../applications/networking/browsers/mozilla-plugins/mplayerplug-in {
       inherit browser;
-      inherit fetchurl stdenv pkgconfig gettext;
       inherit (xlibs) libXpm;
       # !!! should depend on MPlayer
     };
@@ -11373,6 +11415,8 @@ let
   obconf = callPackage ../tools/X11/obconf {
     inherit (gnome) libglade;
   };
+
+  obs-studio = callPackage ../applications/video/obs-studio { };
 
   ocrad = callPackage ../applications/graphics/ocrad { };
 
@@ -11683,6 +11727,8 @@ let
 
   sooperlooper = callPackage ../applications/audio/sooperlooper { };
 
+  sound-juicer = callPackage ../applications/audio/sound-juicer { };
+
   spideroak = callPackage ../applications/networking/spideroak { };
 
   ssvnc = callPackage ../applications/networking/remote/ssvnc { };
@@ -11822,10 +11868,7 @@ let
 
   swh_lv2 = callPackage ../applications/audio/swh-lv2 { };
 
-  sylpheed = callPackage ../applications/networking/mailreaders/sylpheed {
-    sslSupport = true;
-    gpgSupport = true;
-  };
+  sylpheed = callPackage ../applications/networking/mailreaders/sylpheed { };
 
   symlinks = callPackage ../tools/system/symlinks { };
 
@@ -13393,6 +13436,8 @@ let
   };
 
   iprover = callPackage ../applications/science/logic/iprover {};
+
+  lean = callPackage ../applications/science/logic/lean {};
 
   leo2 = callPackage ../applications/science/logic/leo2 {};
 

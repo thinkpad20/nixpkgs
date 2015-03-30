@@ -192,15 +192,16 @@ self: super: {
     '';
   });
 
-  # Does not compile: <http://hydra.cryp.to/build/469842/nixlog/1/raw>.
-  base_4_7_0_2 = markBroken super.base_4_7_0_2;
+  # Does not compile: "fatal error: ieee-flpt.h: No such file or directory"
+  base_4_8_0_0 = markBroken super.base_4_8_0_0;
 
   # Obsolete: https://github.com/massysett/prednote/issues/1.
   prednote-test = markBrokenVersion "0.26.0.4" super.prednote-test;
 
-  # Doesn't compile: <http://hydra.cryp.to/build/465891/nixlog/1/raw>.
-  integer-gmp_0_5_1_0 = markBroken super.integer-gmp_0_5_1_0;
+  # Doesn't compile: "Setup: can't find include file ghc-gmp.h"
+  integer-gmp_1_0_0_0 = markBroken super.integer-gmp_1_0_0_0;
 
+  # Obsolete.
   lushtags = markBrokenVersion "0.0.1" super.lushtags;
 
   # https://github.com/haskell/bytestring/issues/41
@@ -259,6 +260,7 @@ self: super: {
   hakyll = dontCheck super.hakyll;
   Hclip = dontCheck super.Hclip;
   HList = dontCheck super.HList;
+  marquise = dontCheck super.marquise;                  # https://github.com/anchor/marquise/issues/69
   memcached-binary = dontCheck super.memcached-binary;
   persistent-zookeeper = dontCheck super.persistent-zookeeper;
   pocket-dns = dontCheck super.pocket-dns;
@@ -453,14 +455,17 @@ self: super: {
   # https://github.com/bos/snappy/issues/1
   snappy = dontCheck super.snappy;
 
-  # Needs llvm to compile.
-  bytestring-arbitrary = addBuildTool super.bytestring-arbitrary self.llvm;
-
   # Expect to find sendmail(1) in $PATH.
   mime-mail = appendConfigureFlag super.mime-mail "--ghc-option=-DMIME_MAIL_SENDMAIL_PATH=\"sendmail\"";
 
   # Help the test suite find system timezone data.
   tz = overrideCabal super.tz (drv: { preConfigure = "export TZDIR=${pkgs.tzdata}/share/zoneinfo"; });
+
+  # Deprecated upstream and doesn't compile.
+  llvm-base = markBroken super.llvm-base;
+  bytestring-arbitrary = dontDistribute (addBuildTool super.bytestring-arbitrary self.llvm);
+  objectid = dontDistribute super.objectid;
+  saltine-quickcheck = dontDistribute super.saltine-quickcheck;
 
   # https://ghc.haskell.org/trac/ghc/ticket/9625
   vty = dontCheck super.vty;
@@ -619,6 +624,9 @@ self: super: {
   # https://github.com/junjihashimoto/test-sandbox-compose/issues/2
   test-sandbox-compose = dontCheck super.test-sandbox-compose;
 
+  # https://github.com/jgm/pandoc/issues/2045
+  pandoc = dontCheck super.pandoc;
+
   # Broken by GLUT update.
   Monadius = markBroken super.Monadius;
 
@@ -665,11 +673,6 @@ self: super: {
   # https://github.com/fumieval/audiovisual/issues/1
   audiovisual = markBroken super.audiovisual;
 
-  # https://github.com/cdupont/Nomyx/issues/85
-  Nomyx-Core = markBroken super.Nomyx-Core;
-  Nomyx-Web = dontDistribute super.Nomyx-Web;
-  Nomyx = dontDistribute super.Nomyx;
-
   # https://github.com/alephcloud/hs-stm-queue-extras/issues/2
   stm-queue-extras = overrideCabal super.stm-queue-extras (drv: { editedCabalFile = null; });
 
@@ -677,6 +680,9 @@ self: super: {
   cryptol = overrideCabal super.cryptol (drv: {
     postUnpack = "rm -v ${drv.pname}-${drv.version}/Setup.hs";
   });
+
+  # https://github.com/haskell/haddock/issues/378
+  haddock-library = dontCheck super.haddock-library;
 
 } // {
 

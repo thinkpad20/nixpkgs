@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, ghc, perl, gmp, ncurses, libiconv }:
+{ stdenv, fetchurl, fetchpatch, ghc, perl, gmp, ncurses, libiconv }:
 
 let
 
@@ -12,6 +12,13 @@ let
       libraries/base_CONFIGURE_OPTS += --configure-option=--with-iconv-libraries="${libiconv}/lib"
     ''}
   '';
+
+  # We patch Cabal for GHCJS. See: https://github.com/haskell/cabal/issues/2454
+  # This should be removed when GHC includes Cabal > 1.22.2.0
+  cabalPatch = fetchpatch {
+    url = https://github.com/haskell/cabal/commit/f11b7c858bb25be78b81413c69648c87c446859e.patch;
+    sha256 = "1z56yyc7lgc78g847qf19f5n1yk054pzlnc2i178dpsj0mgjppyb";
+  };
 
 in
 
@@ -27,6 +34,12 @@ stdenv.mkDerivation rec {
   buildInputs = [ ghc perl ];
 
   enableParallelBuilding = true;
+
+  postPatch = ''
+    pushd libraries/Cabal
+    patch -p1 < ${cabalPatch}
+    popd
+  '';
 
   preConfigure = ''
     echo >mk/build.mk "${buildMK}"

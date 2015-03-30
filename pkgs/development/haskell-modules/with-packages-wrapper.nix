@@ -1,11 +1,9 @@
-{ stdenv, ghc, llvmPackages, packages, buildEnv
+{ stdenv, lib, ghc, llvmPackages, packages, buildEnv
 , makeWrapper
 , ignoreCollisions ? false, withLLVM ? false }:
 
-with stdenv.lib;
-
 # This wrapper works only with GHC 6.12 or later.
-assert versionOlder "6.12" ghc.version;
+assert lib.versionOlder "6.12" ghc.version;
 
 # It's probably a good idea to include the library "ghc-paths" in the
 # compiler environment, because we have a specially patched version of
@@ -29,18 +27,20 @@ assert versionOlder "6.12" ghc.version;
 #   fi
 
 let
-  ghc761OrLater = versionOlder "7.6.1" ghc.version;
+  isGhcjs       = ghc.isGhcjs or false;
+  ghc761OrLater = isGhcjs || lib.versionOlder "7.6.1" ghc.version;
   packageDBFlag = if ghc761OrLater then "--global-package-db" else "--global-conf";
-  libDir        = "$out/lib/ghc-${ghc.version}";
+  ghcCommand    = if isGhcjs then "ghcjs" else "ghc";
+  libDir        = "$out/lib/${ghcCommand}-${ghc.version}";
   docDir        = "$out/share/doc/ghc/html";
   packageCfgDir = "${libDir}/package.conf.d";
-  paths         = filter (x: x ? isHaskellLibrary) (closePropagation packages);
-  hasLibraries  = any (x: x.isHaskellLibrary) paths;
+  paths         = lib.filter (x: x ? isHaskellLibrary) (lib.closePropagation packages);
+  hasLibraries  = lib.any (x: x.isHaskellLibrary) paths;
   # CLang is needed on Darwin for -fllvm to work:
   # https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/code-generators.html
-  llvm          = makeSearchPath "bin"
+  llvm          = lib.makeSearchPath "bin"
                   ([ llvmPackages.llvm ]
-                   ++ optional stdenv.isDarwin llvmPackages.clang);
+                   ++ lib.optional stdenv.isDarwin llvmPackages.clang);
 in
 if paths == [] && !withLLVM then ghc else
 buildEnv {
@@ -49,6 +49,10 @@ buildEnv {
   inherit ignoreCollisions;
   postBuild = ''
     . ${makeWrapper}/nix-support/setup-hook
+
+    ${lib.optionalString isGhcjs ''
+    cp -r "${ghc}/${ghc.libDir}/"* ${libDir}/
+    ''}
 
     if test -L "$out/bin"; then
       binTarget="$(readlink -f "$out/bin")"
@@ -59,32 +63,32 @@ buildEnv {
 
     for prg in ghc ghci ghc-${ghc.version} ghci-${ghc.version}; do
       rm -f $out/bin/$prg
-      makeWrapper ${ghc}/bin/$prg $out/bin/$prg         \
-        --add-flags '"-B$NIX_GHC_LIBDIR"'               \
-        --set "NIX_GHC"        "$out/bin/ghc"           \
-        --set "NIX_GHCPKG"     "$out/bin/ghc-pkg"       \
-        --set "NIX_GHC_DOCDIR" "${docDir}"              \
-        --set "NIX_GHC_LIBDIR" "${libDir}"              \
-        ${optionalString withLLVM ''--prefix "PATH" ":" "${llvm}"''}
+      makeWrapper ${ghc}/bin/$prg $out/bin/$prg             \
+        --add-flags '"-B$NIX_GHC_LIBDIR"'                   \
+        --set "NIX_GHC"        "$out/bin/${ghcCommand}"     \
+        --set "NIX_GHCPKG"     "$out/bin/${ghcCommand}-pkg" \
+        --set "NIX_GHC_DOCDIR" "${docDir}"                  \
+        --set "NIX_GHC_LIBDIR" "${libDir}"                  \
+        ${lib.optionalString withLLVM ''--prefix "PATH" ":" "${llvm}"''}
     done
 
     for prg in runghc runhaskell; do
       rm -f $out/bin/$prg
-      makeWrapper ${ghc}/bin/$prg $out/bin/$prg         \
-        --add-flags "-f $out/bin/ghc"                   \
-        --set "NIX_GHC"        "$out/bin/ghc"           \
-        --set "NIX_GHCPKG"     "$out/bin/ghc-pkg"       \
-        --set "NIX_GHC_DOCDIR" "${docDir}"              \
+      makeWrapper ${ghc}/bin/$prg $out/bin/$prg             \
+        --add-flags "-f $out/bin/ghc"                       \
+        --set "NIX_GHC"        "$out/bin/${ghcCommand}"     \
+        --set "NIX_GHCPKG"     "$out/bin/${ghcCommand}-pkg" \
+        --set "NIX_GHC_DOCDIR" "${docDir}"                  \
         --set "NIX_GHC_LIBDIR" "${libDir}"
     done
 
-    for prg in ghc-pkg ghc-pkg-${ghc.version}; do
+    for prg in ${ghcCommand}-pkg ${ghcCommand}-pkg-${ghc.version}; do
       rm -f $out/bin/$prg
       makeWrapper ${ghc}/bin/$prg $out/bin/$prg --add-flags "${packageDBFlag}=${packageCfgDir}"
     done
 
-    ${optionalString hasLibraries "$out/bin/ghc-pkg recache"}
-    $out/bin/ghc-pkg check
+    ${lib.optionalString hasLibraries "$out/bin/${ghcCommand}-pkg recache"}
+    $out/bin/${ghcCommand}-pkg check
   '';
 } // {
   preferLocalBuild = true;
