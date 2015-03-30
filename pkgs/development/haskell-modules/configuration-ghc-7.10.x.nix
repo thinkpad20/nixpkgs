@@ -110,15 +110,6 @@ self: super: {
     url = "https://github.com/bmillwood/haskell-src-meta/pull/31.patch";
     sha256 = "0ij5zi2sszqns46mhfb87fzrgn5lkdv8yf9iax7cbrxb4a2j4y1w";
   });
-  foldl = appendPatch super.foldl (pkgs.fetchpatch {
-    url = "https://github.com/Gabriel439/Haskell-Foldl-Library/pull/30.patch";
-    sha256 = "0q4gs3xkazh644ff7qn2mp2q1nq3jq71x82g7iaacxclkiv0bphx";
-  });
-  persistent-template = appendPatch super.persistent-template (pkgs.fetchpatch {
-    url = "https://github.com/yesodweb/persistent/commit/4d34960bc421ec0aa353d69fbb3eb0c73585db97.patch";
-    sha256 = "1gphl0v87y2fjwkwp6j0bnksd0d9dr4pis6aw97rij477bm5mrvw";
-    stripLen = 1;
-  });
   stringsearch = appendPatch super.stringsearch (pkgs.fetchpatch {
     url = "https://bitbucket.org/api/2.0/repositories/dafis/stringsearch/pullrequests/3/patch";
     sha256 = "1j2a327m3bjl8k4dipc52nlh2ilg94gdcj9hdmdq62yh2drslvgx";

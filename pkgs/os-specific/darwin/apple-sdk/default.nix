@@ -9,8 +9,8 @@ let
     name    = "MacOS_SDK-${version}";
 
     src = fetchurl {
-      url    = "http://swcdn.apple.com/content/downloads/00/14/031-07556/i7hoqm3awowxdy48l34uel4qvwhdq8lgam/DevSDK_OSX109.pkg";
-      sha256 = "0x6r61h78r5cxk9dbw6fnjpn6ydi4kcajvllpczx3mi52crlkm4x";
+      url    = "http://swcdn.apple.com/content/downloads/27/02/031-06182/yiervn212jfs091cp9hwmb7gjq7ky91crs/DevSDK_OSX109.pkg";
+      sha256 = "16b7aplha5573yl1d44nl2yxzp0w2hafihbyh7930wrcvba69iy4";
     };
 
     buildInputs = [ xar gzip cpio ];
