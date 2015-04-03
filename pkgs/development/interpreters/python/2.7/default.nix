@@ -7,6 +7,8 @@
 
 , tcl ? null, tk ? null, x11 ? null, libX11 ? null, x11Support ? true
 , zlib ? null, zlibSupport ? true
+
+, configd, corefoundation
 }:
 
 assert zlibSupport -> zlib != null;
@@ -56,6 +58,8 @@ let
       touch $out/lib/python${majorVersion}/config/Makefile
       mkdir -p $out/include/python${majorVersion}
       touch $out/include/python${majorVersion}/pyconfig.h
+    '' + optionalString stdenv.isDarwin ''
+      substituteInPlace configure --replace '`/usr/bin/arch`' '"i386"'
     '';
 
   buildInputs =
@@ -65,7 +69,8 @@ let
         [ db gdbm ncurses sqlite readline
         ] ++ optionals x11Support [ tcl tk x11 libX11 ]
     )
-    ++ optional zlibSupport zlib;
+    ++ optional zlibSupport zlib
+    ++ optionals stdenv.isDarwin [ configd corefoundation ];
 
   # Build the basic Python interpreter without modules that have
   # external dependencies.

@@ -131,8 +131,6 @@ self: super: {
   # https://github.com/kazu-yamamoto/unix-time/issues/30
   unix-time = dontCheck super.unix-time;
 
-  Glob = doJailbreak super.Glob;
-
   ansi-wl-pprint = overrideCabal super.ansi-wl-pprint (drv: {
     patchPhase = ''
       substituteInPlace Text/PrettyPrint/ANSI/Leijen.hs \
@@ -144,23 +142,6 @@ self: super: {
   # Until the changes have been pushed to Hackage
   haskell-src-meta = overrideCabal (doJailbreak (appendPatch super.haskell-src-meta ./haskell-src-meta-ghc710.patch)) (drv: {
     prePatch = "sed -i -e 's|template-haskell [^,]\\+|template-haskell|' haskell-src-meta.cabal && cat haskell-src-meta.cabal";
-  });
-  stringsearch = appendPatch super.stringsearch (pkgs.fetchpatch {
-    url = "https://bitbucket.org/api/2.0/repositories/dafis/stringsearch/pullrequests/3/patch";
-    sha256 = "1j2a327m3bjl8k4dipc52nlh2ilg94gdcj9hdmdq62yh2drslvgx";
-  });
-  foldl = appendPatch super.foldl (pkgs.fetchpatch {
-    url = "https://github.com/Gabriel439/Haskell-Foldl-Library/pull/30.patch";
-    sha256 = "0q4gs3xkazh644ff7qn2mp2q1nq3jq71x82g7iaacxclkiv0bphx";
-  });
-  persistent-template = appendPatch super.persistent-template (pkgs.fetchpatch {
-    url = "https://github.com/yesodweb/persistent/commit/4d34960bc421ec0aa353d69fbb3eb0c73585db97.patch";
-    sha256 = "1gphl0v87y2fjwkwp6j0bnksd0d9dr4pis6aw97rij477bm5mrvw";
-    stripLen = 1;
-  });
-  mono-traversable = appendPatch super.mono-traversable (pkgs.fetchpatch {
-    url = "https://github.com/snoyberg/mono-traversable/pull/68.patch";
-    sha256 = "11hqf6hi3sc34wl0fn4rpigdf7wfklcjv6jwp8c3129yphg8687h";
   });
   conduit-combinators = appendPatch super.conduit-combinators (pkgs.fetchpatch {
     url = "https://github.com/fpco/conduit-combinators/pull/16.patch";
