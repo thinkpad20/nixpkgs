@@ -70,7 +70,25 @@ self: super: {
   al = appendConfigureFlag super.al "--extra-include-dirs=${pkgs.openal}/include/AL";
 
   # Depends on code distributed under a non-free license.
+  accelerate-cublas = dontDistribute super.accelerate-cublas;
+  accelerate-cuda = dontDistribute super.accelerate-cuda;
+  accelerate-cufft  = dontDistribute super.accelerate-cufft;
+  accelerate-examples = dontDistribute super.accelerate-examples;
+  accelerate-fft = dontDistribute super.accelerate-fft;
+  accelerate-fourier-benchmark = dontDistribute super.accelerate-fourier-benchmark;
+  AttoJson = markBroken super.AttoJson;
   bindings-yices = dontDistribute super.bindings-yices;
+  cublas = dontDistribute super.cublas;
+  cufft = dontDistribute super.cufft;
+  gloss-accelerate = dontDistribute super.gloss-accelerate;
+  gloss-raster-accelerate = dontDistribute super.gloss-raster-accelerate;
+  GoogleTranslate = dontDistribute super.GoogleTranslate;
+  GoogleDirections = dontDistribute super.GoogleDirections;
+  libnvvm = dontDistribute super.libnvvm;
+  manatee-all = dontDistribute super.manatee-all;
+  manatee-ircclient = dontDistribute super.manatee-ircclient;
+  Obsidian = dontDistribute super.Obsidian;
+  patch-image = dontDistribute super.patch-image;
   yices = dontDistribute super.yices;
   yices-easy = dontDistribute super.yices-easy;
   yices-painless = dontDistribute super.yices-painless;
@@ -220,6 +238,13 @@ self: super: {
   glib = addBuildDepends super.glib [pkgs.pkgconfig pkgs.glib];
   gtk3 = super.gtk3.override { inherit (pkgs) gtk3; };
   gtk = addBuildDepends super.gtk [pkgs.pkgconfig pkgs.gtk];
+  gtksourceview3 = super.gtksourceview3.override { inherit (pkgs.gnome3) gtksourceview; };
+
+  # Need WebkitGTK, not just webkit.
+  webkit = super.webkit.override { webkit = pkgs.webkitgtk24x; };
+  webkitgtk3 = super.webkitgtk3.override { webkit = pkgs.webkitgtk24x; };
+  webkitgtk3-javascriptcore = super.webkitgtk3-javascriptcore.override { webkit = pkgs.webkitgtk24x; };
+  websnap = super.websnap.override { webkit = pkgs.webkitgtk24x; };
 
   # https://github.com/jgm/zip-archive/issues/21
   zip-archive = addBuildTool super.zip-archive pkgs.zip;
@@ -462,10 +487,18 @@ self: super: {
   tz = overrideCabal super.tz (drv: { preConfigure = "export TZDIR=${pkgs.tzdata}/share/zoneinfo"; });
 
   # Deprecated upstream and doesn't compile.
-  llvm-base = markBroken super.llvm-base;
+  BASIC = dontDistribute super.BASIC;
   bytestring-arbitrary = dontDistribute (addBuildTool super.bytestring-arbitrary self.llvm);
+  llvm = dontDistribute super.llvm;
+  llvm-base = markBroken super.llvm-base;
+  llvm-base-util = dontDistribute super.llvm-base-util;
+  llvm-extra = dontDistribute super.llvm-extra;
+  llvm-tf = dontDistribute super.llvm-tf;
   objectid = dontDistribute super.objectid;
   saltine-quickcheck = dontDistribute super.saltine-quickcheck;
+  stable-tree = dontDistribute super.stable-tree;
+  synthesizer-llvm = dontDistribute super.synthesizer-llvm;
+  optimal-blocks = dontDistribute super.optimal-blocks;
 
   # https://ghc.haskell.org/trac/ghc/ticket/9625
   vty = dontCheck super.vty;
@@ -605,12 +638,20 @@ self: super: {
   # Build fails, but there seems to be no issue tracker available. :-(
   hmidi = markBrokenVersion "0.2.1.0" super.hmidi;
   padKONTROL = markBroken super.padKONTROL;
+  Bang = dontDistribute super.Bang;
+  launchpad-control = dontDistribute super.launchpad-control;
 
   # Upstream provides no issue tracker and no contact details.
   vivid = markBroken super.vivid;
 
   # Test suite wants to connect to $DISPLAY.
   hsqml = dontCheck super.hsqml;
+
+  # https://github.com/lookunder/RedmineHs/issues/4
+  Redmine = markBroken super.Redmine;
+
+  # HsColour: Language/Unlambda.hs: hGetContents: invalid argument (invalid byte sequence)
+  unlambda = dontHyperlinkSource super.unlambda;
 
   # https://github.com/megantti/rtorrent-rpc/issues/1
   rtorrent-rpc = markBroken super.rtorrent-rpc;
@@ -634,13 +675,6 @@ self: super: {
   haroonga = markBroken super.haroonga;
   haroonga-httpd = markBroken super.haroonga-httpd;
 
-  # Cannot find pkg-config data for "webkit-1.0".
-  webkit = markBroken super.webkit;
-  websnap = markBroken super.websnap;
-
-  # sandbox violations, not a bug in system-fileio
-  system-fileio = if pkgs.stdenv.isDarwin then dontCheck super.system-fileio else super.system-fileio;
-
   # Build is broken and no contact info available.
   hopenpgp-tools = markBroken super.hopenpgp-tools;
 
@@ -663,6 +697,7 @@ self: super: {
   # https://github.com/meteficha/Hipmunk/issues/8
   Hipmunk = markBroken super.Hipmunk;
   HipmunkPlayground = dontDistribute super.HipmunkPlayground;
+  click-clack = dontDistribute super.click-clack;
 
   # https://github.com/prowdsponsor/esqueleto/issues/93
   esqueleto = dontCheck super.esqueleto;
@@ -683,6 +718,25 @@ self: super: {
 
   # https://github.com/haskell/haddock/issues/378
   haddock-library = dontCheck super.haddock-library;
+
+  # Already fixed in upstream darcs repo.
+  xmonad-contrib = overrideCabal super.xmonad-contrib (drv: {
+    patchPhase = ''
+      sed -i -e '24iimport Control.Applicative' XMonad/Util/Invisible.hs
+      sed -i -e '22iimport Control.Applicative' XMonad/Hooks/DebugEvents.hs
+    '';
+  });
+
+  # https://github.com/anton-k/csound-expression-dynamic/issues/1
+  csound-expression-dynamic = dontHaddock super.csound-expression-dynamic;
+
+  # Hardcoded include path
+  poppler = overrideCabal super.poppler (drv: {
+    patchPhase = ''
+      sed -i -e 's,glib/poppler.h,poppler.h,' poppler.cabal
+      sed -i -e 's,glib/poppler.h,poppler.h,' Graphics/UI/Gtk/Poppler/Structs.hsc
+    '';
+  });
 
 } // {
 

@@ -43,20 +43,21 @@ self: super: {
   # Configure build for mtl 2.1.x.
   mtl-compat = addBuildDepend (enableCabalFlag super.mtl-compat "two-point-one") self.transformers-compat;
 
+  # haddock-api 2.16 requires ghc>=7.10
+  haddock-api = super.haddock-api_2_15_0_2;
+
   # Idris requires mtl 2.2.x.
   idris = overrideCabal (super.idris.overrideScope (self: super: {
     mkDerivation = drv: super.mkDerivation (drv // { doCheck = false; });
+    blaze-markup = self.blaze-markup_0_6_2_0;
+    blaze-html = self.blaze-html_0_7_0_3;
+    haskeline = self.haskeline_0_7_2_1;
+    lens = self.lens_4_7;
+    mtl = super.mtl_2_2_1;
     transformers = super.transformers_0_4_3_0;
     transformers-compat = disableCabalFlag super.transformers-compat "three";
-    haskeline = self.haskeline_0_7_2_1;
-    mtl = super.mtl_2_2_1;
   })) (drv: {
-    jailbreak = true;           # idris is scared of lens 4.7
-    patchPhase = ''
-      runHook prePatch
-      find . -name '*.hs' -exec sed -i -s 's|-Werror||' {} +
-      runHook postPatch
-    '';
+    patchPhase = "find . -name '*.hs' -exec sed -i -s 's|-Werror||' {} +";
   });                           # warning: "Module ‘Control.Monad.Error’ is deprecated"
 
   # Depends on time == 0.1.5, which we don't have.
@@ -75,7 +76,9 @@ self: super: {
   command-qq = dontCheck super.command-qq;
 
   # Doesn't support GHC < 7.10.x.
+  bound-gen = dontDistribute super.bound-gen;
   ghc-exactprint = dontDistribute super.ghc-exactprint;
+  ghc-typelits-natnormalise = dontDistribute super.ghc-typelits-natnormalise;
 
   # Newer versions require transformers 0.4.x.
   seqid = super.seqid_0_1_0;
