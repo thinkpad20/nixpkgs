@@ -4,6 +4,8 @@ appleDerivation {
   buildPhase = ''
     cp ${./auto_dtrace.h} ./auto_dtrace.h
 
+    substituteInPlace ThreadLocalCollector.h --replace SubZone.h Subzone.h
+
     substituteInPlace auto_zone.cpp \
       --replace "#include <msgtracer_client.h>" ''$'#include <asl.h>\nstatic void msgtracer_log_with_keys(...) { };'
 

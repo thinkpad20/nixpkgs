@@ -36,6 +36,7 @@ appleDerivation {
 
   postInstall = ''
     cp ${apple_sdk.sdk}/Library/Frameworks/CoreFoundation.framework/Versions/A/Headers/CFAttributedString.h $out/System/Library/Frameworks/CoreFoundation.framework/Headers
+    cp ${apple_sdk.sdk}/Library/Frameworks/CoreFoundation.framework/Versions/A/Headers/CFNotificationCenter.h $out/System/Library/Frameworks/CoreFoundation.framework/Headers
     mv $out/System/* $out
     rmdir $out/System
   '';
