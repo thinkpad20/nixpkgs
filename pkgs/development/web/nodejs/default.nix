@@ -1,11 +1,9 @@
 { stdenv, fetchurl, openssl, python, zlib, libuv, v8, utillinux, http-parser
-, pkgconfig, runCommand, which, unstableVersion ? stdenv.isDarwin
+, pkgconfig, runCommand, which
 , libtool, CoreServices, ApplicationServices
 }:
 
 let
-  version = if unstableVersion then "0.11.15" else "0.12.0";
-
   version = "0.12.0";
 
   deps = {

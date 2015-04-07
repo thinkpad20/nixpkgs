@@ -1802,8 +1802,11 @@ let
 
   ninka = callPackage ../development/tools/misc/ninka { };
 
-  nodejs = callPackage ../development/web/nodejs { libuv = libuvVersions.v1_2_0; };
-  nodejs-unstable = callPackage ../development/web/nodejs { libuv = libuvVersions.v1_2_0; unstableVersion = true; };
+  nodejs = callPackage ../development/web/nodejs {
+    libuv = libuvVersions.v1_2_0;
+    inherit (darwin.apple_sdk.frameworks) CoreServices ApplicationServices;
+    libtool = if stdenv.isDarwin then darwin.libtool else libtool;
+  };
   nodejs-0_10 = callPackage ../development/web/nodejs/v0_10.nix { };
 
   nodePackages = callPackage ./node-packages.nix { self = nodePackages; };

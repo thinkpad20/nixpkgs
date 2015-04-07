@@ -209,6 +209,8 @@ self: super: {
     '';
   });
 
+  system-fileio = if pkgs.stdenv.isDarwin then dontCheck super.system-fileio else super.system-fileio;
+
   # Does not compile: "fatal error: ieee-flpt.h: No such file or directory"
   base_4_8_0_0 = markBroken super.base_4_8_0_0;
 
