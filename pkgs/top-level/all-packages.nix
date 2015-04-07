@@ -6314,7 +6314,9 @@ let
     qt5 = qt54;
   };
 
-  libdc1394 = callPackage ../development/libraries/libdc1394 { };
+  libdc1394 = callPackage ../development/libraries/libdc1394 {
+    inherit (darwin.apple_sdk.frameworks) CoreServices;
+  };
 
   libdc1394avt = callPackage ../development/libraries/libdc1394avt { };
 
@@ -6745,7 +6747,9 @@ let
   # To bootstrap SBCL, I need CLisp 2.44.1; it needs libsigsegv 2.5
   libsigsegv_25 = callPackage ../development/libraries/libsigsegv/2.5.nix { };
 
-  libsndfile = callPackage ../development/libraries/libsndfile { };
+  libsndfile = callPackage ../development/libraries/libsndfile {
+    inherit (darwin.apple_sdk.frameworks) Carbon CoreAudio;
+  };
 
   libsodium = callPackage ../development/libraries/libsodium { };
 
@@ -6834,8 +6838,6 @@ let
   libunwind = if stdenv.isDarwin
     then darwin.libunwind
     else callPackage ../development/libraries/libunwind { };
-
-  libunwindNative = callPackage ../development/libraries/libunwind/native.nix {};
 
   libuvVersions = recurseIntoAttrs (callPackage ../development/libraries/libuv {
     automake = automake113x; # fails with 14
@@ -7458,10 +7460,9 @@ let
     x11Support = true;
     pulseaudioSupport = (!stdenv.isDarwin);
 
-    # resolve the unrecognized -fpascal-strings option error
-    stdenv = if stdenv.isDarwin
-      then clangStdenv
-      else stdenv;
+    inherit (darwin.apple_sdk.frameworks) OpenGL CoreAudio CoreServices AudioUnit Kernel
+    Cocoa AudioToolbox Foundation CoreData;
+    inherit (darwin) libobjc;
   };
 
   SDL_gfx = callPackage ../development/libraries/SDL_gfx { };

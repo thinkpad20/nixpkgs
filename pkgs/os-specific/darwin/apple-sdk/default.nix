@@ -52,6 +52,11 @@ let
 
     phases = [ "installPhase" "fixupPhase" ];
 
+    __propagatedImpureHostDeps =
+      let op = f: if builtins.pathExists f then [f] else [];
+      in import (./impure-deps/. + builtins.toPath "/${name}.nix")
+         ++ [ "/System/Library/Frameworks/${name}.framework/Versions" ];
+
     installPhase = ''
       linkFramework() {
         local path="$1"
@@ -91,9 +96,6 @@ let
 
     propagatedBuildInputs = deps;
 
-    # Not going to bother being more precise than this...
-    __propagatedImpureHostDeps = [ "/System/Library/Frameworks/${name}.framework/Versions" ];
-
     meta = with stdenv.lib; {
       description = "Apple SDK framework ${name}";
       maintainers = with maintainers; [ copumpkin ];
@@ -101,6 +103,7 @@ let
     };
   };
 in rec {
+  inherit sdk;
   libs = {
     xpc = stdenv.mkDerivation {
       name   = "apple-lib-xpc";
@@ -146,5 +149,8 @@ in rec {
     };
   };
 
-  frameworks = stdenv.lib.mapAttrs framework (import ./frameworks.nix { inherit frameworks libs; });
+  frameworks = stdenv.lib.mapAttrs framework (import ./frameworks.nix { inherit frameworks libs; })
+    # prevents confusing scenarios where two different CoreFoundations are passed to the
+    # linker
+    // { CoreFoundation = stdenv.libc; };
 }

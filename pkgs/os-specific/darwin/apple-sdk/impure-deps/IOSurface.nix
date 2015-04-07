@@ -1,0 +1,10 @@
+[
+  "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation"
+  "/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit"
+  "/System/Library/Frameworks/IOSurface.framework/Versions/A/IOSurface"
+  "/usr/lib/libbsm.0.dylib"
+  "/usr/lib/libc++.1.dylib"
+  "/usr/lib/libc++abi.dylib"
+  "/usr/lib/libicucore.A.dylib"
+  "/usr/lib/libz.1.dylib"
+]

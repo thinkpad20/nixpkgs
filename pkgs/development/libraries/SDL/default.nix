@@ -1,4 +1,5 @@
-{ stdenv, fetchurl, pkgconfig, audiofile
+{ stdenv, fetchurl, pkgconfig, audiofile, OpenGL, CoreAudio, CoreServices, AudioUnit,
+Kernel, Cocoa, AudioToolbox, Foundation, libobjc, CoreData
 , openglSupport ? false, mesa ? null
 , alsaSupport ? true, alsaLib ? null
 , x11Support ? true, x11 ? null, libXrandr ? null
@@ -23,11 +24,16 @@ stdenv.mkDerivation rec {
     sha256 = "005d993xcac8236fpvd1iawkz4wqjybkpn8dbwaliqz5jfkidlyn";
   };
 
+  NIX_CFLAGS_COMPILE = "-Wno-typedef-redefinition";
+
   # Since `libpulse*.la' contain `-lgdbm', PulseAudio must be propagated.
   propagatedNativeBuildInputs =
     stdenv.lib.optionals x11Support [ x11 libXrandr ] ++
     stdenv.lib.optional alsaSupport alsaLib ++
-    stdenv.lib.optional pulseaudioSupport pulseaudio;
+    stdenv.lib.optional pulseaudioSupport pulseaudio ++
+    stdenv.lib.optionals stdenv.isDarwin
+      [ OpenGL CoreAudio CoreServices AudioUnit Kernel Cocoa AudioToolbox Foundation
+      libobjc CoreData ];
 
   buildInputs = let
     notMingw = !(stdenv ? cross) || stdenv.cross.libc != "msvcrt";

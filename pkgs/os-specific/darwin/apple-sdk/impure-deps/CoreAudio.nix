@@ -1,0 +1,17 @@
+[
+  "/System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio"
+  "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation"
+  "/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit"
+  "/System/Library/Frameworks/Security.framework/Versions/A/Security"
+  "/usr/lib/libOpenScriptingUtil.dylib"
+  "/usr/lib/libbsm.0.dylib"
+  "/usr/lib/libbz2.1.0.dylib"
+  "/usr/lib/libc++.1.dylib"
+  "/usr/lib/libc++abi.dylib"
+  "/usr/lib/libicucore.A.dylib"
+  "/usr/lib/libpam.2.dylib"
+  "/usr/lib/libsqlite3.dylib"
+  "/usr/lib/libxar.1.dylib"
+  "/usr/lib/libxml2.2.dylib"
+  "/usr/lib/libz.1.dylib"
+]

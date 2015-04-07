@@ -1,7 +1,7 @@
 { stdenv, fetchurl, osx_private_sdk }:
 
 stdenv.mkDerivation rec {
-	version = "55115";
+  version = "55115";
   name    = "SecurityTool-${version}";
 
   src = fetchurl {

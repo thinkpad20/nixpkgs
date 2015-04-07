@@ -16,7 +16,7 @@ with frameworks; with libs; {
   AppleScriptObjC         = [];
   AppleShareClientCore    = [ CoreServices ];
   AudioToolbox            = [ AudioUnit CoreAudio CoreFoundation CoreMIDI ];
-  AudioUnit               = [ AudioToolbox Carbon CoreAudio CoreFoundation ];
+  AudioUnit               = [ Carbon CoreAudio CoreFoundation ];
   AudioVideoBridging      = [ Foundation ];
   Automator               = [];
   CFNetwork               = [ CoreFoundation ];
@@ -26,7 +26,6 @@ with frameworks; with libs; {
   CoreAudio               = [ CoreFoundation IOKit ];
   CoreAudioKit            = [ AudioUnit ];
   CoreData                = [];
-  CoreFoundation          = [];
   CoreGraphics            = [ CoreFoundation IOKit IOSurface ];
   CoreLocation            = [];
   CoreMIDI                = [ CoreFoundation ];
@@ -66,7 +65,7 @@ with frameworks; with libs; {
   JavaFrameEmbedding      = [];
   JavaScriptCore          = [ CoreFoundation ];
   Kerberos                = [];
-  Kernel                  = [ CoreFoundation IOKit UserNotification ];
+  Kernel                  = [ CoreFoundation IOKit ];
   LDAP                    = [];
   LatentSemanticMapping   = [ Carbon CoreFoundation ];
   MapKit                  = [];
