@@ -31,15 +31,12 @@ self: super: {
   hslua = super.hslua.override { lua = pkgs.lua5_1; };
 
   # Use the default version of mysql to build this package (which is actually mariadb).
-  mysql = super.mysql.override { inherit (pkgs) mysql; };
+  mysql = super.mysql.override { mysql = pkgs.mysql.lib; };
 
   # Please also remove optparse-applicative special case from
   # cabal2nix/hackage2nix.hs when removing the following.
   elm-make = super.elm-make.override { optparse-applicative = self.optparse-applicative_0_10_0; };
   elm-package = super.elm-package.override { optparse-applicative = self.optparse-applicative_0_10_0; };
-
-  # https://github.com/acid-state/safecopy/issues/17
-  safecopy = dontCheck super.safecopy;
 
   # Link the proper version.
   zeromq4-haskell = super.zeromq4-haskell.override { zeromq = pkgs.zeromq4; };
@@ -120,8 +117,10 @@ self: super: {
   # Cannot compile its own test suite: https://github.com/haskell/network-uri/issues/10.
   network-uri = dontCheck super.network-uri;
 
+  # Agda-2.4.2.2 needs these overrides to compile.
+  Agda = super.Agda.override { equivalence = self.equivalence_0_2_5; cpphs = self.cpphs_1_18_9; };
+
   # The Haddock phase fails for one reason or another.
-  Agda = dontHaddock super.Agda;
   attoparsec-conduit = dontHaddock super.attoparsec-conduit;
   blaze-builder-conduit = dontHaddock super.blaze-builder-conduit;
   bytestring-progress = dontHaddock super.bytestring-progress;
@@ -738,6 +737,9 @@ self: super: {
     '';
   });
 
+  # Uses OpenGL in testing
+  caramia = dontCheck super.caramia;
+
 } // {
 
   # Not on Hackage.
@@ -746,8 +748,8 @@ self: super: {
     version = "20150318";
     src = pkgs.fetchgit {
       url = "http://github.com/NixOS/cabal2nix.git";
-      rev = "d131b2b2db1bc37a10bbc40c3adea3f006633a5e";
-      sha256 = "0s92mdkgjqkqby6b1lrxs5dh9ja49sj5jpdc56g5v8g03h3g9m0a";
+      rev = "b56cc6de2c4900fb0d1dc3617591a2f536aca60d";
+      sha256 = "0pza9j3x1mfjqrzcqq6ndg0jiqx85mg0sw8n9fmq18fk5g4hzhis";
       deepClone = true;
     };
     isLibrary = false;

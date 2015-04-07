@@ -30,6 +30,8 @@ let self = _self // overrides;
     callPackage = lib.callPackageWith (self // removeAttrs args ["overrides" "external"]);
     _self = with self; {
 
+  inherit emacs;
+
   ## START HERE
 
   ac-haskell-process = melpaBuild rec {
@@ -370,7 +372,7 @@ let self = _self // overrides;
     pname   = "evil";
     version = "20141020";
     src = fetchgit {
-      url = "https://gitorious.org/evil/evil.git";
+      url = "https://github.com/emacsmirror/evil.git";
       rev = "999ec15587f85100311c031aa8efb5d50c35afe4";
       sha256 = "5f67643d19a31172e68f2f195959d33bcd26c2786eb71e67eb27eb52f5bf387a";
     };
@@ -1067,12 +1069,12 @@ let self = _self // overrides;
 
   weechat = melpaBuild rec {
     pname   = "weechat.el";
-    version = "20141016";
+    version = "0.2.2";
     src = fetchFromGitHub {
       owner  = "the-kenny";
       repo   = pname;
-      rev    = "4cb2ced1eda5167ce774e04657d2cd077b63c706";
-      sha256 = "003sihp7irm0qqba778dx0gf8xhkxd1xk7ig5kgkryvl2jyirk28";
+      rev    = version;
+      sha256 = "0f90m2s40jish4wjwfpmbgw024r7n2l5b9q9wr6rd3vdcwks3mcl";
     };
     postPatch = lib.optionalString (!stdenv.isLinux) ''
       rm weechat-sauron.el weechat-secrets.el

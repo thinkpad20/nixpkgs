@@ -205,6 +205,20 @@ let self = _self // overrides; _self = with self; {
     };
   };
 
+  Appcpanminus = buildPerlPackage {
+    name = "App-cpanminus-1.7027";
+    src = fetchurl {
+      url = mirror://cpan/authors/id/M/MI/MIYAGAWA/App-cpanminus-1.7027.tar.gz;
+      sha256 = "6853359493f8465abbe556d7409e7c0abecd1b48b6a63d2f851af83839c34b31";
+    };
+    meta = {
+      homepage = https://github.com/miyagawa/cpanminus;
+      description = "Get, unpack, build and install modules from CPAN";
+      license = "perl";
+      platforms = stdenv.lib.platforms.all;
+    };
+  };
+
   Appperlbrew = buildPerlPackage {
     name = "App-perlbrew-0.71";
     src = fetchurl {
@@ -5489,10 +5503,10 @@ let self = _self // overrides; _self = with self; {
 
 
   MathClipper = buildPerlModule rec {
-    name = "Math-Clipper-1.22";
+    name = "Math-Clipper-1.23";
     src = fetchurl {
       url = "mirror://cpan/modules/by-module/Math/${name}.tar.gz";
-      sha256 = "0p5iblg979v3pb6a8kyhjdv33yadr5997nhz9asjksgvww328nfa";
+      sha256 = "0i9wzvig7ayijc9nvh5x5rryk1jrcj1hcvfmlcj449rnnxx24dav";
     };
     propagatedBuildInputs = [ ModuleBuildWithXSpp ExtUtilsXSpp ExtUtilsTypemapsDefault TestDeep ];
   };
@@ -10026,6 +10040,18 @@ let self = _self // overrides; _self = with self; {
     meta = {
       maintainers = with maintainers; [ ocharles ];
       platforms   = stdenv.lib.platforms.unix;
+    };
+  };
+
+  threads = buildPerlPackage {
+    name = "threads-2.01";
+    src = fetchurl {
+      url = mirror://cpan/authors/id/J/JD/JDHEDDEN/threads-2.01.tar.gz;
+      sha256 = "429fea88757e0a347dac2cf9e414dfe8f06c8ca3c5445f6da4a95c2f883b6399";
+    };
+    meta = {
+      description = "Perl interpreter-based threads";
+      license = "perl";
     };
   };
 

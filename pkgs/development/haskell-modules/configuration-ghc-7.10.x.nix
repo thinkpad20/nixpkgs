@@ -33,6 +33,118 @@ self: super: {
   unix = null;
   xhtml = null;
 
+  # should be fixed in versions > 0.6
+  pandoc-citeproc = overrideCabal super.pandoc-citeproc (drv: {
+    patches = [
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc-citeproc/commit/4e4f9c2.patch";
+         sha256 = "18b08k56g5q4zz6jxczkrddblyn52vmd0811n1icfdpzqhgykn4p";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc-citeproc/commit/34cc147.patch";
+         sha256 = "09vrdvg5w14qckn154zlxvk6i2ikmmhpsl9mxycxkql3rl4dqam3";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc-citeproc/commit/8242c70.patch";
+         sha256 = "1lqpwxzz2www81w4mym75z36bsavqfj67hyvzn20ffvxq42yw7ry";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc-citeproc/commit/e59f88d.patch";
+         sha256 = "05699hj3qa2vrfdnikj7rzmc2ajrkd7p8yd4cjlhmqq9asq90xzb";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc-citeproc/commit/ae6ca86.patch";
+         sha256 = "19cag39k5s7iqagpvss9c2ny5g0lwnrawaqcc0labihc1a181k8l";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc-citeproc/commit/f5a9fc7.patch";
+         sha256 = "08lsinh3mkjpz3cqj5i1vcnzkyl07jp38qcjcwcw7m2b7gsjbpvm";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc-citeproc/commit/780a554.patch";
+         sha256 = "1kfn0mcp3vp32c9w8gyz0p0jv0xn90as9mxm8a2lmjng52jlzvy4";
+      })
+   ];
+  });
+
+  # should be fixed in versions > 1.13.2
+  pandoc = overrideCabal super.pandoc (drv: {
+    patches = [
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/693f9ab.patch";
+         sha256 = "1niyrigs47ia1bhk6yrnzf0sq7hz5b7xisc8ph42wkp5sl8x9h1y";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/9c68017.patch";
+         sha256 = "0zccb6l5vmfyq7p8ii88fgggfhrff32hj43f5pp3w88l479f1qlh";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/dbe1b38.patch";
+         sha256 = "0d80692liyjx2y56w07k23adjcxb57w6vzcylmc4cfswzy8agrgy";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/5ea3856.patch";
+         sha256 = "1z15lc0ix9fv278v1xmfw3a6gl85ydahgs8kz61sfvh4jdiacabw";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/c80c9ac.patch";
+         sha256 = "0fk3j53zx0x88jmh0ism0aghs2w5qf87zcp9cwbfcgg5izh3b344";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/8b9bded.patch";
+         sha256 = "0f1dh1jmhq55mlv4dawvx3ck330y82qmys06bfkqcpl0jsyd9x1a";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/e4c7894.patch";
+         sha256 = "1rfdaq6swrl3m9bmbf6yhqq57kv3l3f4927xya3zq29dpvkmmi4z";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/2a6f68f.patch";
+         sha256 = "0sbh2x9jqvis9ln8r2dr6ihkjdn480mjskm4ny91870vg852228c";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/4e3281c.patch";
+         sha256 = "0zafhxxijli2mf1h0j7shp7kd7fxqbvlswm1m8ikax3aknvjxymi";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/cd5b1fe.patch";
+         sha256 = "0nxq7c0gpdiycgdrcj3llbfwxdni6k7hqqniwsbn2ha3h03i8hg1";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/ed7606d.patch";
+         sha256 = "0gchm46ziyj7vw6ibn3kk49cjzsc78z2lm8k7892g79q2livlc1f";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/b748833.patch";
+         sha256 = "03gj4qn9c5zyqrxyrw4xh21xlvbx9rbvw6gh8msgf5xk53ibs68b";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/10d5398.patch";
+         sha256 = "1nhp5b07vywk917bfap6pzahhqnwvvlbbfg5336a2nvb0c8iq6ih";
+      })
+      (pkgs.fetchpatch {
+         url = "https://github.com/jgm/pandoc/commit/f18ceb1.patch";
+         sha256 = "1vxsy5fn4nscvim9wcx1n78q7yh05x0z8p812csi3v3z79lbabhq";
+      })
+    ];
+    # jailbreak-cabal omits part of the file
+    # https://github.com/peti/jailbreak-cabal/issues/9
+    postPatch = ''
+      sed -i '420i\ \ \ \ \ \ \ \ \ \ \ \ buildable: False' pandoc.cabal
+    '';
+  });
+
+  # see: https://github.com/jaspervdj/hakyll/issues/343
+  hakyll = overrideCabal super.hakyll (drv: {
+    buildDepends = drv.buildDepends ++ [ self.time-locale-compat ];
+    patches = [
+      (pkgs.fetchpatch {
+         url = "https://github.com/jaspervdj/hakyll/pull/344.patch";
+         sha256 = "130c0icw3cj209p219siaq0n8avmm0fpmph0iyjgx67w62sffrli";
+      })
+    ];
+  });
+
   # Cabal_1_22_1_1 requires filepath >=1 && <1.4
   cabal-install = dontCheck (super.cabal-install.override { Cabal = null; });
 
@@ -142,23 +254,18 @@ self: super: {
   haskell-src-meta = overrideCabal (doJailbreak (appendPatch super.haskell-src-meta ./haskell-src-meta-ghc710.patch)) (drv: {
     prePatch = "sed -i -e 's|template-haskell [^,]\\+|template-haskell|' haskell-src-meta.cabal && cat haskell-src-meta.cabal";
   });
+  mono-traversable = appendPatch super.mono-traversable (pkgs.fetchpatch {
+    url = "https://github.com/snoyberg/mono-traversable/pull/68.patch";
+    sha256 = "11hqf6hi3sc34wl0fn4rpigdf7wfklcjv6jwp8c3129yphg8687h";
+  });
   conduit-combinators = appendPatch super.conduit-combinators (pkgs.fetchpatch {
     url = "https://github.com/fpco/conduit-combinators/pull/16.patch";
     sha256 = "1c9b1d3dxr820i107b6yly2g1apv6bbsg9ag26clcikca7dfz5qr";
   });
-  wreq = overrideCabal super.wreq (drv: {
-    patchPhase = ''
-      substituteInPlace Network/Wreq/Internal/AWS.hs --replace System.Locale Data.Time.Format
-      substituteInPlace Network/Wreq/Cache.hs \
-        --replace System.Locale Data.Time.Format \
-        --replace RecordWildCards "RecordWildCards, FlexibleContexts"
-    '';
-  });
-  contravariant = overrideCabal super.contravariant (drv: {
-    patchPhase = ''
-      substituteInPlace src/Data/Functor/Contravariant/Compose.hs \
-        --replace '<$>' '`fmap`'
-    '';
+  yesod-bin = appendPatch super.yesod-bin (pkgs.fetchpatch {
+    url = "https://github.com/yesodweb/yesod/pull/966.patch";
+    sha256 = "0mm4swyn7qh30hw7ya8ykz5qvsd4ni4vmipq364yqbsi9ysrc6nb";
+    stripLen = 1;
   });
 
   ghcjs-prim = self.callPackage ({ mkDerivation, fetchgit, primitive }: mkDerivation {
