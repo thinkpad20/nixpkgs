@@ -181,6 +181,7 @@ self: super: {
     patchPhase = "sed -i -e 's|base >= 3 && < 4.8|base|' utf8-string.cabal";
   });
   esqueleto = doJailbreak super.esqueleto;
+  pointfree = doJailbreak super.pointfree;
 
   # bos/attoparsec#92
   attoparsec = dontCheck super.attoparsec;
@@ -229,14 +230,8 @@ self: super: {
   });
 
   wl-pprint = overrideCabal super.wl-pprint (drv: {
-    patchPhase = "sed -i '113iimport Prelude hiding ((<$>))' Text/PrettyPrint/Leijen.hs";
-  });
-
-  wl-pprint-text = overrideCabal super.wl-pprint-text (drv: {
-    patchPhase = ''
-      sed -i '71iimport Prelude hiding ((<$>))' Text/PrettyPrint/Leijen/Text/Monadic.hs
-      sed -i '119iimport Prelude hiding ((<$>))' Text/PrettyPrint/Leijen/Text.hs
-    '';
+    postPatch = "sed -i '113iimport Prelude hiding ((<$>))' Text/PrettyPrint/Leijen.hs";
+    jailbreak = true;
   });
 
   # https://github.com/kazu-yamamoto/unix-time/issues/30
@@ -251,9 +246,6 @@ self: super: {
   });
 
   # Until the changes have been pushed to Hackage
-  haskell-src-meta = overrideCabal (doJailbreak (appendPatch super.haskell-src-meta ./haskell-src-meta-ghc710.patch)) (drv: {
-    prePatch = "sed -i -e 's|template-haskell [^,]\\+|template-haskell|' haskell-src-meta.cabal && cat haskell-src-meta.cabal";
-  });
   mono-traversable = appendPatch super.mono-traversable (pkgs.fetchpatch {
     url = "https://github.com/snoyberg/mono-traversable/pull/68.patch";
     sha256 = "11hqf6hi3sc34wl0fn4rpigdf7wfklcjv6jwp8c3129yphg8687h";
@@ -262,10 +254,13 @@ self: super: {
     url = "https://github.com/fpco/conduit-combinators/pull/16.patch";
     sha256 = "1c9b1d3dxr820i107b6yly2g1apv6bbsg9ag26clcikca7dfz5qr";
   });
-  yesod-bin = appendPatch super.yesod-bin (pkgs.fetchpatch {
-    url = "https://github.com/yesodweb/yesod/pull/966.patch";
-    sha256 = "0mm4swyn7qh30hw7ya8ykz5qvsd4ni4vmipq364yqbsi9ysrc6nb";
-    stripLen = 1;
+  annotated-wl-pprint = appendPatch super.annotated-wl-pprint (pkgs.fetchpatch {
+    url = "https://patch-diff.githubusercontent.com/raw/david-christiansen/annotated-wl-pprint/pull/2.patch";
+    sha256 = "0n0fbq3vd7b9kfmhg089q0dy40vawq4q88il3zc9ybivhi62nwv4";
+  });
+  ghc-events = appendPatch super.ghc-events (pkgs.fetchpatch {
+    url = "https://patch-diff.githubusercontent.com/raw/haskell/ghc-events/pull/8.patch";
+    sha256 = "1k881jrvzfvs761jgfhf5nsbmbc33c9333l4s0f5088p46ff2n1l";
   });
 
   ghcjs-prim = self.callPackage ({ mkDerivation, fetchgit, primitive }: mkDerivation {

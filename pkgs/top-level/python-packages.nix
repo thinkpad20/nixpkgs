@@ -1751,14 +1751,14 @@ let
 
 
   colander = buildPythonPackage rec {
-    name = "colander-1.0b1";
+    name = "colander-1.0";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/c/colander/${name}.tar.gz";
-      md5 = "89f2cf4b5c87d43f7917d6a0d4872e6a";
+      md5 = "058576123da7216288c079c9f47693f8";
     };
 
-    propagatedBuildInputs = with self; [ self.translationstring ];
+    propagatedBuildInputs = with self; [ self.translationstring self.iso8601 ];
 
     meta = {
       maintainers = [
@@ -10984,19 +10984,19 @@ let
 
   sipsimple = buildPythonPackage rec {
     name = "sipsimple-${version}";
-    version = "1.4.2";
+    version = "2.3.1";
     disabled = isPy3k;
 
     configurePhase = "find -name 'configure' -exec chmod a+x {} \\; ; find -name 'aconfigure' -exec chmod a+x {} \\; ; ${python}/bin/${python.executable} setup.py build_ext --pjsip-clean-compile";
 
     src = pkgs.fetchurl {
       url = "http://download.ag-projects.com/SipClient/python-${name}.tar.gz";
-      sha256 = "f6e6de7ab5f20e8ae08966b8811462e4271833db4f7fbab58ffba4e5c07ab114";
+      sha256 = "1n3g1zg3zgdybikdla0qdqvpa06vn1ka2asr61lb8kk6xbvqkljv";
     };
 
-    propagatedBuildInputs = with self; [ cython pkgs.openssl dns dateutil xcaplib msrplib];
+    propagatedBuildInputs = with self; [ cython pkgs.openssl dns dateutil xcaplib msrplib lxml ];
 
-    buildInputs = with self; [ pkgs.alsaLib ];
+    buildInputs = with pkgs; [ alsaLib ffmpeg libv4l pkgconfig sqlite ];
 
     installPhase = "${python}/bin/${python.executable} setup.py install --prefix=$out";
 

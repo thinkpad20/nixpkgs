@@ -2166,7 +2166,9 @@ let
 
   ntopng = callPackage ../tools/networking/ntopng { };
 
-  ntp = callPackage ../tools/networking/ntp { };
+  ntp = callPackage ../tools/networking/ntp {
+    libcap = if stdenv.isLinux then libcap else null;
+  };
 
   numdiff = callPackage ../tools/text/numdiff { };
 
@@ -7781,6 +7783,8 @@ let
 
   wildmidi = callPackage ../development/libraries/wildmidi { };
 
+  wiredtiger = callPackage ../development/libraries/wiredtiger { };
+
   wvstreams = callPackage ../development/libraries/wvstreams { };
 
   wxGTK = wxGTK28;
@@ -8297,8 +8301,7 @@ let
 
   prosody = callPackage ../servers/xmpp/prosody {
     lua5 = lua5_1;
-    inherit (lua51Packages) luasocket luasec luaexpat luafilesystem luabitop luaevent;
-    withLibevent = true;
+    inherit (lua51Packages) luasocket luasec luaexpat luafilesystem luabitop luaevent luazlib;
   };
 
   elasticmq = callPackage ../servers/elasticmq { };
@@ -8497,19 +8500,14 @@ let
 
   seabios = callPackage ../applications/virtualization/seabios { };
 
-  pgpool92 = callPackage ../servers/sql/pgpool/default.nix {
-    postgresql = postgresql92;
-  };
+  pgpool92 = pgpool.override { postgresql = postgresql92; };
+  pgpool93 = pgpool.override { postgresql = postgresql93; };
+  pgpool94 = pgpool.override { postgresql = postgresql94; };
 
-  pgpool93 = callPackage ../servers/sql/pgpool/default.nix {
-    postgresql = postgresql93;
+  pgpool = callPackage ../servers/sql/pgpool/default.nix {
+    pam = if stdenv.isLinux then pam else null;
+    libmemcached = null; # Detection is broken upstream
   };
-
-  pgpool94 = callPackage ../servers/sql/pgpool/default.nix {
-    postgresql = postgresql94;
-  };
-
-  pgpool = pgpool92;
 
   postgresql = postgresql92;
 
@@ -9747,9 +9745,17 @@ let
 
   cacert = callPackage ../data/misc/cacert { };
 
+  caladea = callPackage ../data/fonts/caladea {};
+
   cantarell_fonts = callPackage ../data/fonts/cantarell-fonts { };
 
+  carlito = callPackage ../data/fonts/carlito {};
+
+  comfortaa = callPackage ../data/fonts/comfortaa {};
+
   comic-neue = callPackage ../data/fonts/comic-neue { };
+
+  comic-relief = callPackage ../data/fonts/comic-relief {};
 
   corefonts = callPackage ../data/fonts/corefonts { };
 
@@ -9761,6 +9767,8 @@ let
   clearlyU = callPackage ../data/fonts/clearlyU { };
 
   cm_unicode = callPackage ../data/fonts/cm-unicode {};
+
+  crimson = callPackage ../data/fonts/crimson {};
 
   dejavu_fonts = callPackage ../data/fonts/dejavu-fonts {
     inherit (perlPackages) FontTTF;
@@ -9795,6 +9803,8 @@ let
   dosemu_fonts = callPackage ../data/fonts/dosemu-fonts { };
 
   eb-garamond = callPackage ../data/fonts/eb-garamond { };
+
+  fantasque-sans-mono = callPackage ../data/fonts/fantasque-sans-mono {};
 
   fira = callPackage ../data/fonts/fira { };
 
@@ -9838,6 +9848,8 @@ let
 
   lmodern = callPackage ../data/fonts/lmodern { };
 
+  lobster-two = callPackage ../data/fonts/lobster-two {};
+
   lohit-fonts = callPackage ../data/fonts/lohit-fonts { };
 
   manpages = callPackage ../data/documentation/man-pages { };
@@ -9866,6 +9878,8 @@ let
 
   opensans-ttf = callPackage ../data/fonts/opensans-ttf { };
 
+  pecita = callPackage ../data/fonts/pecita {};
+
   poly = callPackage ../data/fonts/poly { };
 
   posix_man_pages = callPackage ../data/documentation/man-pages-posix { };
@@ -9889,6 +9903,10 @@ let
   iana_etc = callPackage ../data/misc/iana-etc { };
 
   poppler_data = callPackage ../data/misc/poppler-data { };
+
+  quattrocento = callPackage ../data/fonts/quattrocento {};
+
+  quattrocento-sans = callPackage ../data/fonts/quattrocento-sans {};
 
   r3rs = callPackage ../data/documentation/rnrs/r3rs.nix { };
 
@@ -10176,6 +10194,8 @@ let
   clawsMail = callPackage ../applications/networking/mailreaders/claws-mail {
     enableNetworkManager = config.networking.networkmanager.enable or false;
   };
+
+  clipgrab = callPackage ../applications/video/clipgrab { };
 
   clipit = callPackage ../applications/misc/clipit { };
 
@@ -11335,10 +11355,6 @@ let
   mplayer = callPackage ../applications/video/mplayer ({
     pulseSupport = config.pulseaudio or false;
   } // (config.mplayer or {}));
-
-  mplayer2 = callPackage ../applications/video/mplayer2 {
-    ffmpeg = libav_9; # see https://trac.macports.org/ticket/44386
-  };
 
   MPlayerPlugin = browser:
     callPackage ../applications/networking/browsers/mozilla-plugins/mplayerplug-in {
@@ -12859,6 +12875,8 @@ let
   };
 
   simutrans = callPackage ../games/simutrans { };
+  # get binaries without data built by Hydra
+  simutrans_binaries = lowPrio simutrans.binaries;
 
   soi = callPackage ../games/soi {};
 
@@ -12885,7 +12903,11 @@ let
 
   synthv1 = callPackage ../applications/audio/synthv1 { };
 
-  tbe = callPackage ../games/the-butterfly-effect {};
+  the-powder-toy = callPackage ../games/the-powder-toy {
+    lua = lua5_1;
+  };
+
+  tbe = callPackage ../games/the-butterfly-effect { };
 
   teetertorture = callPackage ../games/teetertorture { };
 
