@@ -200,7 +200,7 @@ self: super: {
   fsnotify = if pkgs.stdenv.isDarwin then dontCheck super.fsnotify else super.fsnotify;
 
   # x509-system uses the security tool to read the system certificate store.
-  x509-system = pkgs.stdenv.lib.overrideDerivation (
+  x509-system = if pkgs.stdenv.isDarwin then pkgs.stdenv.lib.overrideDerivation (
     overrideCabal super.x509-system (drv: {
       # propagates security_tool's impure dependencies
       buildDepends = (drv.buildDepends or []) ++ [ pkgs.darwin.security_tool ];
@@ -214,7 +214,7 @@ self: super: {
     __propagatedImpureHostDeps = drv.__propagatedImpureHostDeps ++ [
       "/System/Library/Keychains/SystemRootCertificates.keychain"
     ];
-  });
+  }) else super.x509-system;
 
   system-fileio = if pkgs.stdenv.isDarwin then dontCheck super.system-fileio else super.system-fileio;
 

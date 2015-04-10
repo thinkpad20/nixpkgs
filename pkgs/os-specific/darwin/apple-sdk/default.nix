@@ -1,5 +1,7 @@
 { stdenv, fetchurl, xar, gzip, cpio }:
 
+assert stdenv.isDarwin;
+
 let
   # I'd rather not "export" this, since they're somewhat monolithic and encourage bad habits.
   # Also, the include directory inside here should be captured (almost?) entirely by our more

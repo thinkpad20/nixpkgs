@@ -11,7 +11,7 @@ stdenv.mkDerivation rec {
   buildInputs = [ pkgconfig flac libogg libvorbis ]
     ++ stdenv.lib.optionals stdenv.isDarwin [ Carbon CoreAudio ];
 
-  NIX_CFLAGS_COMPILE = "-I${Carbon}/Library/Frameworks/Carbon.framework/Headers";
+  NIX_CFLAGS_COMPILE = stdenv.lib.optional stdenv.isDarwin "-I${Carbon}/Library/Frameworks/Carbon.framework/Headers";
 
   # Needed on Darwin.
   NIX_CFLAGS_LINK = "-logg -lvorbis";
