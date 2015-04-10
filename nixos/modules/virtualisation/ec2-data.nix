@@ -56,18 +56,6 @@ with lib;
                 fi
             fi
 
-            # Extract the intended SSH host key for this machine from
-            # the supplied user data, if available.  Otherwise sshd will
-            # generate one normally.
-            $wget http://169.254.169.254/2011-01-01/user-data > /root/user-data || true
-            key="$(sed 's/|/\n/g; s/SSH_HOST_DSA_KEY://; t; d' /root/user-data)"
-            key_pub="$(sed 's/SSH_HOST_DSA_KEY_PUB://; t; d' /root/user-data)"
-            if [ -n "$key" -a -n "$key_pub" -a ! -e /etc/ssh/ssh_host_dsa_key ]; then
-                mkdir -m 0755 -p /etc/ssh
-                (umask 077; echo "$key" > /etc/ssh/ssh_host_dsa_key)
-                echo "$key_pub" > /etc/ssh/ssh_host_dsa_key.pub
-            fi
-
             ${optionalString (! config.ec2.metadata) ''
             # Since the user data is sensitive, prevent it from being
             # accessed from now on.

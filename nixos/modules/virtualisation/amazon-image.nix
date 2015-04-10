@@ -75,7 +75,7 @@ in
 
             # Install a configuration.nix.
             mkdir -p /mnt/etc/nixos
-            cp ${./amazon-config.nix} /mnt/etc/nixos/configuration.nix
+            cp ${./amazon-config-internal.nix} /mnt/etc/nixos/configuration.nix
 
             # Generate the GRUB menu.
             ln -s vda /dev/xvda
