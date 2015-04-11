@@ -4484,10 +4484,10 @@ let
   erlangR15 = callPackage ../development/interpreters/erlang/R15.nix { };
   erlangR16 = callPackage ../development/interpreters/erlang/R16.nix { };
   erlangR16_odbc = callPackage ../development/interpreters/erlang/R16.nix { odbcSupport = true; };
-  erlangR17 = callPackage ../development/interpreters/erlang/R17.nix { inherit (darwin) Carbon Cocoa; };
-  erlangR17_odbc = callPackage ../development/interpreters/erlang/R17.nix { odbcSupport = true; inherit (darwin) Carbon Cocoa; };
-  erlangR17_javac = callPackage ../development/interpreters/erlang/R17.nix { javacSupport = true; inherit (darwin) Carbon Cocoa; };
-  erlangR17_odbc_javac = callPackage ../development/interpreters/erlang/R17.nix { javacSupport = true; odbcSupport = true; inherit (darwin) Carbon Cocoa; };
+  erlangR17 = callPackage ../development/interpreters/erlang/R17.nix { inherit (darwin.apple_sdk.frameworks) Carbon Cocoa; };
+  erlangR17_odbc = callPackage ../development/interpreters/erlang/R17.nix { odbcSupport = true; inherit (darwin.apple_sdk.frameworks) Carbon Cocoa; };
+  erlangR17_javac = callPackage ../development/interpreters/erlang/R17.nix { javacSupport = true; inherit (darwin.apple_sdk.frameworks) Carbon Cocoa; };
+  erlangR17_odbc_javac = callPackage ../development/interpreters/erlang/R17.nix { javacSupport = true; odbcSupport = true; inherit (darwin.apple_sdk.frameworks) Carbon Cocoa; };
   erlang = erlangR17;
   erlang_odbc = erlangR17_odbc;
   erlang_javac = erlangR17_javac;
