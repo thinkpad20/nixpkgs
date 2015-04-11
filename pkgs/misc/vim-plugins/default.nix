@@ -483,11 +483,11 @@ rec {
   };
 
   wakatime = buildVimPlugin {
-    name = "wakatime-3.0.8";
+    name = "wakatime-3.0.9";
 
     src = fetchFromGitHub {
-      sha256 = "0sb3vgwnn8x1g50qlcimhw0rnkiw26rmk1d3j2a5bipx69xcl9pb";
-      rev = "d6816d3766b31dd247a68023b04913b4a15fe565";
+      sha256 = "0qq2h5ysbixypz1ga5j3yrh8sd5h1npqkd59dpl5c1mvjlc30fpk";
+      rev = "f5848439ffdf63db3859f692df1d8fa64b1b3edf";
       repo = "vim-wakatime";
       owner = "wakatime";
     };
@@ -544,15 +544,18 @@ rec {
     };
   };
 
-  YouCompleteMe = buildVimPlugin { 
+  YouCompleteMe = buildVimPlugin {
     src = fetchgit {
-      rev = "56dc60ddc88d075902a5f13f10446923b009ad2f";
-      url = "https://github.com/Valloric/YouCompleteMe.git";
-      sha256 = "1i4qv2g9vhd8999iv7ly0pxyp9l99dzq3rjf4snkb8rpcrimgbkj";
+      rev = "2f8109020644ad28e5cd795c29bc1150f87b3cb4";
+      url = "https://github.com/Valloric/YouCompleteMe";
+      sha256 = "15d3dhxan602qxz2wixjf4pjrf210qwa51ckzyjyh5kqak9lx8pi";
      };
-    name = "youcompleteme-2015-03-25";
+    name = "youcompleteme-2015-03-27";
 
-    buildInputs = [ python cmake llvmPackages.clang ];
+    buildInputs = [
+      python cmake
+      llvmPackages.clang-unwrapped llvmPackages.llvm
+    ];
 
     configurePhase = ":";
 

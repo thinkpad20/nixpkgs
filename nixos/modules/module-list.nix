@@ -44,8 +44,8 @@
   ./installer/tools/nixos-checkout.nix
   ./installer/tools/tools.nix
   ./misc/assertions.nix
-  ./misc/check-config.nix
   ./misc/crashdump.nix
+  ./misc/extra-arguments.nix
   ./misc/ids.nix
   ./misc/lib.nix
   ./misc/locate.nix
@@ -147,6 +147,7 @@
   ./services/desktops/telepathy.nix
   ./services/games/ghost-one.nix
   ./services/games/minecraft-server.nix
+  ./services/games/minetest-server.nix
   ./services/hardware/acpid.nix
   ./services/hardware/amd-hybrid-graphics.nix
   ./services/hardware/bluetooth.nix
@@ -225,6 +226,7 @@
   ./services/monitoring/smartd.nix
   ./services/monitoring/statsd.nix
   ./services/monitoring/systemhealth.nix
+  ./services/monitoring/teamviewer.nix
   ./services/monitoring/ups.nix
   ./services/monitoring/uptime.nix
   ./services/monitoring/zabbix-agent.nix

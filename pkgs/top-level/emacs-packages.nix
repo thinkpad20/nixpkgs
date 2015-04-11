@@ -30,6 +30,8 @@ let self = _self // overrides;
     callPackage = lib.callPackageWith (self // removeAttrs args ["overrides" "external"]);
     _self = with self; {
 
+  inherit emacs;
+
   ## START HERE
 
   ac-haskell-process = melpaBuild rec {
@@ -268,14 +270,30 @@ let self = _self // overrides;
 
   company = melpaBuild rec {
     pname   = "company";
-    version = "0.8.6";
+    version = "0.8.12";
     src = fetchFromGitHub {
       owner  = "company-mode";
       repo   = "company-mode";
       rev    = version;
-      sha256 = "1xwxyqg5dan8m1qkdxyzm066ryf24h07karpdlm3s09izfdny33f";
+      sha256 = "08rrjfp2amgya1hswjz3vd5ja6lg2nfmm7454p0h1naz00hlmmw0";
     };
     meta = { license = gpl3Plus; };
+  };
+
+  company-ghc = melpaBuild rec {
+    pname   = "company-ghc";
+    version = "0.1.10";
+    src = fetchFromGitHub {
+      owner  = "iquiw";
+      repo   = "company-ghc";
+      rev    = "v${version}";
+      sha256 = "0lzwmjf91fxhkknk4z9m2v6whk1fzpa7n1rspp61lwmyh5gakj3x";
+    };
+    packageRequires = [ company ghc-mod ];
+    meta = {
+      description = "company-mode completion backend for haskell-mode via ghc-mod";
+      license = gpl3Plus;
+    };
   };
 
   dash = melpaBuild rec {
@@ -350,6 +368,38 @@ let self = _self // overrides;
     meta = { license = gpl3Plus; };
   };
 
+  evil-indent-textobject = melpaBuild rec {
+    pname   = "evil-indent-textobject";
+    version = "0.2";
+    src = fetchFromGitHub {
+      owner  = "cofi";
+      repo   = pname;
+      rev    = "70a1154a531b7cfdbb9a31d6922482791e20a3a7";
+      sha256 = "0nghisnc49ivh56mddfdlcbqv3y2vqzjvkpgwv3zp80ga6ghvdmz";
+    };
+    packageRequires = [ evil ];
+    meta = {
+      description = "Textobject for evil based on indentation";
+      license = gpl2Plus;
+    };
+  };
+
+  evil-leader = melpaBuild rec {
+    pname   = "evil-leader";
+    version = "0.4.3";
+    src = fetchFromGitHub {
+      owner  = "cofi";
+      repo   = pname;
+      rev    = version;
+      sha256 = "1k2zinchs0jjllp8zkpggckyy63dkyi5yig3p46vh4w45jdzysk5";
+    };
+    packageRequires = [ evil ];
+    meta = {
+      description = "<leader> key for evil";
+      license = gpl3Plus;
+    };
+  };
+
   evil-surround = melpaBuild rec {
     pname   = "evil-surround";
     version = "20140616";
@@ -370,7 +420,7 @@ let self = _self // overrides;
     pname   = "evil";
     version = "20141020";
     src = fetchgit {
-      url = "https://gitorious.org/evil/evil.git";
+      url = "https://github.com/emacsmirror/evil.git";
       rev = "999ec15587f85100311c031aa8efb5d50c35afe4";
       sha256 = "5f67643d19a31172e68f2f195959d33bcd26c2786eb71e67eb27eb52f5bf387a";
     };
@@ -459,6 +509,21 @@ let self = _self // overrides;
     meta = { license = bsd3; };
   };
 
+  git-auto-commit-mode = melpaBuild rec {
+    pname = "git-auto-commit-mode";
+    version = "4.4.0";
+    src = fetchFromGitHub {
+      owner  = "ryuslash";
+      repo   = pname;
+      rev    = version;
+      sha256 = "0psmr7749nzxln4b500sl3vrf24x3qijp12ir0i5z4x25k72hrlh";
+    };
+    meta = {
+      description = "Automatically commit to git after each save";
+      license = gpl3Plus;
+    };
+  };
+
   git-commit-mode = melpaBuild rec {
     pname = "git-commit-mode";
     version = "1.0.0";
@@ -483,6 +548,21 @@ let self = _self // overrides;
     };
     files = [ "git-rebase-mode.el" ];
     meta = { license = gpl3Plus; };
+  };
+
+  git-timemachine = melpaBuild rec {
+    pname = "git-timemachine";
+    version = "2.3";
+    src = fetchFromGitHub {
+      owner  = "pidu";
+      repo   = pname;
+      rev    = version;
+      sha256 = "1lm6rgbzbxnwfn48xr6bg05lb716grfr4nqm8lvjm64nabh5y9bh";
+    };
+    meta = {
+      description = "Step through historic revisions of git controlled files";
+      license = gpl3Plus;
+    };
   };
 
   gitattributes-mode = melpaBuild rec {
@@ -577,12 +657,12 @@ let self = _self // overrides;
 
   haskell-mode = melpaBuild rec {
     pname   = "haskell-mode";
-    version = "20150101";
+    version = "13.12";
     src = fetchFromGitHub {
       owner  = "haskell";
       repo   = pname;
-      rev    = "0db5efaaeb3b22e5a3fdafa600729e14c1716ee2";
-      sha256 = "0d63cgzj579cr8zbrnl0inyy35b26sxinqxr7bgrjsngpmhm52an";
+      rev    = "v${version}";
+      sha256 = "1l8sby2626hpp0li23mic3qq8w7jirsp1hd08hkx2z84gvz4j6fz";
     };
     meta = { license = gpl3Plus; };
   };
@@ -621,6 +701,18 @@ let self = _self // overrides;
       repo   = pname;
       rev    = version;
       sha256 = "1s08sgbh5v59lqskd0s1dscs6dy7z5mkqqkabs3gd35agbfvbmlf";
+    };
+    meta = { license = gpl3Plus; };
+  };
+
+  ibuffer-vc = melpaBuild rec {
+    pname   = "ibuffer-vc";
+    version = "0.10";
+    src = fetchFromGitHub {
+      owner  = "purcell";
+      repo   = pname;
+      rev    = version;
+      sha256 = "0bqdi5w120256g74k0j4jj81x804x1gcg4dxa74w3mb6fl5xlvs8";
     };
     meta = { license = gpl3Plus; };
   };
@@ -734,10 +826,10 @@ let self = _self // overrides;
 
   org-plus-contrib = melpaBuild rec {
     pname   = "org-plus-contrib";
-    version = "20141020";
+    version = "20150406";
     src = fetchurl {
       url    = "http://orgmode.org/elpa/${pname}-${version}.tar";
-      sha256 = "02njxmdbmias2f5psvwqc115dyakcwm2g381gfdv8qz4sqav0r77";
+      sha256 = "1ny2myg4rm75ab2gl5rqrwy7h53q0vv18df8gk3zv13kljj76c6i";
     };
     buildPhase = ''
       cp $src ${pname}-${version}.tar
@@ -803,6 +895,21 @@ let self = _self // overrides;
     };
     packageRequires = [ dash helm s pkg-info epl ];
     meta = { license = gpl3Plus; };
+  };
+
+  rainbow-delimiters = melpaBuild rec {
+    pname = "rainbow-delimiters";
+    version = "2.1.1";
+    src = fetchFromGitHub {
+      owner = "Fanael";
+      repo = pname;
+      rev = version;
+      sha256 = "0gxc8j5a14bc9mp43cbcz41ipc0z1yvmypg52dnl8hadirry20gd";
+    };
+    meta = {
+      description = "Highlight delimiters with colors according to their depth";
+      license = gpl3Plus;
+    };
   };
 
   request = melpaBuild rec {
@@ -1067,12 +1174,12 @@ let self = _self // overrides;
 
   weechat = melpaBuild rec {
     pname   = "weechat.el";
-    version = "20141016";
+    version = "0.2.2";
     src = fetchFromGitHub {
       owner  = "the-kenny";
       repo   = pname;
-      rev    = "4cb2ced1eda5167ce774e04657d2cd077b63c706";
-      sha256 = "003sihp7irm0qqba778dx0gf8xhkxd1xk7ig5kgkryvl2jyirk28";
+      rev    = version;
+      sha256 = "0f90m2s40jish4wjwfpmbgw024r7n2l5b9q9wr6rd3vdcwks3mcl";
     };
     postPatch = lib.optionalString (!stdenv.isLinux) ''
       rm weechat-sauron.el weechat-secrets.el

@@ -6,6 +6,8 @@
 let
   version = if unstableVersion then "0.11.15" else "0.12.0";
 
+  version = "0.12.0";
+
   deps = {
     inherit openssl zlib libuv;
 
@@ -28,9 +30,7 @@ in stdenv.mkDerivation {
 
   src = fetchurl {
     url = "http://nodejs.org/dist/v${version}/node-v${version}.tar.gz";
-    sha256 = if unstableVersion
-             then "008xk4866gr6mw2qavd6jds8gxrk2i4r5083302rmjd4p9sd44z6"
-             else "0cifd2qhpyrbxx71a4hsagzk24qas8m5zvwcyhx69cz9yhxf404p";
+    sha256 = "0cifd2qhpyrbxx71a4hsagzk24qas8m5zvwcyhx69cz9yhxf404p";
   };
 
   __propagatedImpureHostDeps = [

@@ -52,7 +52,7 @@ self: super: {
     blaze-markup = self.blaze-markup_0_6_2_0;
     blaze-html = self.blaze-html_0_7_0_3;
     haskeline = self.haskeline_0_7_2_1;
-    lens = self.lens_4_7;
+    lens = self.lens_4_7_0_1;
     mtl = super.mtl_2_2_1;
     transformers = super.transformers_0_4_3_0;
     transformers-compat = disableCabalFlag super.transformers-compat "three";
@@ -71,6 +71,16 @@ self: super: {
 
   # Newer versions require mtl 2.2.x.
   mtl-prelude = self.mtl-prelude_1_0_3;
+  equivalence = super.equivalence_0_2_5;        # required by Agda
+
+  # purescript requires mtl 2.2.x.
+  purescript = overrideCabal (super.purescript.overrideScope (self: super: {
+    mkDerivation = drv: super.mkDerivation (drv // { doCheck = false; });
+    mtl = super.mtl_2_2_1;
+    transformers = super.transformers_0_4_3_0;
+    haskeline = self.haskeline_0_7_2_1;
+    transformers-compat = disableCabalFlag super.transformers-compat "three";
+  })) (drv: {});
 
   # The test suite pulls in mtl 2.2.x
   command-qq = dontCheck super.command-qq;
@@ -95,7 +105,6 @@ self: super: {
   highlighter2 = markBroken super.highlighter2;
   hypher = markBroken super.hypher;
   miniforth = markBroken super.miniforth;
-  purescript = markBroken super.purescript;
   xhb-atom-cache = markBroken super.xhb-atom-cache;
   xhb-ewmh = markBroken super.xhb-ewmh;
   yesod-purescript = markBroken super.yesod-purescript;
@@ -107,5 +116,8 @@ self: super: {
   # https://ghc.haskell.org/trac/ghc/ticket/9625
   wai-middleware-preprocessor = dontCheck super.wai-middleware-preprocessor;
   incremental-computing = dontCheck super.incremental-computing;
+
+  # Newer versions require base > 4.7
+  gloss = super.gloss_1_9_2_1;
 
 }
