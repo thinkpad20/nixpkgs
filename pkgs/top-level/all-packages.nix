@@ -3878,9 +3878,10 @@ let
 
   llvm_v = path: callPackage path { };
 
-  # uncomment once llvm 3.6 stops segfaulting
-  # llvmPackages = llvmPackages_36;
-  llvmPackages = llvmPackages_35;
+  # change once llvm 3.6 stops segfaulting
+  llvmPackages = if stdenv.isDarwin
+    then llvmPackages_35
+    else llvmPackages_36;
 
   llvmPackages_34 = recurseIntoAttrs (import ../development/compilers/llvm/3.4 {
     inherit stdenv newScope fetchurl;
