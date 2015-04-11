@@ -4,8 +4,6 @@
 }:
 
 let
-  version = if unstableVersion then "0.11.15" else "0.12.0";
-
   version = "0.12.0";
 
   deps = {

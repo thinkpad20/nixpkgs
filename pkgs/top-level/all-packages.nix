@@ -593,7 +593,9 @@ let
 
   inherit (androidenv) androidsdk_4_4 androidndk;
 
-  aria2 = callPackage ../tools/networking/aria2 { };
+  aria2 = callPackage ../tools/networking/aria2 {
+    inherit (darwin) Security;
+  };
   aria = aria2;
 
   at = callPackage ../tools/system/at { };
@@ -1802,8 +1804,10 @@ let
 
   ninka = callPackage ../development/tools/misc/ninka { };
 
-  nodejs = callPackage ../development/web/nodejs { libuv = libuvVersions.v1_2_0; };
-  nodejs-unstable = callPackage ../development/web/nodejs { libuv = libuvVersions.v1_2_0; unstableVersion = true; };
+  nodejs = callPackage ../development/web/nodejs {
+    libuv = libuvVersions.v1_2_0;
+    inherit (darwin.apple_sdk.frameworks) ApplicationServices CoreServices;
+  };
   nodejs-0_10 = callPackage ../development/web/nodejs/v0_10.nix { };
 
   nodePackages = callPackage ./node-packages.nix { self = nodePackages; };
@@ -4480,10 +4484,10 @@ let
   erlangR15 = callPackage ../development/interpreters/erlang/R15.nix { };
   erlangR16 = callPackage ../development/interpreters/erlang/R16.nix { };
   erlangR16_odbc = callPackage ../development/interpreters/erlang/R16.nix { odbcSupport = true; };
-  erlangR17 = callPackage ../development/interpreters/erlang/R17.nix { };
-  erlangR17_odbc = callPackage ../development/interpreters/erlang/R17.nix { odbcSupport = true; };
-  erlangR17_javac = callPackage ../development/interpreters/erlang/R17.nix { javacSupport = true; };
-  erlangR17_odbc_javac = callPackage ../development/interpreters/erlang/R17.nix { javacSupport = true; odbcSupport = true; };
+  erlangR17 = callPackage ../development/interpreters/erlang/R17.nix { inherit (darwin) Carbon Cocoa; };
+  erlangR17_odbc = callPackage ../development/interpreters/erlang/R17.nix { odbcSupport = true; inherit (darwin) Carbon Cocoa; };
+  erlangR17_javac = callPackage ../development/interpreters/erlang/R17.nix { javacSupport = true; inherit (darwin) Carbon Cocoa; };
+  erlangR17_odbc_javac = callPackage ../development/interpreters/erlang/R17.nix { javacSupport = true; odbcSupport = true; inherit (darwin) Carbon Cocoa; };
   erlang = erlangR17;
   erlang_odbc = erlangR17_odbc;
   erlang_javac = erlangR17_javac;
