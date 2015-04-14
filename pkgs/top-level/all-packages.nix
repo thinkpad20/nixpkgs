@@ -1807,6 +1807,7 @@ let
   nodejs = callPackage ../development/web/nodejs {
     libuv = libuvVersions.v1_2_0;
     inherit (darwin.apple_sdk.frameworks) ApplicationServices CoreServices;
+    libtool = if stdenv.isDarwin then darwin.libtool else libtool;
   };
   nodejs-0_10 = callPackage ../development/web/nodejs/v0_10.nix { };
 

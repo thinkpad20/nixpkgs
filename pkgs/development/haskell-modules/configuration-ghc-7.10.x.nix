@@ -251,10 +251,6 @@ self: super: {
   haskell-src-meta = overrideCabal (doJailbreak (appendPatch super.haskell-src-meta ./haskell-src-meta-ghc710.patch)) (drv: {
     prePatch = "sed -i -e 's|template-haskell [^,]\\+|template-haskell|' haskell-src-meta.cabal && cat haskell-src-meta.cabal";
   });
-  mono-traversable = appendPatch super.mono-traversable (pkgs.fetchpatch {
-    url = "https://github.com/snoyberg/mono-traversable/pull/68.patch";
-    sha256 = "11hqf6hi3sc34wl0fn4rpigdf7wfklcjv6jwp8c3129yphg8687h";
-  });
   conduit-combinators = appendPatch super.conduit-combinators (pkgs.fetchpatch {
     url = "https://github.com/fpco/conduit-combinators/pull/16.patch";
     sha256 = "1c9b1d3dxr820i107b6yly2g1apv6bbsg9ag26clcikca7dfz5qr";

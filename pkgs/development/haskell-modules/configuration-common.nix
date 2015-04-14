@@ -718,6 +718,10 @@ self: super: {
   # https://github.com/haskell/haddock/issues/378
   haddock-library = dontCheck super.haddock-library;
 
+  system-fileio = if pkgs.stdenv.isDarwin
+    then dontCheck super.system-fileio
+    else super.system-fileio;
+
   # Already fixed in upstream darcs repo.
   xmonad-contrib = overrideCabal super.xmonad-contrib (drv: {
     patchPhase = ''
