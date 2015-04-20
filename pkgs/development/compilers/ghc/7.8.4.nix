@@ -1,6 +1,6 @@
 { stdenv, fetchurl, ghc, perl, gmp, ncurses, libiconv }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (rec {
   version = "7.8.4";
   name = "ghc-${version}";
 
@@ -8,8 +8,6 @@ stdenv.mkDerivation rec {
     url = "http://www.haskell.org/ghc/dist/7.8.4/${name}-src.tar.xz";
     sha256 = "1i4254akbb4ym437rf469gc0m40bxm31blp6s1z1g15jmnacs6f3";
   };
-
-  patches = [ ./hpc-7.8.4.patch ];
 
   buildInputs = [ ghc perl gmp ncurses ];
 
@@ -47,4 +45,6 @@ stdenv.mkDerivation rec {
     inherit (ghc.meta) license platforms;
   };
 
-}
+} // stdenv.lib.optionalAttrs stdenv.isDarwin {
+  patches = [ ./hpc-7.8.4.patch ];
+})
