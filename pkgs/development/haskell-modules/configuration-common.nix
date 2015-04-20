@@ -199,6 +199,9 @@ self: super: {
   # http://openradar.appspot.com/10207999 and similar issues
   fsnotify = if pkgs.stdenv.isDarwin then dontCheck super.fsnotify else super.fsnotify;
 
+  # shake tries to exec gcc during its tests
+  shake = if pkgs.stdenv.isDarwin then dontCheck super.shake else super.shake;
+
   # Prevents needing to add security_tool as a build tool to all of x509-system's
   # dependencies.
   # TODO: use pkgs.darwin.security_tool once we can build it
