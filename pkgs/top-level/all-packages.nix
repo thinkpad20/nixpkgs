@@ -9544,6 +9544,8 @@ let
 
   rtkit = callPackage ../os-specific/linux/rtkit { };
 
+  sassc = callPackage ../development/tools/sassc { };
+
   sdparm = callPackage ../os-specific/linux/sdparm { };
 
   sepolgen = callPackage ../os-specific/linux/sepolgen { };
@@ -10607,6 +10609,9 @@ let
   };
 
   emacs24PackagesNg = recurseIntoAttrs (emacsPackagesNgGen emacs24);
+
+  emacsWithPackages = callPackage ../build-support/emacs/wrapper.nix { };
+  emacs24WithPackages = emacsWithPackages.override { emacs = emacs24; };
 
   inherit (gnome3) empathy;
 
