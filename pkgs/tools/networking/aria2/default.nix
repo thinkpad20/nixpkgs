@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, pkgconfig, cacert, c-ares, openssl, libxml2, sqlite, zlib }:
+{ stdenv, fetchurl, pkgconfig, cacert, c-ares, openssl, libxml2, sqlite, zlib, Security }:
 
 stdenv.mkDerivation rec {
   name = "aria2-${version}";
@@ -12,7 +12,7 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [ pkgconfig c-ares openssl libxml2 sqlite zlib ] ++
-    stdenv.lib.optional stdenv.isDarwin darwin.Security;
+    stdenv.lib.optional stdenv.isDarwin Security;
 
   propagatedBuildInputs = [ cacert ];
 

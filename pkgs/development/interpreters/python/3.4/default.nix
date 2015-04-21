@@ -41,7 +41,7 @@ stdenv.mkDerivation {
 
   NIX_LDFLAGS = stdenv.lib.optionalString stdenv.isLinux "-lgcc_s";
 
-  buildInputs = [ configd ];
+  buildInputs = stdenv.lib.optional stdenv.isDarwin configd;
 
   preConfigure = ''
     for i in /usr /sw /opt /pkg; do	# improve purity

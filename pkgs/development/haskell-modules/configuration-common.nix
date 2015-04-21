@@ -7,8 +7,8 @@ self: super: {
   # Some packages need a non-core version of Cabal.
   Cabal_1_18_1_6 = dontCheck super.Cabal_1_18_1_6;
   Cabal_1_20_0_3 = dontCheck super.Cabal_1_20_0_3;
-  Cabal_1_22_2_0 = dontCheck super.Cabal_1_22_2_0;
-  cabal-install = dontCheck (super.cabal-install.override { Cabal = self.Cabal_1_22_2_0; });
+  Cabal_1_22_3_0 = dontCheck super.Cabal_1_22_3_0;
+  cabal-install = dontCheck (super.cabal-install.override { Cabal = self.Cabal_1_22_3_0; });
 
   # These fail in the darwin sandbox.
   network = dontCheckOn "x86_64-darwin" super.network;
@@ -26,6 +26,9 @@ self: super: {
   options = dontCheck super.options;
   statistics = dontCheck super.statistics;
   text = dontCheck super.text;
+
+  # https://github.com/bartavelle/hruby/issues/10
+  hruby = addExtraLibrary super.hruby pkgs.ruby_2_1;
 
   # Doesn't compile with lua 5.2.
   hslua = super.hslua.override { lua = pkgs.lua5_1; };
@@ -199,24 +202,18 @@ self: super: {
   # http://openradar.appspot.com/10207999 and similar issues
   fsnotify = if pkgs.stdenv.isDarwin then dontCheck super.fsnotify else super.fsnotify;
 
-  # x509-system uses the security tool to read the system certificate store.
-  x509-system = if pkgs.stdenv.isDarwin then pkgs.stdenv.lib.overrideDerivation (
-    overrideCabal super.x509-system (drv: {
-      # propagates security_tool's impure dependencies
-      buildDepends = (drv.buildDepends or []) ++ [ pkgs.darwin.security_tool ];
+  # shake tries to exec gcc during its tests
+  shake = if pkgs.stdenv.isDarwin then dontCheck super.shake else super.shake;
 
-      patchPhase = (drv.patchPhase or "") + pkgs.stdenv.lib.optionalString pkgs.stdenv.isDarwin ''
-        substituteInPlace System/X509/MacOS.hs --replace security ${pkgs.darwin.security_tool}/bin/security
-      '';
-    })
-  ) (drv: {
-    # security_tool is used to read this file
-    __propagatedImpureHostDeps = drv.__propagatedImpureHostDeps ++ [
-      "/System/Library/Keychains/SystemRootCertificates.keychain"
-    ];
-  }) else super.x509-system;
-
-  system-fileio = if pkgs.stdenv.isDarwin then dontCheck super.system-fileio else super.system-fileio;
+  # Prevents needing to add security_tool as a build tool to all of x509-system's
+  # dependencies.
+  # TODO: use pkgs.darwin.security_tool once we can build it
+  x509-system = let security_tool = "/usr";
+  in overrideCabal super.x509-system (drv: {
+    patchPhase = (drv.patchPhase or "") + pkgs.stdenv.lib.optionalString pkgs.stdenv.isDarwin ''
+      substituteInPlace System/X509/MacOS.hs --replace security ${security_tool}/bin/security
+    '';
+  });
 
   # Does not compile: "fatal error: ieee-flpt.h: No such file or directory"
   base_4_8_0_0 = markBroken super.base_4_8_0_0;
@@ -241,6 +238,15 @@ self: super: {
 
   # https://github.com/liamoc/wizards/issues/5
   wizards = doJailbreak super.wizards;
+
+  # https://github.com/tibbe/ekg-core/commit/c986d9750d026a0c049cf6e6610d69fc1f23121f, not yet in hackage
+  ekg-core = doJailbreak super.ekg-core;
+
+  # https://github.com/tibbe/ekg/commit/95018646f48f60d9ccf6209cc86747e0f132e737, not yet in hackage
+  ekg = doJailbreak super.ekg;
+
+  # https://github.com/diagrams/diagrams-rasterific/commit/2758e5760c64f8ca2528628bd11de502f354ab15, not yet in hackage
+  diagrams-rasterific = doJailbreak super.diagrams-rasterific;
 
   # https://github.com/NixOS/cabal2nix/issues/136
   glib = addBuildDepends super.glib [pkgs.pkgconfig pkgs.glib];
@@ -311,7 +317,6 @@ self: super: {
   amqp-conduit = dontCheck super.amqp-conduit;
   concurrent-dns-cache = dontCheck super.concurrent-dns-cache;
   dbus = dontCheck super.dbus;                          # http://hydra.cryp.to/build/498404/log/raw
-  directory_1_2_2_0 = dontCheck super.directory_1_2_2_0; # https://github.com/haskell/directory/issues/24
   hadoop-rpc = dontCheck super.hadoop-rpc;              # http://hydra.cryp.to/build/527461/nixlog/2/raw
   hasql = dontCheck super.hasql;                        # http://hydra.cryp.to/build/502489/nixlog/4/raw
   hjsonschema = overrideCabal super.hjsonschema (drv: { testTarget = "local"; });
@@ -449,6 +454,7 @@ self: super: {
   Rlang-QQ = dontCheck super.Rlang-QQ;
   sai-shape-syb = dontCheck super.sai-shape-syb;
   scp-streams = dontCheck super.scp-streams;
+  sdl2-ttf = dontCheck super.sdl2-ttf; # as of version 0.2.1, the test suite requires user intervention
   separated = dontCheck super.separated;
   shadowsocks = dontCheck super.shadowsocks;
   shake-language-c = dontCheck super.shake-language-c;
@@ -564,9 +570,30 @@ self: super: {
   # Upstream notified by e-mail.
   MonadCompose = markBrokenVersion "0.2.0.0" super.MonadCompose;
 
+  # no haddock since this is an umbrella package.
+  cloud-haskell = dontHaddock super.cloud-haskell;
+
+  # Disable tests which couldn't be built.
+  distributed-process-async = dontCheck super.distributed-process-async;
+
+  # Disable tests which couldn't be built.
+  distributed-process-client-server = dontCheck super.distributed-process-client-server;
+
+  # Disable tests which couldn't be built.
+  distributed-process-extras = dontCheck super.distributed-process-extras;
+
   # Make distributed-process-platform compile until next version
   distributed-process-platform = overrideCabal super.distributed-process-platform (drv: {
     patchPhase = "mv Setup.hs Setup.lhs";
+    doCheck = false;
+    doHaddock = false;
+  });
+
+  # Disable tests due to a failure (Sequential Shutdown Ordering test.)
+  distributed-process-supervisor = dontCheck super.distributed-process-supervisor;
+
+  # Disable network test and errorneous haddock.
+  distributed-process-tests = overrideCabal super.distributed-process-tests (drv: {
     doCheck = false;
     doHaddock = false;
   });
@@ -727,6 +754,10 @@ self: super: {
   # https://github.com/haskell/haddock/issues/378
   haddock-library = dontCheck super.haddock-library;
 
+  system-fileio = if pkgs.stdenv.isDarwin
+    then dontCheck super.system-fileio
+    else super.system-fileio;
+
   # Already fixed in upstream darcs repo.
   xmonad-contrib = overrideCabal super.xmonad-contrib (drv: {
     patchPhase = ''
@@ -754,16 +785,33 @@ self: super: {
   # Tries to run GUI in tests
   leksah = dontCheck super.leksah;
 
+  # Patch to consider NIX_GHC just like xmonad does
+  dyre = appendPatch super.dyre ./dyre-nix.patch;
+
+  # Fix problems with GHC >=7.8 (in compatible way)
+  mueval = let pkg = appendPatch super.mueval (pkgs.fetchpatch {
+                       url = "https://patch-diff.githubusercontent.com/raw/gwern/mueval/pull/4.patch";
+                       sha256 = "1l0jn2lbzbhx9ifbpb5g617qa0fc8fwa6kyr87pjqfxpqminsgp5";
+                     });
+           # Nix-specific workaround
+           in appendPatch pkg ./mueval-nix.patch;
+
+  # Test suite won't compile against tasty-hunit 0.9.x.
+  zlib_0_6_1_0 = dontCheck super.zlib_0_6_1_0;
+
+  # Jailbreaking breaks the build.
+  QuickCheck_2_8_1 = dontJailbreak super.QuickCheck_2_8_1;
+
 } // {
 
   # Not on Hackage.
   cabal2nix = self.mkDerivation {
     pname = "cabal2nix";
-    version = "20150318";
+    version = "20150414";
     src = pkgs.fetchgit {
       url = "http://github.com/NixOS/cabal2nix.git";
-      rev = "b56cc6de2c4900fb0d1dc3617591a2f536aca60d";
-      sha256 = "0pza9j3x1mfjqrzcqq6ndg0jiqx85mg0sw8n9fmq18fk5g4hzhis";
+      rev = "d08c2970e9c74948e81e7b926b64e5d7d1dd07b7";
+      sha256 = "1rqibfhvkvmfxj9k92brz87b4l40w8d7mq1s7zgfnrmay6h0956a";
       deepClone = true;
     };
     isLibrary = false;
@@ -771,12 +819,12 @@ self: super: {
     buildDepends = with self; [
       aeson base bytestring Cabal containers deepseq-generics directory
       filepath hackage-db lens monad-par monad-par-extras mtl pretty
-      prettyclass process regex-posix SHA split transformers utf8-string cartel
-    ];
+      process regex-posix SHA split transformers utf8-string cartel
+    ] ++ pkgs.lib.optional (pkgs.lib.versionOlder self.ghc.version "7.10") prettyclass;
     testDepends = with self; [
       aeson base bytestring Cabal containers deepseq deepseq-generics
       directory doctest filepath hackage-db hspec lens monad-par
-      monad-par-extras mtl pretty prettyclass process QuickCheck
+      monad-par-extras mtl pretty process QuickCheck
       regex-posix SHA split transformers utf8-string
     ];
     buildTools = [ pkgs.gitMinimal ];
