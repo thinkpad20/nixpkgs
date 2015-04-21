@@ -8086,7 +8086,7 @@ let
 
   ### DEVELOPMENT / PERL MODULES
 
-  buildPerlPackage = import ../development/perl-modules/generic perlPure;
+  buildPerlPackage = import ../development/perl-modules/generic perl;
 
   perlPackages = recurseIntoAttrs (import ./perl-packages.nix {
     inherit pkgs;

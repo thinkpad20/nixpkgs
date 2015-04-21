@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
   buildInputs =
     [ ncurses perl python openssl aspell gnutls zlib curl pkgconfig
       libgcrypt ruby lua5 tcl guile pythonPackages.pycrypto makeWrapper
-      cacert cmake ]
+      cacert cmake libiconv ]
     ++ stdenv.lib.optionals stdenv.isDarwin [ pythonPackages.pync libobjc ]
     ++ extraBuildInputs;
 

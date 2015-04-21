@@ -177,10 +177,6 @@ self: super: {
         --replace RecordWildCards "RecordWildCards, FlexibleContexts"
     '';
   });
-  annotated-wl-pprint = appendPatch super.annotated-wl-pprint (pkgs.fetchpatch {
-    url = "https://patch-diff.githubusercontent.com/raw/david-christiansen/annotated-wl-pprint/pull/2.patch";
-    sha256 = "0n0fbq3vd7b9kfmhg089q0dy40vawq4q88il3zc9ybivhi62nwv4";
-  });
   contravariant = overrideCabal super.contravariant (drv: {
     patchPhase = ''
       substituteInPlace src/Data/Functor/Contravariant/Compose.hs \
