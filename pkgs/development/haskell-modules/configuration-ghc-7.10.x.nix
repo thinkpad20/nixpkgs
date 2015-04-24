@@ -107,6 +107,10 @@ self: super: {
   # acid-state/safecopy#25 acid-state/safecopy#26
   safecopy = dontCheck (super.safecopy);
 
+  # test suite broken, some instance is declared twice.
+  # https://bitbucket.org/FlorianHartwig/attobencode/issue/1
+  AttoBencode = dontCheck super.AttoBencode;
+
   # bos/attoparsec#92
   attoparsec = dontCheck super.attoparsec;
 
@@ -252,9 +256,6 @@ self: super: {
   # https://github.com/haskell-infra/hackage-trustees/issues/24
   brainfuck = appendPatch super.brainfuck ./brainfuck-fix-ghc710.patch;
   unlambda = appendPatch super.unlambda ./unlambda-fix-ghc710.patch;
-
-  # Sent e-mail to the maintainer.
-  IOSpec = appendPatch super.IOSpec ./IOSpec-fix-ghc710.patch;
 
   # Updated Cabal file from Hackage tightened version bounds for some reason.
   edit-distance = let pkg = appendPatch super.edit-distance ./edit-distance-fix-boundaries.patch;

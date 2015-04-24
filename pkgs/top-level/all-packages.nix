@@ -704,6 +704,8 @@ let
 
   byobu = callPackage ../tools/misc/byobu { };
 
+  cabal2nix = haskellngPackages.callPackage ../development/tools/haskell/cabal2nix {};
+
   capstone = callPackage ../development/libraries/capstone { };
 
   catdoc = callPackage ../tools/text/catdoc { };
@@ -810,7 +812,7 @@ let
     krb5 = null;
     systemd = null;
     jemalloc = null;
-    mysql = null;
+    libmysql = null;
     postgresql = null;
     libdbi = null;
     net_snmp = null;
@@ -936,7 +938,15 @@ let
 
   cdrkit = callPackage ../tools/cd-dvd/cdrkit { };
 
+  # Only ever add ceph LTS releases
+  # The default should always be symlinked to the latest LTS
+  # Dev should always point to the latest versioned release
+  libceph = ceph.lib;
+  ceph-0_80 = callPackage ../tools/filesystems/ceph/0.80.nix { };
+  ceph-0_94 = callPackage ../tools/filesystems/ceph/0.94.nix { };
   ceph = callPackage ../tools/filesystems/ceph { };
+  ceph-dev = lowPrio (callPackage ../tools/filesystems/ceph/dev.nix { });
+  ceph-git = lowPrio (callPackage ../tools/filesystems/ceph/git.nix { });
 
   cfdg = builderDefsPackage ../tools/graphics/cfdg {
     inherit libpng bison flex ffmpeg;
@@ -1730,6 +1740,8 @@ let
   isl_0_12 = callPackage ../development/libraries/isl/0.12.2.nix { };
 
   isync = callPackage ../tools/networking/isync { };
+
+  jaaa = callPackage ../applications/audio/jaaa { };
 
   jd-gui = callPackage_i686 ../tools/security/jd-gui { };
 
@@ -2766,7 +2778,7 @@ let
 
   sudo = callPackage ../tools/security/sudo { };
 
-  suidChroot = builderDefsPackage (import ../tools/system/suid-chroot) { };
+  suidChroot = callPackage ../tools/system/suid-chroot { };
 
   super = callPackage ../tools/security/super { };
 
@@ -3209,6 +3221,7 @@ let
   xflux = callPackage ../tools/misc/xflux { };
 
   xfsprogs = callPackage ../tools/filesystems/xfsprogs { };
+  libxfs = xfsprogs.lib;
 
   xml2 = callPackage ../tools/text/xml/xml2 { };
 
@@ -5440,6 +5453,8 @@ let
 
   aalib = callPackage ../development/libraries/aalib { };
 
+  accelio = callPackage ../development/libraries/accelio { };
+
   accountsservice = callPackage ../development/libraries/accountsservice { };
 
   acl = callPackage ../development/libraries/acl { };
@@ -6215,6 +6230,8 @@ let
   kf5_latest = kf57;
   kf5_stable = kf57;
 
+  kinetic-cpp-client = callPackage ../development/libraries/kinetic-cpp-client { };
+
   krb5 = callPackage ../development/libraries/kerberos/krb5.nix {
     openldap = openldap.override {
       cyrus_sasl = cyrus_sasl.override { kerberos = null; };
@@ -6323,6 +6340,10 @@ let
 
   libcli = callPackage ../development/libraries/libcli { };
 
+  libclthreads = callPackage ../development/libraries/libclthreads  { };
+
+  libclxclient = callPackage ../development/libraries/libclxclient  { };
+
   libcm = callPackage ../development/libraries/libcm { };
 
   inherit (gnome3) libcroco;
@@ -6344,12 +6365,12 @@ let
   libdbi = callPackage ../development/libraries/libdbi { };
 
   libdbiDriversBase = callPackage ../development/libraries/libdbi-drivers {
-    mysql = null;
+    libmysql = null;
     sqlite = null;
   };
 
   libdbiDrivers = libdbiDriversBase.override {
-    inherit sqlite mysql;
+    inherit sqlite libmysql;
   };
 
   libdbusmenu_qt = callPackage ../development/libraries/libdbusmenu-qt { };
@@ -6778,6 +6799,8 @@ let
   librsync = callPackage ../development/libraries/librsync { };
 
   librsync_0_9 = callPackage ../development/libraries/librsync/0.9.nix { };
+
+  libs3 = callPackage ../development/libraries/libs3 { };
 
   libsearpc = callPackage ../development/libraries/libsearpc { };
 
@@ -7501,6 +7524,8 @@ let
 
   rlog = callPackage ../development/libraries/rlog { };
 
+  rocksdb = callPackage ../development/libraries/rocksdb { };
+
   rubberband = callPackage ../development/libraries/rubberband {
     fftw = fftwSinglePrec;
     inherit (vamp) vampSDK;
@@ -7848,8 +7873,6 @@ let
 
   x265 = callPackage ../development/libraries/x265 { };
 
-  x265-hg = callPackage ../development/libraries/x265/hg.nix { };
-
   xapian = callPackage ../development/libraries/xapian { };
 
   xapianBindings = callPackage ../development/libraries/xapian/bindings {  # TODO perl php Java, tcl, C#, python
@@ -7930,6 +7953,8 @@ let
   cppzmq = callPackage ../development/libraries/cppzmq {};
 
   czmq = callPackage ../development/libraries/czmq { };
+
+  zita-alsa-pcmi = callPackage ../development/libraries/zita-alsa-pcmi { };
 
   zziplib = callPackage ../development/libraries/zziplib { };
 
@@ -8517,6 +8542,7 @@ let
   mysql55 = callPackage ../servers/sql/mysql/5.5.x.nix { };
 
   mysql = mariadb;
+  libmysql = mysql.lib;
 
   mysql_jdbc = callPackage ../servers/sql/mysql/jdbc { };
 
@@ -8638,7 +8664,7 @@ let
     cups = if stdenv.isDarwin then null else cups;
     pam = if stdenv.isDarwin then null else pam;
     libaio = if stdenv.isDarwin then null else libaio;
-    ceph = if stdenv.isDarwin then null else ceph;
+    libceph = if stdenv.isDarwin then null else libceph;
     glusterfs = if stdenv.isDarwin then null else glusterfs;
     dbus = if stdenv.isLinux then dbus else null;
     libibverbs = if stdenv.isLinux then libibverbs else null;
@@ -8672,7 +8698,7 @@ let
     acl = null;
     libaio = null;
     fam = null;
-    ceph = null;
+    libceph = null;
     glusterfs = null;
 
     # buildtools/wafsamba/wscript optionals
@@ -8849,6 +8875,8 @@ let
   audit = callPackage ../os-specific/linux/audit { };
 
   b43Firmware_5_1_138 = callPackage ../os-specific/linux/firmware/b43-firmware/5.1.138.nix { };
+
+  b43Firmware_6_30_163_46 = callPackage ../os-specific/linux/firmware/b43-firmware/6.30.163.46.nix { };
 
   b43FirmwareCutter = callPackage ../os-specific/linux/firmware/b43-firmware-cutter { };
 
@@ -9238,6 +9266,8 @@ let
   linuxPackagesFor = kernel: self: let callPackage = newScope self; in rec {
     inherit kernel;
 
+    accelio = callPackage ../development/libraries/accelio { };
+
     acpi_call = callPackage ../os-specific/linux/acpi-call {};
 
     batman_adv = callPackage ../os-specific/linux/batman-adv {};
@@ -9545,6 +9575,8 @@ let
   rtkit = callPackage ../os-specific/linux/rtkit { };
 
   sassc = callPackage ../development/tools/sassc { };
+
+  schedtool = callPackage ../os-specific/linux/schedtool { };
 
   sdparm = callPackage ../os-specific/linux/sdparm { };
 
@@ -9940,6 +9972,8 @@ let
 
   posix_man_pages = callPackage ../data/documentation/man-pages-posix { };
 
+  powerline-fonts = callPackage ../data/fonts/powerline-fonts { };
+
   proggyfonts = callPackage ../data/fonts/proggyfonts { };
 
   pthreadmanpages = callPackage ../data/documentation/pthread-man-pages {
@@ -10142,6 +10176,8 @@ let
 
   backintime = backintime-qt4;
 
+  bandwidth = callPackage ../tools/misc/bandwidth { };
+
   bar = callPackage ../applications/window-managers/bar { };
 
   baresip = callPackage ../applications/networking/instant-messengers/baresip {
@@ -10314,7 +10350,7 @@ let
 
   d4x = callPackage ../applications/misc/d4x { };
 
-  darcs = haskell-ng.lib.overrideCabal haskell-ng.packages.ghc784.darcs (drv: {
+  darcs = haskell-ng.lib.overrideCabal haskellngPackages.darcs (drv: {
     configureFlags = (stdenv.lib.remove "-flibrary" drv.configureFlags or []) ++ ["-f-library"];
     enableSharedExecutables = false;
     isLibrary = false;
@@ -10604,7 +10640,9 @@ let
     };
 
     external = {
-      inherit (haskellngPackages) ghc-mod structured-haskell-mode Agda;
+      # FIXME: revert when Agda and ghc-mod are fixed on 7.10
+      inherit (haskell-ng.packages.ghc784) ghc-mod Agda;
+      inherit (haskellngPackages) structured-haskell-mode;
     };
   };
 
@@ -12539,6 +12577,8 @@ let
 
   compton = callPackage ../applications/window-managers/compton { };
 
+  compton-git = callPackage ../applications/window-managers/compton/git.nix { };
+
   xdaliclock = callPackage ../tools/misc/xdaliclock {};
 
   xdg-user-dirs = callPackage ../tools/X11/xdg-user-dirs { };
@@ -14207,6 +14247,12 @@ let
   });
 
   wine = wineStable;
+
+  wineStaging = callPackage_i686 ../misc/emulators/wine/staging.nix {
+    wine = pkgsi686Linux.wineUnstable;
+    # Patent issues
+    libtxc_dxtn = pkgsi686Linux.libtxc_dxtn_s2tc;
+  };
 
   winetricks = callPackage ../misc/emulators/wine/winetricks.nix {
     inherit (gnome2) zenity;

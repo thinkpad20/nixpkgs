@@ -280,6 +280,22 @@ let
   };
 
 
+  alabaster = buildPythonPackage rec {
+    name = "alabaster-0.7.3";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/a/alabaster/${name}.tar.gz";
+      md5 = "67428d1383fd833f1282fed5deba0898";
+    };
+
+    meta = {
+      homepage = https://github.com/bitprophet/alabaster;
+      description = "a Sphinx theme";
+      license = stdenv.lib.licenses.bsd3;
+    };
+  };
+
+
   alembic = buildPythonPackage rec {
     name = "alembic-0.6.6";
 
@@ -4553,11 +4569,11 @@ let
 
 
   docutils = buildPythonPackage rec {
-    name = "docutils-0.11";
+    name = "docutils-0.12";
 
     src = pkgs.fetchurl {
       url = "mirror://sourceforge/docutils/${name}.tar.gz";
-      sha256 = "1jbybs5a396nrjy9m13pgvsxdwaj7jw7nsawkhl4fi1nvxm1dx4s";
+      md5 = "4622263b62c5c771c03502afa3157768";
     };
 
     # error: invalid command 'test'
@@ -9429,6 +9445,22 @@ let
     };
   };
 
+  PyStemmer = buildPythonPackage (rec {
+    name = "PyStemmer-1.3.0";
+
+    src = pkgs.fetchurl {
+      url = "http://pypi.python.org/packages/source/P/PyStemmer/${name}.tar.gz";
+      md5 = "46ee623eeeba5a7cc0d95cbfa7e18abd";
+    };
+
+    meta = with stdenv.lib; {
+      description = "Snowball stemming algorithms, for information retrieval";
+      homepage = http://snowball.tartarus.org/;
+      license = licenses.mit;
+      platforms = platforms.unix;
+    };
+  });
+
   pyro3 = buildPythonPackage (rec {
     name = "Pyro-3.16";
     disabled = isPy3k;
@@ -10908,6 +10940,24 @@ let
     };
   };
 
+  snowballstemmer = buildPythonPackage rec {
+    name = "snowballstemmer-1.2.0";
+
+    src = pkgs.fetchurl {
+      url = "http://pypi.python.org/packages/source/s/snowballstemmer/${name}.tar.gz";
+      md5 = "51f2ef829db8129dd0f2354f0b209970";
+    };
+
+    propagatedBuildInputs = with self; [ PyStemmer ];
+
+    meta = with stdenv.lib; {
+      description = "16 stemmer algorithms (15 + Poerter English stemmer) generated from Snowball algorithms";
+      homepage = http://sigal.saimon.org/en/latest/index.html;
+      license = licenses.bsd3;
+      platforms = platforms.unix;
+    };
+  };
+
   pgpdump = self.buildPythonPackage rec {
     name = "pgpdump-1.5";
 
@@ -11349,21 +11399,42 @@ let
 
 
   sphinx = buildPythonPackage (rec {
-    name = "Sphinx-1.2.3";
+    name = "Sphinx-1.3.1";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/S/Sphinx/${name}.tar.gz";
-      md5 = "a98c93124035b4cd7183604aec656cb3";
+      md5 = "8786a194acf9673464c5455b11fd4332";
     };
 
-    propagatedBuildInputs = with self; [docutils jinja2 pygments];
+    propagatedBuildInputs = with self; [ docutils jinja2 pygments sphinx_rtd_theme alabaster Babel snowballstemmer  six ];
 
-    meta = {
+    meta = with stdenv.lib; {
       description = "Sphinx is a tool that makes it easy to create intelligent and beautiful documentation for Python projects.";
-
       homepage = http://sphinx.pocoo.org/;
+      license = licenses.bsd3;
+      platforms = platforms.unix;
+    };
+  });
 
-      license = "BSD";
+
+  sphinx_rtd_theme = buildPythonPackage (rec {
+    name = "sphinx_rtd_theme-0.1.7";
+
+    src = pkgs.fetchurl {
+      url = "http://pypi.python.org/packages/source/s/sphinx_rtd_theme/${name}.tar.gz";
+      md5 = "3ffe014445195705968d899c38b305fd";
+    };
+
+    postPatch = ''
+      rm requirements.txt
+      touch requirements.txt
+    '';
+
+    meta = with stdenv.lib; {
+      description = "ReadTheDocs.org theme for Sphinx, 2013 version";
+      homepage = https://github.com/snide/sphinx_rtd_theme/;
+      license = licenses.bsd3;
+      platforms = platforms.unix;
     };
   });
 
