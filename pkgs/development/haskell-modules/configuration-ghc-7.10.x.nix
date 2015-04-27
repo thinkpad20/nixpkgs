@@ -169,10 +169,6 @@ self: super: {
   haskell-src-meta = overrideCabal (doJailbreak (appendPatch super.haskell-src-meta ./haskell-src-meta-ghc710.patch)) (drv: {
     prePatch = "sed -i -e 's|template-haskell [^,]\\+|template-haskell|' haskell-src-meta.cabal && cat haskell-src-meta.cabal";
   });
-  conduit-combinators = appendPatch super.conduit-combinators (pkgs.fetchpatch {
-    url = "https://github.com/fpco/conduit-combinators/pull/16.patch";
-    sha256 = "1c9b1d3dxr820i107b6yly2g1apv6bbsg9ag26clcikca7dfz5qr";
-  });
   wreq = overrideCabal super.wreq (drv: {
     patchPhase = ''
       substituteInPlace Network/Wreq/Internal/AWS.hs --replace System.Locale Data.Time.Format

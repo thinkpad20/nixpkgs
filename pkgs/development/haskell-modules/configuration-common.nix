@@ -160,10 +160,14 @@ self: super: {
     patchPhase = "sed -i -e 's|random.*==.*|random|' -e 's|text.*>=.*,|text,|' -e s'|terminfo == .*|terminfo|' darcs.cabal";
   });
 
-  # disable building double-conversion since it requires libstdc++
-  blaze-textual = overrideCabal (dontCheck super.blaze-textual) (drv: {
-    patchPhase = "sed -i '/double-conversion/d' blaze-textual.cabal";
-  });
+  # clang has libc++
+  double-conversion = if pkgs.stdenv.isDarwin
+    then overrideCabal super.double-conversion (drv: {
+      patchPhase = ''
+        sed -i "s/stdc++/c++/" double-conversion.cabal
+      '';
+    })
+    else super.double-conversion;
 
   # The test suite imposes too narrow restrictions on the version of
   # Cabal that can be used to build this package.
