@@ -101,9 +101,6 @@ self: super: {
   # Test suite fails in "/tokens_bytestring_unicode.g.bin".
   alex = dontCheck super.alex;
 
-  # Test suite has graduated to hanging forever.
-  lens = dontCheck super.lens;
-
   # https://github.com/haskell/haddock/issues/378
   haddock-library_1_2_0 = dontCheck super.haddock-library_1_2_0;
   haddock-library = self.haddock-library_1_2_0;
