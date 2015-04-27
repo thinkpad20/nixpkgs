@@ -33,40 +33,6 @@ self: super: {
   unix = null;
   xhtml = null;
 
-  # should be fixed in versions > 0.6
-  pandoc-citeproc = overrideCabal super.pandoc-citeproc (drv: {
-    patches = [
-      (pkgs.fetchpatch {
-         url = "https://github.com/jgm/pandoc-citeproc/commit/4e4f9c2.patch";
-         sha256 = "18b08k56g5q4zz6jxczkrddblyn52vmd0811n1icfdpzqhgykn4p";
-      })
-      (pkgs.fetchpatch {
-         url = "https://github.com/jgm/pandoc-citeproc/commit/34cc147.patch";
-         sha256 = "09vrdvg5w14qckn154zlxvk6i2ikmmhpsl9mxycxkql3rl4dqam3";
-      })
-      (pkgs.fetchpatch {
-         url = "https://github.com/jgm/pandoc-citeproc/commit/8242c70.patch";
-         sha256 = "1lqpwxzz2www81w4mym75z36bsavqfj67hyvzn20ffvxq42yw7ry";
-      })
-      (pkgs.fetchpatch {
-         url = "https://github.com/jgm/pandoc-citeproc/commit/e59f88d.patch";
-         sha256 = "05699hj3qa2vrfdnikj7rzmc2ajrkd7p8yd4cjlhmqq9asq90xzb";
-      })
-      (pkgs.fetchpatch {
-         url = "https://github.com/jgm/pandoc-citeproc/commit/ae6ca86.patch";
-         sha256 = "19cag39k5s7iqagpvss9c2ny5g0lwnrawaqcc0labihc1a181k8l";
-      })
-      (pkgs.fetchpatch {
-         url = "https://github.com/jgm/pandoc-citeproc/commit/f5a9fc7.patch";
-         sha256 = "08lsinh3mkjpz3cqj5i1vcnzkyl07jp38qcjcwcw7m2b7gsjbpvm";
-      })
-      (pkgs.fetchpatch {
-         url = "https://github.com/jgm/pandoc-citeproc/commit/780a554.patch";
-         sha256 = "1kfn0mcp3vp32c9w8gyz0p0jv0xn90as9mxm8a2lmjng52jlzvy4";
-      })
-   ];
-  });
-
   # ekmett/linear#74
   linear = overrideCabal super.linear (drv: {
     prePatch = "sed -i 's/-Werror//g' linear.cabal";
@@ -83,6 +49,11 @@ self: super: {
   # GHC 7.10.x's Haddock binary cannot generate hoogle files.
   # https://ghc.haskell.org/trac/ghc/ticket/9921
   mkDerivation = drv: super.mkDerivation (drv // { doHoogle = false; });
+
+  Extra = appendPatch super.Extra (pkgs.fetchpatch {
+    url = "https://github.com/seereason/sr-extra/commit/29787ad4c20c962924b823d02a7335da98143603.patch";
+    sha256 = "193i1xmq6z0jalwmq0mhqk1khz6zz0i1hs6lgfd7ybd6qyaqnf5f";
+  });
 
   # haddock: No input file(s).
   nats = dontHaddock super.nats;
@@ -133,7 +104,8 @@ self: super: {
   # Test suite has graduated to hanging forever.
   lens = dontCheck super.lens;
 
-  # TODO: update generation code in cabal2nix
+  # https://github.com/haskell/haddock/issues/378
+  haddock-library_1_2_0 = dontCheck super.haddock-library_1_2_0;
   haddock-library = self.haddock-library_1_2_0;
   haddock-api = overrideCabal super.haddock-api (drv: {
     version = "2.16.0";
@@ -194,6 +166,10 @@ self: super: {
   mueval = appendPatch super.mueval (pkgs.fetchpatch {
     url = "https://patch-diff.githubusercontent.com/raw/gwern/mueval/pull/10.patch";
     sha256 = "1gs8p89d1qsrd1qycbhf6kv4qw0sbb8m6dy106dqkmdzcjzcyq74";
+  });
+  present = appendPatch super.present (pkgs.fetchpatch {
+    url = "https://github.com/chrisdone/present/commit/6a61f099bf01e2127d0c68f1abe438cd3eaa15f7.patch";
+    sha256 = "1vn3xm38v2f4lzyzkadvq322f3s2yf8c88v56wpdpzfxmvlzaqr8";
   });
 
   # Already applied in darcs repository.
@@ -257,7 +233,7 @@ self: super: {
   edit-distance = let pkg = appendPatch super.edit-distance ./edit-distance-fix-boundaries.patch;
                   in appendPatch pkg (pkgs.fetchpatch {
                     url = "https://patch-diff.githubusercontent.com/raw/batterseapower/edit-distance/pull/3.patch";
-                    sha256 = "013x9za47vr9jx0liwgi8cdh2h2882a87h5nqvr41xqipzxfiyw1";
+                    sha256 = "0v47pa5ymh9f23bqpkdv3k7vnb6h3ssccdmjdylhs2ybarqzrcwh";
                   });
 
   # https://github.com/BNFC/bnfc/issues/137
@@ -280,6 +256,7 @@ self: super: {
   nettle-netkit = dontDistribute super.nettle-netkit;
   nettle-openflow = dontDistribute super.nettle-openflow;
   oberon0 = dontDistribute super.oberon0;
+  poly-arity = dontDistribute super.poly-arity;
   respond = dontDistribute super.respond;
   semi-iso = dontDistribute super.semi-iso;
   syntax = dontDistribute super.syntax;

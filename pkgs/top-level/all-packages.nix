@@ -475,6 +475,8 @@ let
 
   actdiag = pythonPackages.actdiag;
 
+  actkbd = callPackage ../tools/system/actkbd { };
+
   adom = callPackage ../games/adom { };
 
   advancecomp = callPackage ../tools/compression/advancecomp {};
@@ -496,6 +498,8 @@ let
   aescrypt = callPackage ../tools/misc/aescrypt { };
 
   afl = callPackage ../tools/security/afl { };
+
+  aha = callPackage ../tools/text/aha { };
 
   ahcpd = callPackage ../tools/networking/ahcpd { };
 
@@ -1646,6 +1650,8 @@ let
 
   hashcat = callPackage ../tools/security/hashcat { };
 
+  hal-flash = callPackage ../os-specific/linux/hal-flash { };
+
   halibut = callPackage ../tools/typesetting/halibut { };
 
   hddtemp = callPackage ../tools/misc/hddtemp { };
@@ -1775,7 +1781,7 @@ let
 
   kexectools = callPackage ../os-specific/linux/kexectools { };
 
-  keybase-node-client = callPackage ../applications/misc/keybase-node-client { };
+  keybase = callPackage ../applications/misc/keybase { };
 
   keychain = callPackage ../tools/misc/keychain { };
 
@@ -1836,11 +1842,17 @@ let
   };
   nodejs-0_10 = callPackage ../development/web/nodejs/v0_10.nix { };
 
-  nodePackages = callPackage ./node-packages.nix { self = nodePackages; };
+  nodePackages_0_12 = callPackage ./node-packages.nix { self = nodePackages_0_12; };
+
+  nodePackages_0_10 = callPackage ./node-packages.nix { self = nodePackages_0_10; nodejs = nodejs-0_10; };
+
+  nodePackages = nodePackages_0_12;
 
   iojs = callPackage ../development/web/iojs { libuv = libuvVersions.v1_4_0; };
 
   iojsPackages = callPackage ./node-packages.nix { self = iojsPackages; nodejs = iojs; };
+
+  npm2nix = nodePackages_0_10.npm2nix;
 
   ldapvi = callPackage ../tools/misc/ldapvi { };
 
@@ -3892,7 +3904,6 @@ let
   julia02 = callPackage ../development/compilers/julia/0.2.nix {
     liblapack = liblapack.override {shared = true;};
     llvm = llvm_33;
-    openblas = openblas_0_2_2;
     suitesparse = suitesparse_4_2;
   };
 
@@ -4393,6 +4404,8 @@ let
 
   sqldeveloper = callPackage ../development/tools/database/sqldeveloper { };
 
+  squeak = callPackage ../development/compilers/squeak { };
+
   stalin = callPackage ../development/compilers/stalin { };
 
   strategoPackages = recurseIntoAttrs strategoPackages018;
@@ -4845,6 +4858,8 @@ let
   jdtsdk = callPackage ../development/eclipse/jdt-sdk { };
 
   jruby165 = callPackage ../development/interpreters/jruby { };
+  
+  jython = callPackage ../development/interpreters/jython {};
 
   guileCairo = callPackage ../development/guile-modules/guile-cairo { };
 
@@ -6293,6 +6308,8 @@ let
     automake = automake112x; # fails with 13 and 14
   };
 
+  libasyncns = callPackage ../development/libraries/libasyncns { };
+
   libatomic_ops = callPackage ../development/libraries/libatomic_ops {};
 
   libav = libav_11; # branch 11 is API-compatible with branch 10
@@ -6497,9 +6514,7 @@ let
 
   libfixposix = callPackage ../development/libraries/libfixposix {};
 
-  libffcall = builderDefsPackage (import ../development/libraries/libffcall) {
-    inherit fetchcvs;
-  };
+  libffcall = callPackage ../development/libraries/libffcall { };
 
   libffi = callPackage ../development/libraries/libffi { };
 
@@ -7289,6 +7304,8 @@ let
 
   pangoxsl = callPackage ../development/libraries/pangoxsl { };
 
+  pcg_c = callPackage ../development/libraries/pcg-c { };
+
   pcl = callPackage ../development/libraries/pcl {
     vtk = vtkWithQt4;
   };
@@ -7630,7 +7647,13 @@ let
 
   speech_tools = callPackage ../development/libraries/speech-tools {};
 
-  speex = callPackage ../development/libraries/speex { };
+  speex = callPackage ../development/libraries/speex {
+    fftw = fftwFloat;
+  };
+
+  speexdsp = callPackage ../development/libraries/speexdsp {
+    fftw = fftwFloat;
+  };
 
   sphinxbase = callPackage ../development/libraries/sphinxbase { };
 
@@ -7843,6 +7866,8 @@ let
   };
 
   websocketpp = callPackage ../development/libraries/websocket++ { };
+
+  webrtc-audio-processing = callPackage ../development/libraries/webrtc-audio-processing { };
 
   wildmidi = callPackage ../development/libraries/wildmidi { };
 
@@ -8493,21 +8518,31 @@ let
 
   pshs = callPackage ../servers/http/pshs { };
 
-  pulseaudio = callPackage ../servers/pulseaudio {
-    gconf = gnome.GConf;
+  libpulseaudio = pulseaudioFull.override {
+    prefix = "lib";
+  };
+
+  pulseaudio = pulseaudioFull.override {
     # The following are disabled in the default build, because if this
     # functionality is desired, they are only needed in the PulseAudio
     # server.
-    bluez = null;
+    xlibs = null;
+    coreaudio = null;
+    esound = null;
+    libjack2 = null;
     avahi = null;
+    lirc = null;
+    bluez5 = null;
+    tdb = null;
+    gdbm = null;
   };
 
-  pulseaudioFull = pulseaudio.override {
-    bluez = bluez5;
-    avahi = avahi;
-    jackaudioSupport = true;
-    x11Support = true;
-    useSystemd = stdenv.isLinux;
+  pulseaudioFull = callPackage ../servers/pulseaudio {
+    gconf = gnome3.gconf;
+    fftw = fftwFloat;
+
+    # Disabled unless debugging
+    valgrind = null;
   };
 
   tomcat_connectors = callPackage ../servers/http/apache-modules/tomcat-connectors { };
@@ -8844,9 +8879,7 @@ let
 
   alsaLib = callPackage ../os-specific/linux/alsa-lib { };
 
-  alsaPlugins = callPackage ../os-specific/linux/alsa-plugins {
-    jack2 = null;
-  };
+  alsaPlugins = callPackage ../os-specific/linux/alsa-plugins { };
 
   alsaPluginWrapper = callPackage ../os-specific/linux/alsa-plugins/wrapper.nix { };
 
@@ -9024,6 +9057,7 @@ let
   fatrace = callPackage ../os-specific/linux/fatrace { };
 
   ffado = callPackage ../os-specific/linux/ffado { };
+  libffado = ffado.override { prefix = "lib"; };
 
   fbterm = callPackage ../os-specific/linux/fbterm { };
 
@@ -9652,6 +9686,8 @@ let
     debug = false;
     guile = guile_1_8;
   };
+
+  trinity = callPackage ../os-specific/linux/trinity { };
 
   tunctl = callPackage ../os-specific/linux/tunctl { };
 
@@ -10797,6 +10833,11 @@ let
       libXfixes libXinerama libXrender libXt;
   };
 
+  firestr = callPackage ../applications/networking/p2p/firestr
+    { boost = boost155;
+      inherit (xlibs) libXScrnSaver;
+    };
+
   flac = callPackage ../applications/audio/flac { };
 
   flashplayer = callPackage ../applications/networking/browsers/mozilla-plugins/flashplayer-11 {
@@ -11705,6 +11746,10 @@ let
 
   toxprpl = callPackage ../applications/networking/instant-messengers/pidgin-plugins/tox-prpl { };
 
+  pithos = callPackage ../applications/audio/pithos {
+    pythonPackages = python34Packages;
+  };
+
   pinfo = callPackage ../applications/misc/pinfo { };
 
   pinpoint = callPackage ../applications/office/pinpoint {};
@@ -11852,6 +11897,8 @@ let
   };
 
   rtl-sdr = callPackage ../applications/misc/rtl-sdr { };
+
+  rtv = callPackage ../applications/misc/rtv { };
 
   rubyripper = callPackage ../applications/audio/rubyripper {};
 
@@ -12463,7 +12510,8 @@ let
           ++ lib.optional (cfg.enableTrezor or false) trezor-bridge
          );
       libs = [ gstreamer gst_plugins_base ] ++ lib.optionals (cfg.enableQuakeLive or false)
-             (with xlibs; [ stdenv.cc libX11 libXxf86dga libXxf86vm libXext libXt alsaLib zlib ]);
+             (with xlibs; [ stdenv.cc libX11 libXxf86dga libXxf86vm libXext libXt alsaLib zlib ])
+             ++ lib.optional (enableAdobeFlash && (cfg.enableAdobeFlashDRM or false)) hal-flash;
       gst_plugins = [ gst_plugins_base gst_plugins_good gst_plugins_bad gst_plugins_ugly gst_ffmpeg ];
       gtk_modules = [ libcanberra ];
     };
@@ -13490,16 +13538,9 @@ let
 
   liblbfgs = callPackage ../development/libraries/science/math/liblbfgs { };
 
-  # julia is pinned to specific versions of openblas, so keep old versions
-  # until they aren't needed. The un-versioned attribute may continue to track
-  # upstream development.
   openblas = callPackage ../development/libraries/science/math/openblas {
     liblapack = liblapack_3_5_0;
   };
-  openblas_0_2_10 = callPackage ../development/libraries/science/math/openblas/0.2.10.nix {
-    liblapack = liblapack_3_5_0;
-  };
-  openblas_0_2_2 = callPackage ../development/libraries/science/math/openblas/0.2.2.nix { };
 
   mathematica = callPackage ../applications/science/math/mathematica { };
   mathematica9 = callPackage ../applications/science/math/mathematica/9.nix { };
@@ -13545,6 +13586,11 @@ let
   };
 
   coq_HEAD = callPackage ../applications/science/logic/coq/HEAD.nix {
+    inherit (ocamlPackages) findlib lablgtk;
+    camlp5 = ocamlPackages.camlp5_transitional;
+  };
+
+  coq_8_5 = callPackage ../applications/science/logic/coq/8.5.nix {
     inherit (ocamlPackages) findlib lablgtk;
     camlp5 = ocamlPackages.camlp5_transitional;
   };
@@ -13595,7 +13641,21 @@ let
 
   };
 
+  mkCoqPackages_8_5 = self: let callPackage = newScope self; in rec {
+
+    mathcomp = callPackage ../development/coq-modules/mathcomp/1.5.nix {
+      coq = coq_8_5;
+      ssreflect = ssreflect;
+    };
+
+    ssreflect = callPackage ../development/coq-modules/ssreflect/1.5.nix {
+      coq = coq_8_5;
+    };
+
+  };
+
   coqPackages = recurseIntoAttrs (mkCoqPackages_8_4 coqPackages);
+  coqPackages_8_5 = recurseIntoAttrs (mkCoqPackages_8_5 coqPackages);
 
   cvc3 = callPackage ../applications/science/logic/cvc3 {};
   cvc4 = callPackage ../applications/science/logic/cvc4 {};
@@ -13931,7 +13991,10 @@ let
   # using the new configuration style proposal which is unstable
   jack1 = callPackage ../misc/jackaudio/jack1.nix { };
 
-  jack2 = callPackage ../misc/jackaudio { };
+  jack2 = callPackage ../misc/jackaudio {
+    libopus = libopus.override { withCustomModes = true; };
+  };
+  libjack2 = jack2.override { prefix = "lib"; };
 
   keynav = callPackage ../tools/X11/keynav { };
 
@@ -14175,9 +14238,7 @@ let
     inherit texLive;
   };
 
-  texLivePGF = builderDefsPackage (import ../tools/typesetting/tex/texlive/pgf.nix) {
-    inherit texLiveLatexXColor texLive;
-  };
+  texLivePGF = pgf3;
 
   texLiveBeamer = builderDefsPackage (import ../tools/typesetting/tex/texlive/beamer.nix) {
     inherit texLiveLatexXColor texLivePGF texLive;
