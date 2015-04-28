@@ -1722,6 +1722,8 @@ let
 
   inetutils = callPackage ../tools/networking/inetutils { };
 
+  innoextract = callPackage ../tools/archivers/innoextract {};
+
   ioping = callPackage ../tools/system/ioping {};
 
   iodine = callPackage ../tools/networking/iodine { };
@@ -2000,7 +2002,6 @@ let
 
   minecraft = callPackage ../games/minecraft {
     pulseaudioSupport = config.pulseaudio or true;
-    pulseaudio = pulseaudio.override { ossWrapper = true; };
   };
 
   minecraft-server = callPackage ../games/minecraft-server { };
@@ -2641,6 +2642,8 @@ let
   rpmextract = callPackage ../tools/archivers/rpmextract { };
 
   rrdtool = callPackage ../tools/misc/rrdtool { };
+
+  rsstail = callPackage ../applications/networking/feedreaders/rsstail { };
 
   rtorrent = callPackage ../tools/networking/p2p/rtorrent { };
 
@@ -4179,6 +4182,8 @@ let
       else lambdaTerm-1_6;
 
     macaque = callPackage ../development/ocaml-modules/macaque { };
+
+    magic-mime = callPackage ../development/ocaml-modules/magic-mime { };
 
     magick = callPackage ../development/ocaml-modules/magick { };
 
@@ -9067,6 +9072,8 @@ let
 
   fuse = callPackage ../os-specific/linux/fuse { };
 
+  fusionio-util = callPackage ../os-specific/linux/fusionio/util.nix { };
+
   fxload = callPackage ../os-specific/linux/fxload { };
 
   gfxtablet = callPackage ../os-specific/linux/gfxtablet {};
@@ -9321,6 +9328,8 @@ let
     v4l2loopback = callPackage ../os-specific/linux/v4l2loopback { };
 
     frandom = callPackage ../os-specific/linux/frandom { };
+
+    fusionio-vsl = callPackage ../os-specific/linux/fusionio/vsl.nix { };
 
     ktap = callPackage ../os-specific/linux/ktap { };
 
