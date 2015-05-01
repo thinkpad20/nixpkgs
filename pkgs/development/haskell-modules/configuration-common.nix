@@ -169,9 +169,11 @@ self: super: {
     })
     else super.double-conversion;
 
-  # The test suite imposes too narrow restrictions on the version of
-  # Cabal that can be used to build this package.
-  cabal-test-quickcheck = dontCheck super.cabal-test-quickcheck;
+  # Needs the latest version of QuickCheck to compile.
+  cabal-test-quickcheck = super.cabal-test-quickcheck.override { QuickCheck = self.QuickCheck_2_8_1; };
+
+  # https://github.com/massysett/rainbox/issues/1
+  rainbox = dontCheck super.rainbox;
 
   # https://github.com/techtangents/ablist/issues/1
   ABList = dontCheck super.ABList;
