@@ -19,6 +19,8 @@ stdenv.mkDerivation rec {
     substituteInPlace Makefile.am --replace "ACLOCAL = ./aclocal.sh @ACLOCAL@" ""
     sed -i '/^AM_C_PROTOTYPES/d' configure.ac
     substituteInPlace src/Makefile.am --replace "ansi2knr" ""
+    substituteInPlace src/Makefile.in --replace "@ANSI2KNR@" "" \
+      --replace "@U@" ""
 
     autoreconf -fi
   ''
