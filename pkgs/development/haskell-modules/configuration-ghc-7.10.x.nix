@@ -104,14 +104,6 @@ self: super: {
   # https://github.com/haskell/haddock/issues/378
   haddock-library_1_2_0 = dontCheck super.haddock-library_1_2_0;
   haddock-library = self.haddock-library_1_2_0;
-  haddock-api = overrideCabal super.haddock-api (drv: {
-    version = "2.16.0";
-    sha256 = "0hk42w6fbr6xp8xcpjv00bhi9r75iig5kp34vxbxdd7k5fqxr1hj";
-  });
-  haddock = overrideCabal super.haddock (drv: {
-    version = "2.16.0";
-    sha256 = "1afb96w1vv3gmvha2f1h3p8zywpdk8dfk6bgnsa307ydzsmsc3qa";
-  });
 
   # Upstream was notified about the over-specified constraint on 'base'
   # but refused to do anything about it because he "doesn't want to
@@ -125,14 +117,6 @@ self: super: {
 
   # https://github.com/kazu-yamamoto/unix-time/issues/30
   unix-time = dontCheck super.unix-time;
-
-  ansi-wl-pprint = overrideCabal super.ansi-wl-pprint (drv: {
-    patchPhase = ''
-      substituteInPlace Text/PrettyPrint/ANSI/Leijen.hs \
-        --replace 'fold (<$>)' 'fold (Text.PrettyPrint.ANSI.Leijen.<$>)' \
-        --replace ', (<$>)' ', (Text.PrettyPrint.ANSI.Leijen.<$>)' \
-    '';
-  });
 
   # Until the changes have been pushed to Hackage
   wreq = overrideCabal super.wreq (drv: {

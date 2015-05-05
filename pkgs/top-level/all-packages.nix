@@ -612,8 +612,6 @@ let
 
   lastpass-cli = callPackage ../tools/security/lastpass-cli { };
 
-  otool = callPackage ../os-specific/darwin/otool { };
-
   pass = callPackage ../tools/security/pass { };
 
   setfile = callPackage ../os-specific/darwin/setfile { };
@@ -1871,7 +1869,7 @@ let
 
   ninka = callPackage ../development/tools/misc/ninka { };
 
-  nodejs = callPackage ../development/web/nodejs {
+  nodejs-0_12 = callPackage ../development/web/nodejs {
     libuv = libuvVersions.v1_2_0;
   };
   nodejs-0_10 = callPackage ../development/web/nodejs/v0_10.nix { };
