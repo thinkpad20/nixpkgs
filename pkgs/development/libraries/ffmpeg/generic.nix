@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, pkgconfig, perl, texinfo, yasm
+{ stdenv, fetchurl, pkgconfig, perl, texinfo, yasm, Cocoa
 /*
  *  Licensing options (yes some are listed twice, filters and such are not listed)
  */
@@ -444,7 +444,7 @@ stdenv.mkDerivation rec {
     (verFix null "0.6.90" "--disable-mmx")
   ];
 
-  nativeBuildInputs = [ perl pkgconfig texinfo yasm ];
+  nativeBuildInputs = [ perl pkgconfig texinfo yasm Cocoa ];
 
   buildInputs = [
     bzip2 celt fontconfig freetype fribidi gnutls ladspaH lame libass libbluray

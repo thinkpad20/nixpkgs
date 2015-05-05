@@ -199,7 +199,7 @@ in rec {
 
     darwin = orig.darwin // {
       inherit (darwin)
-        dyld Libsystem xnu configd libdispatch libclosure launchd;
+        dyld Libsystem xnu configd libdispatch libclosure launchd libiconv;
     };
   };
 
@@ -222,7 +222,7 @@ in rec {
 
   persistent3 = orig: with stage3.pkgs; {
     inherit
-      gnumake gzip gnused bzip2 gnutar gawk ed xz patch libiconv bash
+      gnumake gzip gnused bzip2 gnutar gawk ed xz patch bash
       libcxxabi libcxx ncurses libffi zlib icu llvm gmp pcre gnugrep
       coreutils findutils diffutils patchutils;
 
@@ -231,7 +231,7 @@ in rec {
     };
 
     darwin = orig.darwin // {
-      inherit (darwin) dyld Libsystem CF;
+      inherit (darwin) dyld Libsystem CF libiconv;
     };
   };
 
@@ -243,7 +243,7 @@ in rec {
 
   persistent4 = orig: with stage4.pkgs; {
     inherit
-      gnumake gzip gnused bzip2 gnutar gawk ed xz patch libiconv bash
+      gnumake gzip gnused bzip2 gnutar gawk ed xz patch bash
       libcxxabi libcxx ncurses libffi zlib icu llvm gmp pcre gnugrep
       coreutils findutils diffutils patchutils binutils binutils-raw;
 
@@ -252,7 +252,7 @@ in rec {
     };
 
     darwin = orig.darwin // {
-      inherit (darwin) dyld Libsystem cctools CF;
+      inherit (darwin) dyld Libsystem cctools CF libiconv;
     };
   };
 
@@ -290,10 +290,10 @@ in rec {
 
     allowedRequisites = (with pkgs; [
       xz libcxx libcxxabi icu gmp gnumake findutils bzip2 llvm zlib libffi
-      coreutils ed diffutils gnutar gzip ncurses libiconv gnused bash gawk
+      coreutils ed diffutils gnutar gzip ncurses gnused bash gawk
       gnugrep llvmPackages.clang-unwrapped patch pcre binutils-raw binutils gettext
     ]) ++ (with pkgs.darwin; [
-      dyld Libsystem CF cctools
+      dyld Libsystem CF cctools libiconv
     ]);
 
     overrides = orig: persistent4 orig // {

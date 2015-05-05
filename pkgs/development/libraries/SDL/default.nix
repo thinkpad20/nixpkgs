@@ -3,6 +3,8 @@
 , alsaSupport ? true, alsaLib ? null
 , x11Support ? true, x11 ? null, libXrandr ? null
 , pulseaudioSupport ? true, pulseaudio ? null
+, AudioToolbox, AudioUnit, Cocoa, CoreAudio, CoreData
+, CoreServices, Foundation, Kernel, OpenGL, libobjc
 }:
 
 # OSS is no longer supported, for it's much crappier than ALSA and
@@ -31,11 +33,13 @@ stdenv.mkDerivation rec {
 
   buildInputs = let
     notMingw = !(stdenv ? cross) || stdenv.cross.libc != "msvcrt";
-  in [ libcap ]
-    ++ (stdenv.lib.optional notMingw audiofile);
+  in stdenv.lib.optional notMingw audiofile ++
+      stdenv.lib.optional (!stdenv.isDarwin) [ libcap ];
 
   nativeBuildInputs = [ pkgconfig ] ++
-    stdenv.lib.optional openglSupport [ mesa ];
+    stdenv.lib.optionals openglSupport ([ mesa ]
+      ++ stdenv.lib.optionals stdenv.isDarwin [ AudioUnit OpenGL CoreAudio CoreServices
+      Kernel Cocoa AudioToolbox Foundation libobjc CoreData ]);
 
   # XXX: By default, SDL wants to dlopen() PulseAudio, in which case
   # we must arrange to add it to its RPATH; however, `patchelf' seems

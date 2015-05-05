@@ -138,7 +138,14 @@ let
   # can be obtained from `pkgs' or `pkgs.xorg' (i.e. `defaultScope').
   # Use `newScope' for sets of packages in `pkgs' (see e.g. `gnome'
   # below).
-  callPackage = newScope {};
+  callPackage = let
+    darwinPkgs = darwin // darwin.apple_sdk.frameworks // darwin.apple_sdk.libs;
+    darwinPkgNames = builtins.attrNames
+      (builtins.removeAttrs darwinPkgs (builtins.attrNames defaultScope));
+  in if stdenv.isDarwin
+    then newScope darwinPkgs
+    # pass in null for all these everywhere else
+    else newScope (pkgs.lib.genAttrs darwinPkgNames (attr: null));
 
   newScope = extra: lib.callPackageWith (defaultScope // extra);
 
@@ -603,9 +610,7 @@ let
 
   inherit (androidenv) androidsdk_4_4 androidndk;
 
-  aria2 = callPackage ../tools/networking/aria2 {
-    inherit (darwin) Security;
-  };
+  aria2 = callPackage ../tools/networking/aria2 { };
   aria = aria2;
 
   at = callPackage ../tools/system/at { };
@@ -1839,8 +1844,6 @@ let
 
   nodejs = callPackage ../development/web/nodejs {
     libuv = libuvVersions.v1_2_0;
-    inherit (darwin.apple_sdk.frameworks) ApplicationServices CoreServices;
-    libtool = if stdenv.isDarwin then darwin.libtool else libtool;
   };
   nodejs-0_10 = callPackage ../development/web/nodejs/v0_10.nix { };
 
@@ -2683,9 +2686,7 @@ let
 
   samplicator = callPackage ../tools/networking/samplicator { };
 
-  screen = callPackage ../tools/misc/screen {
-    inherit (darwin.apple_sdk.libs) utmp;
-  };
+  screen = callPackage ../tools/misc/screen { };
 
   screen-message = callPackage ../tools/X11/screen-message { };
 
@@ -3725,15 +3726,7 @@ let
 
   # Import Haskell infrastructure.
 
-  haskell = let pkgs_       = pkgs // { gmp = gmp.override { withStatic = true; }; } //
-                                # on Darwin, use Darwin's libiconv symbol naming
-                                # convention. the bootstrap compiler assumes it and
-                                # disentangling Darwin and GNU libiconv during the
-                                # compiler build from source is too difficult for me.
-                                # TODO: remove this someday
-                                lib.optionalAttrs stdenv.isDarwin {
-                                  libiconv = pkgs.darwin.libiconv;
-                                };
+  haskell = let pkgs_       = pkgs // { gmp = gmp.override { withStatic = true; }; };
                 callPackage = newScope pkgs_;
                 newScope    = extra: lib.callPackageWith (pkgs_ // pkgs_.xorg // extra);
             in callPackage ./haskell-defaults.nix { pkgs = pkgs_; inherit callPackage newScope; };
@@ -3795,7 +3788,7 @@ let
 
   go_1_3 = callPackage ../development/compilers/go/1.3.nix { };
 
-  go_1_4 = callPackage ../development/compilers/go/1.4.nix { inherit (darwin) Security; };
+  go_1_4 = callPackage ../development/compilers/go/1.4.nix {};
 
   go = go_1_4;
 
@@ -4460,7 +4453,6 @@ let
     cc = baseCC;
     libc = libc;
     inherit stdenv binutils coreutils zlib;
-    inherit (darwin) dyld;
   };
 
   wrapCC = wrapCCWith (makeOverridable (import ../build-support/cc-wrapper)) stdenv.cc.libc;
@@ -4538,10 +4530,10 @@ let
   erlangR15 = callPackage ../development/interpreters/erlang/R15.nix { };
   erlangR16 = callPackage ../development/interpreters/erlang/R16.nix { };
   erlangR16_odbc = callPackage ../development/interpreters/erlang/R16.nix { odbcSupport = true; };
-  erlangR17 = callPackage ../development/interpreters/erlang/R17.nix { inherit (darwin.apple_sdk.frameworks) Carbon Cocoa; };
-  erlangR17_odbc = callPackage ../development/interpreters/erlang/R17.nix { odbcSupport = true; inherit (darwin.apple_sdk.frameworks) Carbon Cocoa; };
-  erlangR17_javac = callPackage ../development/interpreters/erlang/R17.nix { javacSupport = true; inherit (darwin.apple_sdk.frameworks) Carbon Cocoa; };
-  erlangR17_odbc_javac = callPackage ../development/interpreters/erlang/R17.nix { javacSupport = true; odbcSupport = true; inherit (darwin.apple_sdk.frameworks) Carbon Cocoa; };
+  erlangR17 = callPackage ../development/interpreters/erlang/R17.nix {};
+  erlangR17_odbc = callPackage ../development/interpreters/erlang/R17.nix { odbcSupport = true; };
+  erlangR17_javac = callPackage ../development/interpreters/erlang/R17.nix { javacSupport = true; };
+  erlangR17_odbc_javac = callPackage ../development/interpreters/erlang/R17.nix { javacSupport = true; odbcSupport = true; };
   erlang = erlangR17;
   erlang_odbc = erlangR17_odbc;
   erlang_javac = erlangR17_javac;
@@ -4705,7 +4697,6 @@ let
   };
   python27 = callPackage ../development/interpreters/python/2.7 {
     self = python27;
-    inherit (darwin) configd;
     corefoundation = darwin.CF;
   };
   python32 = callPackage ../development/interpreters/python/3.2 {
@@ -4716,7 +4707,6 @@ let
   };
   python34 = hiPrio (callPackage ../development/interpreters/python/3.4 {
     self = python34;
-    inherit (darwin) configd;
   });
   pypy = callPackage ../development/interpreters/pypy {
     self = pypy;
@@ -4772,14 +4762,14 @@ let
   buildRubyGem = callPackage ../development/interpreters/ruby/gem.nix { };
   bundlerEnv = callPackage ../development/interpreters/ruby/bundler-env { };
 
-  ruby_1_8_7 = callPackage ../development/interpreters/ruby/ruby-1.8.7.nix { inherit (darwin) libobjc; };
-  ruby_1_9_3 = callPackage ../development/interpreters/ruby/ruby-1.9.3.nix { inherit (darwin) libobjc; };
-  ruby_2_0_0 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.0.0.nix { inherit (darwin) libobjc; });
+  ruby_1_8_7 = callPackage ../development/interpreters/ruby/ruby-1.8.7.nix {};
+  ruby_1_9_3 = callPackage ../development/interpreters/ruby/ruby-1.9.3.nix {};
+  ruby_2_0_0 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.0.0.nix {});
   ruby_2_1_0 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.1.0.nix { });
   ruby_2_1_1 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.1.1.nix { });
   ruby_2_1_2 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.1.2.nix { });
-  ruby_2_1_3 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.1.3.nix { inherit (darwin) libobjc; });
-  ruby_2_2_0 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.2.0.nix { inherit (darwin) libobjc; });
+  ruby_2_1_3 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.1.3.nix {});
+  ruby_2_2_0 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.2.0.nix {});
 
   # Ruby aliases
   ruby = ruby_1_9;
@@ -5121,7 +5111,6 @@ let
 
   doxygen = callPackage ../development/tools/documentation/doxygen {
     qt4 = null;
-    inherit (darwin.apple_sdk.frameworks) CoreServices;
   };
 
   doxygen_gui = lowPrio (doxygen.override { inherit qt4; });
@@ -5595,7 +5584,7 @@ let
 
   cgui = callPackage ../development/libraries/cgui {};
 
-  check = callPackage ../development/libraries/check { inherit (darwin.apple_sdk.frameworks) CoreServices; };
+  check = callPackage ../development/libraries/check {};
 
   chipmunk = builderDefsPackage (import ../development/libraries/chipmunk) {
     inherit cmake freeglut mesa;
@@ -6122,7 +6111,6 @@ let
       cyrus_sasl = cyrus_sasl.override { kerberos = null; };
     };
     cyrus_sasl = cyrus_sasl.override { kerberos = null; };
-    inherit (darwin) bootstrap_cmds Security configd;
   };
 
   harfbuzz = callPackage ../development/libraries/harfbuzz { };
@@ -6256,7 +6244,6 @@ let
     openldap = openldap.override {
       cyrus_sasl = cyrus_sasl.override { kerberos = null; };
     };
-    inherit (darwin) bootstrap_cmds;
   };
 
   LASzip = callPackage ../development/libraries/LASzip { };
@@ -6636,7 +6623,11 @@ let
   # glibc provides libiconv so systems with glibc don't need to build libiconv
   # separately, but we also provide libiconvReal, which will always be a
   # standalone libiconv, just in case you want it
-  libiconv = if stdenv.isGlibc then stdenv.cc.libc else libiconvReal;
+  libiconv = if stdenv.isGlibc
+    then stdenv.cc.libc
+    else if stdenv.isDarwin
+      then darwin.libiconv
+      else libiconvReal;
 
   libiconvReal = callPackage ../development/libraries/libiconv { };
 
@@ -6871,12 +6862,7 @@ let
 
   libtorrentRasterbar = callPackage ../development/libraries/libtorrent-rasterbar { };
 
-  libtorrentRasterbar_0_16 = callPackage ../development/libraries/libtorrent-rasterbar/0.16.nix {
-    # fix "unrecognized option -arch" error
-    stdenv = if stdenv.isDarwin
-      then clangStdenv
-      else stdenv;
-  };
+  libtorrentRasterbar_0_16 = callPackage ../development/libraries/libtorrent-rasterbar/0.16.nix { };
 
   libtoxcore = callPackage ../development/libraries/libtoxcore { };
 
@@ -6890,7 +6876,7 @@ let
 
   libgeotiff = callPackage ../development/libraries/libgeotiff { };
 
-  libu2f-host = callPackage ../development/libraries/libu2f-host { inherit (darwin) IOKit; };
+  libu2f-host = callPackage ../development/libraries/libu2f-host {};
 
   libu2f-server = callPackage ../development/libraries/libu2f-server { };
 
@@ -6914,14 +6900,9 @@ let
 
   libusb = callPackage ../development/libraries/libusb { };
 
-  libusb1 = callPackage ../development/libraries/libusb1 {
-    libobjc = darwin.libobjc;
-    iokit   = darwin.IOKit;
-  };
+  libusb1 = callPackage ../development/libraries/libusb1 { };
 
-  libunwind = if stdenv.isDarwin
-    then darwin.libunwind
-    else callPackage ../development/libraries/libunwind { };
+  libunwind = callPackage ../development/libraries/libunwind { };
 
   libuvVersions = recurseIntoAttrs (callPackage ../development/libraries/libuv {
     automake = automake113x; # fails with 14
@@ -7066,10 +7047,7 @@ let
   mesaSupported = lib.elem system lib.platforms.mesaPlatforms;
 
   mesaDarwinOr = alternative: if stdenv.isDarwin
-    then callPackage ../development/libraries/mesa-darwin {
-      inherit (darwin.apple_sdk.frameworks) OpenGL;
-      inherit (darwin.apple_sdk.libs) Xplugin;
-    }
+    then callPackage ../development/libraries/mesa-darwin { }
     else alternative;
   mesa_noglu = mesaDarwinOr (callPackage ../development/libraries/mesa {
     # makes it slower, but during runtime we link against just mesa_drivers
@@ -7231,9 +7209,7 @@ let
 
   openbr = callPackage ../development/libraries/openbr { };
 
-  openbsm = callPackage ../development/libraries/openbsm {
-    inherit (darwin) bootstrap_cmds;
-  };
+  openbsm = callPackage ../development/libraries/openbsm { };
 
   opencascade = callPackage ../development/libraries/opencascade { };
 
@@ -7303,7 +7279,7 @@ let
 
   p11_kit = callPackage ../development/libraries/p11-kit { };
 
-  pam-u2f = callPackage ../development/libraries/pam-u2f { inherit (darwin) IOKit; };
+  pam-u2f = callPackage ../development/libraries/pam-u2f {};
 
   paperkey = callPackage ../tools/security/paperkey { };
 
@@ -7562,11 +7538,6 @@ let
     alsaSupport = (!stdenv.isDarwin);
     x11Support = true;
     pulseaudioSupport = (!stdenv.isDarwin);
-
-    # resolve the unrecognized -fpascal-strings option error
-    stdenv = if stdenv.isDarwin
-      then clangStdenv
-      else stdenv;
   };
 
   SDL_gfx = callPackage ../development/libraries/SDL_gfx { };
@@ -8825,9 +8796,6 @@ let
   xquartz = callPackage ../servers/x11/xquartz { };
   quartz-wm = callPackage ../servers/x11/quartz-wm {
     stdenv = clangStdenv;
-    inherit (darwin.apple_sdk.frameworks) Foundation CoreData;
-    inherit (darwin) libobjc;
-    inherit (darwin.apple_sdk.libs) Xplugin;
   };
 
   xorg = recurseIntoAttrs (import ../servers/x11/xorg/default.nix {
@@ -8835,10 +8803,6 @@ let
       libxslt expat libpng zlib perl mesa_drivers spice_protocol
       dbus libuuid openssl gperf m4 libevdev tradcpp makeWrapper
       autoconf automake libtool xmlto asciidoc flex bison python mtdev pixman;
-    inherit (darwin) libobjc;
-    inherit (darwin.apple_sdk) frameworks;
-    inherit (darwin.apple_sdk.libs) Xplugin;
-    bootstrap_cmds = if stdenv.isDarwin then darwin.bootstrap_cmds else null;
     mesa = mesa_noglu;
     udev = if stdenv.isLinux then udev else null;
     libdrm = if stdenv.isLinux then libdrm else null;
@@ -8966,6 +8930,7 @@ let
   cramfsswap = callPackage ../os-specific/linux/cramfsswap { };
 
   darwin = let
+    callPackage = newScope {};
     cmdline = callPackage ../os-specific/darwin/command-line-tools {};
     apple-source-releases = import ../os-specific/darwin/apple-source-releases { inherit stdenv fetchurl pkgs; };
   in apple-source-releases // rec {
@@ -8996,7 +8961,9 @@ let
     libobjc = apple-source-releases.objc4;
 
     binutils = callPackage ../os-specific/darwin/binutils { inherit cctools; };
-    libtool = callPackage ../os-specific/darwin/libtool { inherit cctools; };
+    libtool = callPackage ../os-specific/darwin/libtool {
+      inherit cctools;
+    };
 
     sw_vers = callPackage ../os-specific/darwin/sw_vers {};
   };
@@ -11406,7 +11373,6 @@ let
 
   mercurial = callPackage ../applications/version-management/mercurial {
     inherit (pythonPackages) curses docutils;
-    inherit (darwin.apple_sdk.frameworks) ApplicationServices;
     guiSupport = false; # use mercurialFull to get hgk GUI
   };
 
@@ -11810,7 +11776,7 @@ let
 
   eiskaltdcpp = callPackage ../applications/networking/p2p/eiskaltdcpp { lua5 = lua5_1; };
 
-  qemu = callPackage ../applications/virtualization/qemu { inherit (darwin) IOKit; };
+  qemu = callPackage ../applications/virtualization/qemu {};
 
   qmmp = callPackage ../applications/audio/qmmp { };
 
@@ -12311,10 +12277,7 @@ let
     flup = pythonPackages.flup;
   };
 
-  vim = callPackage ../applications/editors/vim {
-    inherit (darwin.apple_sdk.frameworks) CoreServices Cocoa Foundation CoreData;
-    inherit (darwin) libobjc;
-  };
+  vim = callPackage ../applications/editors/vim { };
 
   macvim = callPackage ../applications/editors/vim/macvim.nix { stdenv = clangStdenv; };
 
@@ -12431,7 +12394,7 @@ let
     graphicsSupport = false;
   };
 
-  weechat = callPackage ../applications/networking/irc/weechat { inherit (darwin) libobjc; };
+  weechat = callPackage ../applications/networking/irc/weechat {};
 
   westonLite = callPackage ../applications/window-managers/weston {
     pango = null;
