@@ -27,6 +27,8 @@ stdenv.mkDerivation rec {
     sha256 = "111a2z6bgn966g04a9n2ns9n2a401rd0zqgndznn2w4fv8a4qzgj";
   };
 
+  patches = [ ./osx-dylib-resolver.patch ];
+
   postUnpack = ''
     pushd ghc-${builtins.substring 0 7 rev}
     patchShebangs .
