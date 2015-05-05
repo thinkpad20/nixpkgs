@@ -55,6 +55,7 @@ stdenv.mkDerivation (rec {
   meta = with stdenv.lib; {
     description = "Lossless data-compression library";
     license = licenses.zlib;
+    platforms = platforms.all;
   };
 } // (if stdenv.isDarwin then {
   postInstall = ''

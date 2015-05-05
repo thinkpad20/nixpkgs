@@ -362,5 +362,6 @@ self: super: {
   # https://github.com/bos/wreq/issues/61
   wreq-sb = dontDistribute (dontCheck super.wreq-sb);
   hipbot = dontDistribute super.hipbot;
+  bitcoin-api = dontDistribute super.bitcoin-api;
 
 }

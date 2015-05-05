@@ -382,10 +382,29 @@ let
     inherit sha256;
   };
 
+  # gitorious example
   fetchFromGitorious = { owner, repo, rev, sha256, name ? "${repo}-${rev}-src" }: fetchzip {
     inherit name;
     url = "https://gitorious.org/${owner}/${repo}/archive/${rev}.tar.gz";
     inherit sha256;
+  };
+
+  # cgit example, snapshot support is optional in cgit
+  fetchFromSavannah = { repo, rev, sha256, name ? "${repo}-${rev}-src" }: fetchzip {
+    inherit name sha256;
+    url = "http://git.savannah.gnu.org/cgit/${repo}.git/snapshot/${repo}-${rev}.tar.gz";
+  };
+
+  # gitlab example
+  fetchFromGitLab = { owner, repo, rev, sha256, name ? "${repo}-${rev}-src" }: fetchzip {
+    inherit name sha256;
+    url = "https://gitlab.com/${owner}/${repo}/repository/archive.tar.gz?ref=${rev}";
+  };
+
+  # gitweb example, snapshot support is optional in gitweb
+  fetchFromRepoOrCz = { repo, rev, sha256, name ? "${repo}-${rev}-src" }: fetchzip {
+    inherit name sha256;
+    url = "http://repo.or.cz/${repo}.git/snapshot/${rev}.tar.gz";
   };
 
   resolveMirrorURLs = {url}: fetchurl {
@@ -703,6 +722,9 @@ let
 
   brasero = callPackage ../tools/cd-dvd/brasero { };
 
+  brltty = callPackage ../tools/misc/brltty {
+    alsaSupport = (!stdenv.isDarwin);
+  };
   bro = callPackage ../applications/networking/ids/bro { };
 
   bsod = callPackage ../misc/emulators/bsod { };
@@ -713,7 +735,7 @@ let
 
   byobu = callPackage ../tools/misc/byobu { };
 
-  cabal2nix = haskellngPackages.callPackage ../development/tools/haskell/cabal2nix {};
+  cabal2nix = haskellPackages.callPackage ../development/tools/haskell/cabal2nix {};
 
   capstone = callPackage ../development/libraries/capstone { };
 
@@ -983,6 +1005,7 @@ let
 
   clementine = callPackage ../applications/audio/clementine {
     boost = boost156;
+    gst_plugins = [ gst_plugins_base gst_plugins_good gst_plugins_ugly gst_ffmpeg ];
   };
 
   ciopfs = callPackage ../tools/filesystems/ciopfs { };
@@ -1539,6 +1562,11 @@ let
 
   grails = callPackage ../development/web/grails { jdk = null; };
 
+  gprof2dot = callPackage ../development/tools/profiling/gprof2dot {
+    # Using pypy provides significant performance improvements (~2x)
+    pythonPackages = pypyPackages;
+  };
+
   graphviz = callPackage ../tools/graphics/graphviz { };
 
   graphviz-nox = callPackage ../tools/graphics/graphviz {
@@ -1713,7 +1741,7 @@ let
 
   ihaskell = callPackage ../development/tools/haskell/ihaskell/wrapper.nix {
     inherit (pythonPackages) ipython;
-    inherit (haskellngPackages) ihaskell ghcWithPackages;
+    inherit (haskellPackages) ihaskell ghcWithPackages;
     packages = config.ihaskell.packages or (self: []);
   };
 
@@ -1751,6 +1779,7 @@ let
 
   isl = callPackage ../development/libraries/isl { };
   isl_0_12 = callPackage ../development/libraries/isl/0.12.2.nix { };
+  isl_0_14 = callPackage ../development/libraries/isl/0.14.1.nix { };
 
   isync = callPackage ../tools/networking/isync { };
 
@@ -1847,11 +1876,19 @@ let
   };
   nodejs-0_10 = callPackage ../development/web/nodejs/v0_10.nix { };
 
-  nodePackages_0_12 = callPackage ./node-packages.nix { self = nodePackages_0_12; };
+  nodejs = if stdenv.system == "armv5tel-linux" then
+    nodejs-0_10
+  else
+    nodejs-0_12;
+
+  nodePackages_0_12 = callPackage ./node-packages.nix { self = nodePackages_0_12; nodejs = nodejs-0_12; };
 
   nodePackages_0_10 = callPackage ./node-packages.nix { self = nodePackages_0_10; nodejs = nodejs-0_10; };
 
-  nodePackages = nodePackages_0_12;
+  nodePackages = if stdenv.system == "armv5tel-linux" then
+    nodePackages_0_10
+  else
+    nodePackages_0_12;
 
   iojs = callPackage ../development/web/iojs { libuv = libuvVersions.v1_4_0; };
 
@@ -2333,9 +2370,9 @@ let
 
   pal = callPackage ../tools/misc/pal { };
 
-  pandoc = haskell-ng.lib.overrideCabal haskellngPackages.pandoc (drv: {
+  pandoc = haskell.lib.overrideCabal haskellPackages.pandoc (drv: {
     configureFlags = drv.configureFlags or [] ++ ["-fembed_data_files"];
-    buildTools = drv.buildTools or [] ++ [haskellngPackages.hsb2hs];
+    buildTools = drv.buildTools or [] ++ [haskellPackages.hsb2hs];
     enableSharedExecutables = false;
     enableSharedLibraries = false;
     isLibrary = false;
@@ -2571,6 +2608,7 @@ let
   redmine = callPackage ../applications/version-management/redmine { };
 
   rtmpdump = callPackage ../tools/video/rtmpdump { };
+  rtmpdump_gnutls = rtmpdump.override { gnutlsSupport = true; opensslSupport = false; };
 
   reaverwps = callPackage ../tools/networking/reaver-wps {};
 
@@ -3272,9 +3310,7 @@ let
   };
 
   # To expose more packages for Yi, override the extraPackages arg.
-  yi = callPackage ../applications/editors/yi/wrapper.nix {
-    haskellPackages = haskellngPackages;
-  };
+  yi = callPackage ../applications/editors/yi/wrapper.nix { };
 
   youtube-dl = callPackage ../tools/misc/youtube-dl { };
 
@@ -3354,6 +3390,7 @@ let
 
   ats = callPackage ../development/compilers/ats { };
   ats2 = callPackage ../development/compilers/ats2 { };
+  ats-extsolve = callPackage ../development/compilers/ats-extsolve { };
 
   avra = callPackage ../development/compilers/avra { };
 
@@ -3415,7 +3452,7 @@ let
 
   compcert = callPackage ../development/compilers/compcert {};
 
-  cryptol = haskellngPackages.cryptol;
+  cryptol = haskellPackages.cryptol;
 
   cython = pythonPackages.cython;
   cython3 = python3Packages.cython;
@@ -3599,6 +3636,25 @@ let
       else null;
   }));
 
+  gcc5 = lowPrio (wrapCC (callPackage ../development/compilers/gcc/5 {
+    inherit noSysDirs;
+
+    # PGO seems to speed up compilation by gcc by ~10%, see #445 discussion
+    profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64));
+
+    # When building `gcc.crossDrv' (a "Canadian cross", with host == target
+    # and host != build), `cross' must be null but the cross-libc must still
+    # be passed.
+    cross = null;
+    libcCross = if crossSystem != null then libcCross else null;
+    libpthreadCross =
+      if crossSystem != null && crossSystem.config == "i586-pc-gnu"
+      then gnu.libpthreadCross
+      else null;
+
+    isl = isl_0_14;
+  }));
+
   gfortran = gfortran48;
 
   gfortran48 = wrapCC (gcc48.cc.override {
@@ -3693,14 +3749,12 @@ let
   };
 
   jhc = callPackage ../development/compilers/jhc {
-    inherit (haskellPackages_ghc763) ghc binary zlib utf8String readline fgl
-      regexCompat HsSyck random;
+    inherit (haskell.packages.ghc763) ghcWithPackages;
   };
 
   uhc = callPackage ../development/compilers/uhc/default.nix ({
     stdenv = clangStdenv;
-    ghcWithPackages = haskellngPackages.ghcWithPackages;
-    inherit (haskellngPackages) shuffle hashable mtl network uhc-util uulib;
+    inherit (haskellPackages) ghcWithPackages;
   });
 
   gcc-arm-embedded-4_7 = callPackage_i686 ../development/compilers/gcc-arm-embedded {
@@ -3714,9 +3768,9 @@ let
     sha256 = "ce92859550819d4a3d1a6e2672ea64882b30afa2c08cf67fa8e1d93788c2c577";
   };
   gcc-arm-embedded-4_9 = callPackage_i686 ../development/compilers/gcc-arm-embedded {
-    version = "4.9-2014q4-20141203";
-    releaseType = "major";
-    sha256 = "a440bcf68e36b291697567816e756877cd3b5782298e3e3c44eb0812a471980f";
+    version = "4.9-2015q1-20150306";
+    releaseType = "update";
+    sha256 = "c5e0025b065750bbd76b5357b4fc8606d88afbac9ff55b8a82927b4b96178154";
   };
   gcc-arm-embedded = gcc-arm-embedded-4_9;
 
@@ -3724,44 +3778,10 @@ let
 
   # Haskell and GHC
 
-  # Import Haskell infrastructure.
+  haskell = callPackage ./haskell-packages.nix { };
 
-  haskell = let pkgs_       = pkgs // { gmp = gmp.override { withStatic = true; }; };
-                callPackage = newScope pkgs_;
-                newScope    = extra: lib.callPackageWith (pkgs_ // pkgs_.xorg // extra);
-            in callPackage ./haskell-defaults.nix { pkgs = pkgs_; inherit callPackage newScope; };
-
-  # Available GHC versions.
-
-  # For several compiler versions, we export a large set of Haskell-related
-  # packages.
-
-  # NOTE (recurseIntoAttrs): After discussion, we originally decided to
-  # enable it for all GHC versions. However, this is getting too much,
-  # particularly in connection with Hydra builds for all these packages.
-  # So we enable it for selected versions only. We build all ghcs, though
-
-  ghc = recurseIntoAttrs (lib.mapAttrs' (name: value:
-    lib.nameValuePair (builtins.substring (builtins.stringLength "packages_") (builtins.stringLength name) name) value.ghc
-  ) (lib.filterAttrs (name: value:
-    builtins.substring 0 (builtins.stringLength "packages_") name == "packages_"
-  ) haskell));
-
-  haskellPackages_ghc6104 = haskell.packages_ghc6104;
-  haskellPackages_ghc6123 = haskell.packages_ghc6123;
-  haskellPackages_ghc704  = haskell.packages_ghc704;
-  haskellPackages_ghc722  = haskell.packages_ghc722;
-  haskellPackages_ghc742  = haskell.packages_ghc742;
-  haskellPackages_ghc763  = haskell.packages_ghc763;
-  haskellPackages_ghc784_no_profiling = recurseIntoAttrs haskell.packages_ghc784.noProfiling;
-  haskellPackages_ghc784_profiling    = recurseIntoAttrs haskell.packages_ghc784.profiling;
-  haskellPackages_ghc784              = recurseIntoAttrs haskell.packages_ghc784.highPrio;
-  haskellPackages = haskellPackages_ghc784;
-
-  haskell-ng = callPackage ./haskell-ng.nix { };
-  haskellngPackages = haskell-ng.packages.ghc7101.override {
+  haskellPackages = haskell.packages.ghc7101.override {
     overrides = config.haskellPackageOverrides or (self: super: {});
-    provideOldAttributeNames = config.provideOldHaskellAttributeNames or false;
   };
 
   haxe = callPackage ../development/compilers/haxe { };
@@ -4438,6 +4458,8 @@ let
 
   vala_0_26 = callPackage ../development/compilers/vala/0.26.nix { };
 
+  vala_0_28 = callPackage ../development/compilers/vala/0.28.nix { };
+
   visualcpp = callPackage ../development/compilers/visual-c++ { };
 
   vs90wrapper = callPackage ../development/compilers/vs90wrapper { };
@@ -4670,6 +4692,8 @@ let
   php55 = callPackage ../development/interpreters/php/5.5.nix { };
 
   php56 = callPackage ../development/interpreters/php/5.6.nix { };
+
+  picoc = callPackage ../development/interpreters/picoc {};
 
   picolisp = callPackage ../development/interpreters/picolisp {};
 
@@ -5105,9 +5129,7 @@ let
       binutils = binutils;
     };
 
-  docutils = builderDefsPackage (import ../development/tools/documentation/docutils) {
-    inherit python pil makeWrapper;
-  };
+  docutils = pythonPackages.docutils;
 
   doxygen = callPackage ../development/tools/documentation/doxygen {
     qt4 = null;
@@ -5118,6 +5140,8 @@ let
   drush = callPackage ../development/tools/misc/drush { };
 
   eggdbus = callPackage ../development/tools/misc/eggdbus { };
+
+  egypt = callPackage ../development/tools/analysis/egypt { };
 
   elfutils = callPackage ../development/tools/misc/elfutils { };
 
@@ -5144,6 +5168,8 @@ let
   flex_2_5_35 = callPackage ../development/tools/parsing/flex/2.5.35.nix { };
   flex_2_5_39 = callPackage ../development/tools/parsing/flex/2.5.39.nix { };
   flex = flex_2_5_39;
+
+  flexcpp = callPackage ../development/tools/parsing/flexc++ { };
 
   m4 = gnum4;
 
@@ -5212,6 +5238,8 @@ let
   jikespg = callPackage ../development/tools/parsing/jikespg { };
 
   jenkins = callPackage ../development/tools/continuous-integration/jenkins { };
+
+  jenkins-job-builder = callPackage ../development/tools/continuous-integration/jenkins-job-builder { };
 
   lcov = callPackage ../development/tools/analysis/lcov { };
 
@@ -5529,6 +5557,8 @@ let
 
   belle-sip = callPackage ../development/libraries/belle-sip { };
 
+  bobcat = callPackage ../development/libraries/bobcat { };
+
   boehmgc = callPackage ../development/libraries/boehm-gc { };
 
   boolstuff = callPackage ../development/libraries/boolstuff { };
@@ -5586,8 +5616,7 @@ let
 
   check = callPackage ../development/libraries/check {};
 
-  chipmunk = builderDefsPackage (import ../development/libraries/chipmunk) {
-    inherit cmake freeglut mesa;
+  chipmunk = callPackage ../development/libraries/chipmunk {
     inherit (xlibs) libX11 xproto inputproto libXi libXmu;
   };
 
@@ -5758,6 +5787,8 @@ let
   ffmpeg_1 = ffmpeg_1_2;
   ffmpeg_2 = ffmpeg_2_5;
   ffmpeg = ffmpeg_2;
+
+  ffmpegthumbnailer = callPackage ../development/libraries/ffmpegthumbnailer { };
 
   ffms = callPackage ../development/libraries/ffms { };
 
@@ -7174,6 +7205,12 @@ let
 
   newt = callPackage ../development/libraries/newt { };
 
+  nghttp2 = callPackage ../development/libraries/nghttp2 { };
+  libnghttp2 = nghttp2.override {
+    prefix = "lib";
+    fetchurl = fetchurlBoot;
+  };
+
   nix-plugins = callPackage ../development/libraries/nix-plugins {
     nix = pkgs.nixUnstable;
   };
@@ -7490,7 +7527,7 @@ let
   lambdabot = callPackage ../development/tools/haskell/lambdabot { };
 
   leksah = callPackage ../development/tools/haskell/leksah {
-    inherit (haskellngPackages) ghcWithPackages;
+    inherit (haskellPackages) ghcWithPackages;
   };
 
   librdf_raptor = callPackage ../development/libraries/librdf/raptor.nix { };
@@ -7964,7 +8001,7 @@ let
   agda = callPackage ../build-support/agda {
     glibcLocales = if pkgs.stdenv.isLinux then pkgs.glibcLocales else null;
     extension = self : super : { };
-    inherit (haskell-ng.packages.ghc784) Agda;
+    inherit (haskell.packages.ghc784) Agda;
     inherit writeScriptBin;
   };
 
@@ -7975,7 +8012,7 @@ let
   agdaPrelude = callPackage ../development/libraries/agda/agda-prelude { };
 
   AgdaStdlib = callPackage ../development/libraries/agda/agda-stdlib {
-    inherit (haskellngPackages) ghcWithPackages;
+    inherit (haskellPackages) ghcWithPackages;
   };
 
   AgdaSheaves = callPackage ../development/libraries/agda/Agda-Sheaves { };
@@ -8732,6 +8769,8 @@ let
 
   samba_light = samba4_light;
 
+  shairport-sync = callPackage ../servers/shairport-sync { };
+
   serfdom = callPackage ../servers/serfdom { };
 
   seyren = callPackage ../servers/monitoring/seyren { };
@@ -9476,6 +9515,8 @@ let
 
   lvm2 = callPackage ../os-specific/linux/lvm2 { };
 
+  mbpfan = callPackage ../os-specific/linux/mbpfan { };
+
   mdadm = callPackage ../os-specific/linux/mdadm { };
 
   mingetty = callPackage ../os-specific/linux/mingetty { };
@@ -9528,6 +9569,8 @@ let
   pam_mount = callPackage ../os-specific/linux/pam_mount { };
 
   pam_ssh_agent_auth = callPackage ../os-specific/linux/pam_ssh_agent_auth { };
+
+  pam_u2f = callPackage ../os-specific/linux/pam_u2f { };
 
   pam_usb = callPackage ../os-specific/linux/pam_usb { };
 
@@ -9808,11 +9851,7 @@ let
 
   xf86_video_nouveau = xorg.xf86videonouveau;
 
-  xmoto = builderDefsPackage (import ../games/xmoto) {
-    inherit chipmunk sqlite curl zlib bzip2 libjpeg libpng
-      freeglut mesa SDL SDL_mixer SDL_image SDL_net SDL_ttf
-      lua5 ode libxdg_basedir libxml2;
-  };
+  xmoto = callPackage ../games/xmoto { };
 
   xorg_sys_opengl = callPackage ../os-specific/linux/opengl/xorg-sys { };
 
@@ -9907,6 +9946,8 @@ let
   fira = callPackage ../data/fonts/fira { };
 
   fira-mono = callPackage ../data/fonts/fira-mono { };
+
+  font-awesome-ttf = callPackage ../data/fonts/font-awesome-ttf { };
 
   freefont_ttf = callPackage ../data/fonts/freefont-ttf { };
 
@@ -10121,11 +10162,16 @@ let
 
   antiword = callPackage ../applications/office/antiword {};
 
-  ardour = ardour3;
+  ardour = ardour4;
 
-  ardour3 =  lowPrio (callPackage ../applications/audio/ardour {
+  ardour3 =  callPackage ../applications/audio/ardour/ardour3.nix {
     inherit (gnome) libgnomecanvas libgnomecanvasmm;
-  });
+  };
+
+  ardour4 =  callPackage ../applications/audio/ardour {
+    inherit (gnome) libgnomecanvas libgnomecanvasmm;
+    inherit (vamp) vampSDK;
+  };
 
   ario = callPackage ../applications/audio/ario { };
 
@@ -10204,9 +10250,7 @@ let
 
   bazaar = callPackage ../applications/version-management/bazaar { };
 
-  bazaarTools = builderDefsPackage (import ../applications/version-management/bazaar/tools.nix) {
-    inherit bazaar;
-  };
+  bazaarTools = callPackage ../applications/version-management/bazaar/tools.nix { };
 
   beast = callPackage ../applications/audio/beast {
     inherit (gnome) libgnomecanvas libart_lgpl;
@@ -10362,7 +10406,7 @@ let
 
   d4x = callPackage ../applications/misc/d4x { };
 
-  darcs = haskell-ng.lib.overrideCabal haskellngPackages.darcs (drv: {
+  darcs = haskell.lib.overrideCabal haskellPackages.darcs (drv: {
     configureFlags = (stdenv.lib.remove "-flibrary" drv.configureFlags or []) ++ ["-f-library"];
     enableSharedExecutables = false;
     isLibrary = false;
@@ -10385,6 +10429,8 @@ let
   };
 
   diffuse = callPackage ../applications/version-management/diffuse { };
+
+  dirt = callPackage ../applications/audio/dirt {};
 
   distrho = callPackage ../applications/audio/distrho {};
 
@@ -10620,10 +10666,7 @@ let
 
     stratego = callPackage ../applications/editors/emacs-modes/stratego { };
 
-    structuredHaskellMode = callPackage ../applications/editors/emacs-modes/structured-haskell-mode {
-      inherit (haskellPackages) cabal ;
-      haskellSrcExts = haskellPackages.haskellSrcExts_1_15_0_1;
-    };
+    structuredHaskellMode = haskellPackages.structured-haskell-mode;
 
     sunriseCommander = callPackage ../applications/editors/emacs-modes/sunrise-commander { };
 
@@ -10653,8 +10696,8 @@ let
 
     external = {
       # FIXME: revert when Agda and ghc-mod are fixed on 7.10
-      inherit (haskell-ng.packages.ghc784) ghc-mod Agda;
-      inherit (haskellngPackages) structured-haskell-mode;
+      inherit (haskell.packages.ghc784) ghc-mod Agda;
+      inherit (haskellPackages) structured-haskell-mode;
     };
   };
 
@@ -10833,10 +10876,7 @@ let
     inherit (pythonPackages) matplotlib pycollada;
   };
 
-  freemind = callPackage ../applications/misc/freemind {
-    jdk = jdk;
-    jre = jdk;
-  };
+  freemind = callPackage ../applications/misc/freemind { };
 
   freenet = callPackage ../applications/networking/p2p/freenet { };
 
@@ -11537,6 +11577,8 @@ let
   };
 
   pcmanfm = callPackage ../applications/misc/pcmanfm { };
+
+  pig = callPackage ../applications/networking/cluster/pig { };
 
   shotcut = callPackage ../applications/video/shotcut { mlt = mlt-qt5; };
 
@@ -12651,7 +12693,7 @@ let
   xkblayout-state = callPackage ../applications/misc/xkblayout-state { };
 
   xmonad-with-packages = callPackage ../applications/window-managers/xmonad/wrapper.nix {
-    inherit (haskellngPackages) ghcWithPackages;
+    inherit (haskellPackages) ghcWithPackages;
     packages = self: [];
   };
 
@@ -12735,6 +12777,8 @@ let
   yoshimi = callPackage ../applications/audio/yoshimi {
     fltk = fltk13;
   };
+
+  zam-plugins = callPackage ../applications/audio/zam-plugins { inherit (xlibs) libX11; };
 
   zathuraCollection = recurseIntoAttrs
     (let callPackage = newScope pkgs.zathuraCollection; in
@@ -12892,8 +12936,7 @@ let
   gtypist = callPackage ../games/gtypist { };
 
   hedgewars = callPackage ../games/hedgewars {
-    inherit (haskellPackages) ghc network vector utf8String bytestringShow
-      random hslogger dataenc;
+    inherit (haskellPackages) ghcWithPackages;
   };
 
   hexen = callPackage ../games/hexen { };
@@ -13950,6 +13993,10 @@ let
     x11Support = true;
   });
 
+  gnuk = callPackage ../misc/gnuk { };
+  gnuk-unstable = callPackage ../misc/gnuk/unstable.nix { };
+  gnuk-git = callPackage ../misc/gnuk/git.nix { };
+
   guix = callPackage ../tools/package-management/guix { };
 
   gxemul = callPackage ../misc/emulators/gxemul { };
@@ -14396,7 +14443,8 @@ let
   buildbotSlave = buildbot-slave;  # added 2014-12-09
   cool-old-term = cool-retro-term; # added 2015-01-31
   rssglx = rss-glx; #added 2015-03-25
-
+  haskell-ng = haskell;                 # 2015-04-19
+  haskellngPackages = haskellPackages;  # 2015-04-19
 
   opentsdb = callPackage ../tools/misc/opentsdb {};
 

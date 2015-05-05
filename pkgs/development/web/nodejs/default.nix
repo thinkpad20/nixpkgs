@@ -3,6 +3,10 @@
 , libtool, CoreServices, ApplicationServices
 }:
 
+# nodejs 0.12 can't be built on armv5tel. Armv6 with FPU, minimum I think.
+# Related post: http://zo0ok.com/techfindings/archives/1820
+assert stdenv.system != "armv5tel-linux";
+
 let
   version = "0.12.0";
 
