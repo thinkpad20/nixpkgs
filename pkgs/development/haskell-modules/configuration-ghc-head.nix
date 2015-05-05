@@ -90,20 +90,46 @@ self: super: {
   # https://github.com/ndmitchell/extra/issues/4
   extra = dontCheck super.extra;
 
+  # pretty-printer bug causes spurious test failures
+  haskell-src-exts = dontCheck super.haskell-src-exts;
+
+  wreq = overrideCabal super.wreq (drv: {
+    patchPhase = ''
+      substituteInPlace Network/Wreq/Internal/AWS.hs --replace System.Locale Data.Time.Format
+      substituteInPlace Network/Wreq/Cache.hs \
+        --replace System.Locale Data.Time.Format \
+        --replace RecordWildCards "RecordWildCards, FlexibleContexts"
+    '';
+  });
+
   smallcheck = overrideCabal super.smallcheck (drv: {
     patchPhase = ''
       substituteInPlace Test/SmallCheck/Property.hs \
         --replace 'm ~ n' 'Monad n, m ~ n'
     '';
   });
-  stringsearch = appendPatch super.stringsearch (pkgs.fetchpatch {
-    url = "https://bitbucket.org/api/2.0/repositories/dafis/stringsearch/pullrequests/3/patch";
-    sha256 = "1j2a327m3bjl8k4dipc52nlh2ilg94gdcj9hdmdq62yh2drslvgx";
-  });
   contravariant = overrideCabal super.contravariant (drv: {
     patchPhase = ''
       substituteInPlace src/Data/Functor/Contravariant/Compose.hs \
         --replace '<$>' '`fmap`'
+    '';
+  });
+  semigroupoids = appendPatch super.semigroupoids (pkgs.fetchpatch {
+    url = "https://github.com/ekmett/semigroupoids/commit/9d47b9f6591848543c71f901c581422d4b80a3de.patch";
+    sha256 = "0xq1hxj7yfd9196nwg2x9vqpx9nd68s5gbrkylpdfwicfaavvil0";
+  });
+  yesod-auth = overrideCabal super.yesod-auth (drv: {
+    patchPhase = ''
+      substituteInPlace Yesod/Auth/Email.hs --replace \
+        FlexibleContexts 'FlexibleContexts, ConstrainedClassMethods'
+    '';
+  });
+  mono-traversable = overrideCabal super.mono-traversable (drv: {
+    patchPhase = ''
+      substituteInPlace src/Data/MonoTraversable.hs --replace \
+        FlexibleContexts 'FlexibleContexts, ConstrainedClassMethods'
+      substituteInPlace src/Data/Sequences.hs --replace \
+        'c ~ Char' 'c ~ Char, IsString [c]'
     '';
   });
 }

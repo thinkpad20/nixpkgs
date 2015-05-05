@@ -76,4 +76,5 @@ self: super: {
   # Needs hashable on pre 7.10.x compilers.
   nats = addBuildDepend super.nats self.hashable;
 
+  mutable-containers = doJailbreak super.mutable-containers;
 }

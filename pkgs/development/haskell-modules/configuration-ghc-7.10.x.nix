@@ -135,9 +135,6 @@ self: super: {
   });
 
   # Until the changes have been pushed to Hackage
-  haskell-src-meta = overrideCabal (doJailbreak (appendPatch super.haskell-src-meta ./haskell-src-meta-ghc710.patch)) (drv: {
-    prePatch = "sed -i -e 's|template-haskell [^,]\\+|template-haskell|' haskell-src-meta.cabal && cat haskell-src-meta.cabal";
-  });
   wreq = overrideCabal super.wreq (drv: {
     patchPhase = ''
       substituteInPlace Network/Wreq/Internal/AWS.hs --replace System.Locale Data.Time.Format
@@ -363,7 +360,6 @@ self: super: {
   vector_0_10_9_3 = markBroken super.vector_0_10_9_3;
 
   # https://github.com/bos/wreq/issues/61
-  wreq = markBrokenVersion "0.3.0.1" (dontCheck super.wreq);
   wreq-sb = dontDistribute (dontCheck super.wreq-sb);
   hipbot = dontDistribute super.hipbot;
 
