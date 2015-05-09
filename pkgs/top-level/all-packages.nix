@@ -4472,6 +4472,7 @@ let
     nativePrefix = stdenv.cc.nativePrefix or "";
     cc = baseCC;
     libc = libc;
+    dyld = if stdenv.isDarwin then darwin.dyld else null;
     inherit stdenv binutils coreutils zlib;
   };
 

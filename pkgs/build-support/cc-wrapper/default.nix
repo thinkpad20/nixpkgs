@@ -18,6 +18,9 @@ assert nativeTools -> nativePrefix != "";
 assert !nativeTools -> cc != null && binutils != null && coreutils != null;
 assert !nativeLibc -> libc != null;
 
+# OS X systems will require a dyld argument.
+assert stdenv.isDarwin -> dyld != null;
+
 # For ghdl (the vhdl language provider to gcc) we need zlib in the wrapper.
 assert cc.langVhdl or false -> zlib != null;
 
