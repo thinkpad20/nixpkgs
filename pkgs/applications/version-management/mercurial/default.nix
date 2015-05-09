@@ -6,8 +6,6 @@ let
   name = "mercurial-${version}";
 in
 
-assert stdenv.isDarwin -> !guiSupport; # When we have a working ApplicationServices.framework, we can revisit this
-
 stdenv.mkDerivation {
   inherit name;
 
@@ -19,7 +17,9 @@ stdenv.mkDerivation {
   inherit python; # pass it so that the same version can be used in hg2git
   pythonPackages = [ curses ];
 
-  buildInputs = [ python makeWrapper docutils unzip ] ++ stdenv.lib.optional stdenv.isDarwin ApplicationServices;
+  buildInputs = [ python makeWrapper docutils unzip ApplicationServices ];
+
+  propagatedBuildInputs = stdenv.lib.optional stdenv.isDarwin ApplicationServices;
 
   makeFlags = "PREFIX=$(out)";
 

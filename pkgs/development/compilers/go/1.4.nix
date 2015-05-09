@@ -1,4 +1,5 @@
-{ stdenv, lib, fetchurl, fetchgit, bison, glibc, bash, coreutils, makeWrapper, tzdata, iana_etc, perl, Security }:
+{ stdenv, lib, fetchurl, fetchgit, bison, glibc, bash, coreutils, makeWrapper, tzdata,
+iana_etc, perl, Security, IOKit }:
 
 let
   loader386 = "${glibc}/lib/ld-linux.so.2";
@@ -33,12 +34,13 @@ stdenv.mkDerivation {
     "/usr/lib/libsqlite3.dylib"
     "/usr/lib/libpam.2.dylib"
     "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation"
+    "/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit"
   ];
 
   # perl is used for testing go vet
   buildInputs = [ bison bash makeWrapper perl ]
              ++ lib.optionals stdenv.isLinux [ glibc ]
-             ++ lib.optionals stdenv.isDarwin [ Security ];
+             ++ lib.optionals stdenv.isDarwin [ Security IOKit ];
 
   # I'm not sure what go wants from its 'src', but the go installation manual
   # describes an installation keeping the src.
