@@ -7661,7 +7661,14 @@ let
     };
   };
 
-  numpy = buildPythonPackage ( rec {
+  numpy = let 
+    # openblas build is currently broken on OS X. Numpy checks
+    # (impurely, unfortunately) for the presence of the Accelerate
+    # framework, and will use it if it's available. So if this is a
+    # Darwin install, use the Accelerate framework instead of openblas.
+    _blas = if !stdenv.isDarwin then pkgs.openblas
+            else pkgs.darwin.apple_sdk.frameworks.Accelerate;
+    in buildPythonPackage ( rec {
     name = "numpy-1.8.2";
 
     src = pkgs.fetchurl {
@@ -7675,9 +7682,9 @@ let
       sed -i 's/-faltivec//' numpy/distutils/system_info.py
       sed -i '0,/from numpy.distutils.core/s//import setuptools;from numpy.distutils.core/' setup.py
     '';
-
+    
     preBuild = ''
-      export BLAS=${pkgs.openblas} LAPACK=${pkgs.openblas}
+      export BLAS=${_blas} LAPACK=${_blas}
     '';
 
     setupPyBuildFlags = ["--fcompiler='gnu95'"];
@@ -7686,7 +7693,7 @@ let
     doCheck = false;
 
     buildInputs = with self; [ pkgs.gfortran ];
-    propagatedBuildInputs = with self; [  pkgs.openblas ];
+    propagatedBuildInputs = [_blas];
 
     meta = {
       description = "Scientific tools for Python";
