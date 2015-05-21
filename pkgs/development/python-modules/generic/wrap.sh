@@ -20,7 +20,7 @@ wrapPythonProgramsIn() {
         if head -n1 "$i" | grep -q '#!.*/env.*\(python\|pypy\)'; then
             sed -i "$i" -e "1 s^.*/env[ ]*\(python\|pypy\)^#! $python^"
         fi
-        
+
         # catch /python and /.python-wrapped
         if head -n1 "$i" | grep -q '/\.\?\(python\|pypy\)'; then
             # dont wrap EGG-INFO scripts since they are called from python
@@ -35,17 +35,26 @@ wrapPythonProgramsIn() {
     done
 }
 
+# Adds the lib and bin directories to the PYTHONPATH and PATH variables,
+# respectively. Recurses on any paths declared in
+# `propagated-native-build-inputs`, while avoiding duplicating paths by
+# flagging the directories it has visited in `pythonPathsSeen`.
 _addToPythonPath() {
     local dir="$1"
+    # Stop if we've already visited here.
     if [ -n "${pythonPathsSeen[$dir]}" ]; then return; fi
     pythonPathsSeen[$dir]=1
+    # addToSearchPath is defined in stdenv/generic/setup.sh. It will have
+    # the effect of calling `export program_X=$dir/...:$program_X`.
     addToSearchPath program_PYTHONPATH $dir/lib/@libPrefix@/site-packages
     addToSearchPath program_PATH $dir/bin
+
+    # Inspect the propagated inputs (if they exist) and recur on them.
     local prop="$dir/nix-support/propagated-native-build-inputs"
     if [ -e $prop ]; then
-        local i
-        for i in $(cat $prop); do
-            _addToPythonPath $i
+        local new_path
+        for new_path in $(cat $prop); do
+            _addToPythonPath $new_path
         done
     fi
 }
