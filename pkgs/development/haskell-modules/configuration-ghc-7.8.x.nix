@@ -37,6 +37,9 @@ self: super: {
   unix = null;
   xhtml = null;
 
+  # https://github.com/peti/jailbreak-cabal/issues/9
+  jailbreak-cabal = super.jailbreak-cabal.override { Cabal = dontJailbreak self.Cabal_1_20_0_3; };
+
   # mtl 2.2.x needs the latest transformers.
   mtl_2_2_1 = super.mtl.override { transformers = self.transformers_0_4_3_0; };
 
@@ -74,6 +77,9 @@ self: super: {
   bound-gen = dontDistribute super.bound-gen;
   ghc-exactprint = dontDistribute super.ghc-exactprint;
   ghc-typelits-natnormalise = dontDistribute super.ghc-typelits-natnormalise;
+
+  # Needs directory >= 1.2.2.0.
+  idris = markBroken super.idris;
 
   # Newer versions require transformers 0.4.x.
   seqid = super.seqid_0_1_0;

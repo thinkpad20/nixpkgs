@@ -8,23 +8,11 @@
 , unicode ? true
 }:
 
+with stdenv.lib;
 let
-  mkFlag = trueStr: falseStr: cond: name: val:
-    if cond == null then null else
-      "--${if cond != false then trueStr else falseStr}${name}${if val != null && cond != false then "=${val}" else ""}";
-  mkEnable = mkFlag "enable-" "disable-";
-  mkWith = mkFlag "with-" "without-";
-  mkOther = mkFlag "" "" true;
-
-  shouldUsePkg = pkg_: let
-    pkg = (builtins.tryEval pkg_).value;
-  in if stdenv.lib.any (x: x == stdenv.system) (pkg.meta.platforms or [])
-    then pkg
-    else null;
-
   buildShared = !stdenv.isDarwin;
 
-  optGpm = shouldUsePkg gpm;
+  optGpm = stdenv.shouldUsePkg gpm;
 in
 stdenv.mkDerivation rec {
   name = "ncurses-5.9";
@@ -97,16 +85,16 @@ stdenv.mkDerivation rec {
     libs="$(find $out/lib -name \*w.a | sed 's,.*lib\(.*\)w.a.*,\1,g')"
     for lib in $libs; do
       if [ -e "$out/lib/lib''${lib}w.so" ]; then
-        echo "INPUT(-l''${lib}w)" > $out/lib/lib$lib.so
+        ln -svf lib''${lib}w.so $out/lib/lib$lib.so
+        ln -svf lib''${lib}w.so.${abiVersion} $out/lib/lib$lib.so.${abiVersion}
       fi
       ln -svf lib''${lib}w.a $out/lib/lib$lib.a
       ln -svf ''${lib}w.pc $out/lib/pkgconfig/$lib.pc
     done
 
     # Create curses compatability
-    echo "INPUT(-lncursesw)" > $out/lib/libcursesw.so
-    echo "INPUT(-lncursesw)" > $out/lib/libcurses.so
-    ln -svf libncurses
+    ln -svf libncursesw.so $out/lib/libcursesw.so
+    ln -svf libncursesw.so $out/lib/libcurses.so
   '' else ''
     # Create a non-abi versioned config
     cfg=$(basename $out/bin/ncurses*-config)
@@ -116,10 +104,10 @@ stdenv.mkDerivation rec {
     ln -svf . $out/include/ncurses
 
     # Create curses compatability
-    echo "INPUT(-lncurses)" > $out/lib/libcurses.so
+    ln -svf libncurses.so $out/lib/libcurses.so
   '';
 
-  meta = with stdenv.lib; {
+  meta = {
     description = "Free software emulation of curses in SVR4 and more";
 
     longDescription = ''

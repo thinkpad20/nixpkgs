@@ -41,21 +41,29 @@ self: super: {
   # Cabal_1_22_1_1 requires filepath >=1 && <1.4
   cabal-install = dontCheck (super.cabal-install.override { Cabal = null; });
 
-  # We have Cabal 1.22.x.
-  jailbreak-cabal = super.jailbreak-cabal.override { Cabal = null; };
+  # Don't use jailbreak built with Cabal 1.22.x because of https://github.com/peti/jailbreak-cabal/issues/9.
+  jailbreak-cabal = pkgs.haskell.packages.ghc784.jailbreak-cabal;
 
   # GHC 7.10.x's Haddock binary cannot generate hoogle files.
   # https://ghc.haskell.org/trac/ghc/ticket/9921
   mkDerivation = drv: super.mkDerivation (drv // { doHoogle = false; });
 
+  idris =
+    let idris' = overrideCabal super.idris (drv: {
+      # "idris" binary cannot find Idris library otherwise while building.
+      # After installing it's completely fine though.
+      # Seems like Nix-specific issue so not reported.
+      preBuild = ''
+        export LD_LIBRARY_PATH=$PWD/dist/build:$LD_LIBRARY_PATH
+      '';
+    });
+    in idris'.overrideScope (self: super: {
+      zlib = self.zlib_0_5_4_2;
+    });
+
   Extra = appendPatch super.Extra (pkgs.fetchpatch {
     url = "https://github.com/seereason/sr-extra/commit/29787ad4c20c962924b823d02a7335da98143603.patch";
     sha256 = "193i1xmq6z0jalwmq0mhqk1khz6zz0i1hs6lgfd7ybd6qyaqnf5f";
-  });
-
-  language-glsl = appendPatch super.language-glsl (pkgs.fetchpatch {
-    url = "https://patch-diff.githubusercontent.com/raw/noteed/language-glsl/pull/10.patch";
-    sha256 = "1d8dmfqw9y7v7dlszb7l3wp0vj77j950z2r3r0ar9mcvyrmfm4in";
   });
 
   # haddock: No input file(s).
@@ -180,35 +188,7 @@ self: super: {
   cubical = dontDistribute super.cubical;
 
   # contacted maintainer by e-mail
-  HList = markBrokenVersion "0.3.4.1" super.HList;
-  AspectAG = dontDistribute super.AspectAG;
-  Rlang-QQ = dontDistribute super.Rlang-QQ;
-  SyntaxMacros = dontDistribute super.SyntaxMacros;
-  expand = dontDistribute super.expand;
-  functional-arrow = dontDistribute super.functional-arrow;
-  guess-combinator = dontDistribute super.guess-combinator;
-  ihaskell-rlangqq = dontDistribute super.ihaskell-rlangqq;
-  ipopt-hs = dontDistribute super.ipopt-hs;
-  murder = dontDistribute super.murder;
-  netcore = dontDistribute super.netcore;
-  nettle-frp = dontDistribute super.nettle-frp;
-  nettle-netkit = dontDistribute super.nettle-netkit;
-  nettle-openflow = dontDistribute super.nettle-openflow;
-  oberon0 = dontDistribute super.oberon0;
-  poly-arity = dontDistribute super.poly-arity;
-  respond = dontDistribute super.respond;
-  semi-iso = dontDistribute super.semi-iso;
-  syntax = dontDistribute super.syntax;
-  syntax-attoparsec = dontDistribute super.syntax-attoparsec;
-  syntax-example = dontDistribute super.syntax-example;
-  syntax-example-json = dontDistribute super.syntax-example-json;
-  syntax-pretty = dontDistribute super.syntax-pretty;
-  syntax-printer = dontDistribute super.syntax-printer;
-  tuple-hlist = dontDistribute super.tuple-hlist;
-  tuple-morph = dontDistribute super.tuple-morph;
-
-  # contacted maintainer by e-mail
-  cmdlib = markBroken super.cmdlib;
+  cmdlib = markBrokenVersion "0.3.5" super.cmdlib;
   darcs-fastconvert = dontDistribute super.darcs-fastconvert;
   ivory-backend-c = dontDistribute super.ivory-backend-c;
   ivory-bitdata = dontDistribute super.ivory-bitdata;
@@ -232,7 +212,7 @@ self: super: {
   pell = dontDistribute super.pell;
   quadratic-irrational = dontDistribute super.quadratic-irrational;
 
-  # https://github.com/kazu-yamamoto/ghc-mod/issues/467
+  # https://github.com/kazu-yamamoto/ghc-mod/issues/437
   ghc-mod = markBroken super.ghc-mod;
   HaRe = dontDistribute super.HaRe;
   ghc-imported-from = dontDistribute super.ghc-imported-from;

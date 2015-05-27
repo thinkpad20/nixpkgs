@@ -8,8 +8,8 @@ self: super: {
   Cabal_1_18_1_6 = dontCheck super.Cabal_1_18_1_6;
   Cabal_1_20_0_3 = dontCheck super.Cabal_1_20_0_3;
   Cabal_1_22_3_0 = dontCheck super.Cabal_1_22_3_0;
-  cabal-install = dontCheck (super.cabal-install.override { Cabal = self.Cabal_1_22_3_0; zlib = self.zlib_0_5_4_2; });
-  cabal-install_1_18_1_0 = dontCheck (super.cabal-install_1_18_1_0.override { Cabal = self.Cabal_1_18_1_6; zlib = self.zlib_0_5_4_2; });
+  cabal-install = (dontCheck super.cabal-install).overrideScope (self: super: { Cabal = self.Cabal_1_22_3_0; zlib = self.zlib_0_5_4_2; });
+  cabal-install_1_18_1_0 = (dontCheck super.cabal-install_1_18_1_0).overrideScope (self: super: { Cabal = self.Cabal_1_18_1_6; zlib = self.zlib_0_5_4_2; });
 
   # Break infinite recursions.
   Dust-crypto = dontCheck super.Dust-crypto;
@@ -115,9 +115,6 @@ self: super: {
   # Cannot compile its own test suite: https://github.com/haskell/network-uri/issues/10.
   network-uri = dontCheck super.network-uri;
 
-  # Agda-2.4.2.2 needs these overrides to compile.
-  Agda = super.Agda.override { equivalence = self.equivalence_0_2_5; cpphs = self.cpphs_1_18_9; };
-
   # Help libconfig find it's C language counterpart.
   libconfig = (dontCheck super.libconfig).override { config = pkgs.libconfig; };
 
@@ -168,7 +165,6 @@ self: super: {
   ASN1 = dontDistribute super.ASN1;                             # NewBinary
   frame-markdown = dontDistribute super.frame-markdown;         # frame
   hails-bin = dontDistribute super.hails-bin;                   # Hails
-  hbro-contrib = dontDistribute super.hbro-contrib;             # hbro
   lss = markBrokenVersion "0.1.0.0" super.lss;                  # https://github.com/dbp/lss/issues/2
   snaplet-lss = markBrokenVersion "0.1.0.0" super.snaplet-lss;  # https://github.com/dbp/lss/issues/2
 
@@ -312,9 +308,11 @@ self: super: {
   scotty-binding-play = dontCheck super.scotty-binding-play;
   slack-api = dontCheck super.slack-api;                # https://github.com/mpickering/slack-api/issues/5
   stackage = dontCheck super.stackage;                  # http://hydra.cryp.to/build/501867/nixlog/1/raw
+  textocat-api = dontCheck super.textocat-api;          # http://hydra.cryp.to/build/887011/log/raw
   warp = dontCheck super.warp;                          # http://hydra.cryp.to/build/501073/nixlog/5/raw
   wreq = dontCheck super.wreq;                          # http://hydra.cryp.to/build/501895/nixlog/1/raw
   wreq-sb = dontCheck super.wreq-sb;                    # http://hydra.cryp.to/build/783948/log/raw
+  wuss = dontCheck super.wuss;                          # http://hydra.cryp.to/build/875964/nixlog/2/raw
 
   # https://github.com/NICTA/digit/issues/3
   digit = dontCheck super.digit;
@@ -680,11 +678,8 @@ self: super: {
   # https://github.com/junjihashimoto/test-sandbox-compose/issues/2
   test-sandbox-compose = dontCheck super.test-sandbox-compose;
 
-  # https://github.com/jgm/pandoc/issues/2156
-  pandoc = overrideCabal (dontJailbreak super.pandoc) (drv: {
-    doCheck = false;    # https://github.com/jgm/pandoc/issues/2036
-    patchPhase = "sed -i -e 's|zlib .*,|zlib,|' -e 's|QuickCheck .*,|QuickCheck,|' pandoc.cabal";
-  });
+  # https://github.com/jgm/pandoc/issues/2036
+  pandoc = dontCheck super.pandoc;
 
   # Broken by GLUT update.
   Monadius = markBroken super.Monadius;
@@ -810,24 +805,34 @@ self: super: {
   # Obsolete for GHC versions after GHC 6.10.x.
   utf8-prelude = markBroken super.utf8-prelude;
 
-  # https://github.com/jgm/cheapskate/issues/11
-  cheapskate = markBrokenVersion "0.1.0.3" super.cheapskate;
-  lit = dontDistribute super.lit;
-
-  # https://github.com/snapframework/snap/issues/148
-  snap = overrideCabal super.snap (drv: {
-    patchPhase = "sed -i -e 's|attoparsec.*>=.*,|attoparsec,|' -e 's|lens.*>=.*|lens|' snap.cabal";
-  });
-
-  # https://github.com/jwiegley/gitlib/issues/46
-  gitlib = markBroken super.gitlib;
-  gitlib-sample = dontDistribute super.gitlib-sample;
-  gitlib-test = dontDistribute super.gitlib-test;
-
   # https://github.com/yaccz/saturnin/issues/3
   Saturnin = dontCheck super.Saturnin;
 
   # https://github.com/kolmodin/binary/issues/74
   binary_0_7_4_0 = dontCheck super.binary_0_7_4_0;
+
+  # https://github.com/kkardzis/curlhs/issues/6
+  curlhs = dontCheck super.curlhs;
+
+  # https://github.com/haskell-servant/servant-server/issues/45
+  servant-server = markBroken super.servant-server;
+  servant-client = dontDistribute super.servant-client;
+  servant-jquery = dontDistribute super.servant-jquery;
+  language-puppet = dontDistribute super.language-puppet;
+
+  # This needs the latest version of errors to compile.
+  pipes-errors_0_3 = super.pipes-errors_0_3.override { errors = self.errors_2_0_0; };
+
+  # https://github.com/hvr/token-bucket/issues/3
+  token-bucket = dontCheck super.token-bucket;
+
+  # https://github.com/kawu/text-binary/issues/2
+  text-binary = appendPatch super.text-binary (pkgs.fetchpatch {
+    url = "https://github.com/RyanGlScott/text-binary/commit/608e0ce86a9a7591dbfe83f7cbb36b8d8ebd07b8.patch";
+    sha256 = "1rk5rgb5lsykpvylz77hzxyflxzlmi3fi06rf0yqg2vvrnri83f1";
+  });
+
+  # https://github.com/alphaHeavy/lzma-enumerator/issues/3
+  lzma-enumerator = dontCheck super.lzma-enumerator;
 
 }

@@ -1,6 +1,6 @@
 { go, govers, lib }:
 
-{ name, buildInputs ? []
+{ name, buildInputs ? [], passthru ? {}
 
 # Disabled flag
 , disabled ? false
@@ -54,8 +54,9 @@ go.stdenv.mkDerivation (
 
   renameImports = args.renameImports or (
     let
-      inputsWithAliases = lib.filter (x: x ? goPackageAliases) buildInputs;
-      rename = to: from: "echo Renaming '${from}' to '${to}'; govers -m ${from} ${to}";
+      inputsWithAliases = lib.filter (x: x ? goPackageAliases)
+        (buildInputs ++ (args.propagatedBuildInputs or [ ]));
+      rename = to: from: "echo Renaming '${from}' to '${to}'; govers -d -m ${from} ${to}";
       renames = p: lib.concatMapStringsSep "\n" (rename p.goPackagePath) p.goPackageAliases;
     in lib.concatMapStringsSep "\n" renames inputsWithAliases);
 
@@ -71,6 +72,7 @@ go.stdenv.mkDerivation (
     else
         (cd go/src
         find $goPackagePath -type f -name \*.go -exec dirname {} \; | sort | uniq | while read d; do
+            echo "$d" | grep -q "/_" && continue
             [ -n "$excludedPackages" ] && echo "$d" | grep -q "$excludedPackages" && continue
             local OUT
             if ! OUT="$(go install $buildFlags "''${buildFlagsArray[@]}" -p $NIX_BUILD_CORES -v $d 2>&1)"; then
@@ -79,7 +81,9 @@ go.stdenv.mkDerivation (
                     exit 1
                 fi
             fi
-            echo "$OUT" >&2
+            if [ -n "$OUT" ]; then
+              echo "$OUT" >&2
+            fi
         done)
     fi
 
@@ -109,12 +113,12 @@ go.stdenv.mkDerivation (
     mkdir -p $out
 
     if [ -z "$dontInstallSrc" ]; then
-        local dir
-        for d in pkg src; do
-            mkdir -p $out/share/go
-            dir="$NIX_BUILD_TOP/go/$d"
-            [ -e "$dir" ] && cp -r $dir $out/share/go
-        done
+        (cd "$NIX_BUILD_TOP/go"
+        find . -type f | while read f; do
+          echo "$f" | grep -q '^./\(src\|pkg/[^/]*\)/${goPackagePath}' || continue
+          mkdir -p "$(dirname "$out/share/go/$f")"
+          cp $NIX_BUILD_TOP/go/$f $out/share/go/$f
+        done)
     fi
 
     dir="$NIX_BUILD_TOP/go/bin"
@@ -123,9 +127,12 @@ go.stdenv.mkDerivation (
     runHook postInstall
   '';
 
-  passthru = lib.optionalAttrs (goPackageAliases != []) { inherit goPackageAliases; };
+  passthru = passthru // lib.optionalAttrs (goPackageAliases != []) { inherit goPackageAliases; };
 
-  meta = meta // {
+  meta = {
+    # Add default meta information
+    platforms = lib.platforms.all;
+  } // meta // {
     # add an extra maintainer to every package
     maintainers = (meta.maintainers or []) ++
                   [ lib.maintainers.emery lib.maintainers.lethalman ];

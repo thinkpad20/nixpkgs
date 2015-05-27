@@ -252,6 +252,7 @@
   ./services/networking/atftpd.nix
   ./services/networking/avahi-daemon.nix
   ./services/networking/bind.nix
+  ./services/networking/bird.nix
   ./services/networking/bitlbee.nix
   ./services/networking/btsync.nix
   ./services/networking/charybdis.nix
@@ -265,6 +266,7 @@
   ./services/networking/dhcpd.nix
   ./services/networking/dnscrypt-proxy.nix
   ./services/networking/dnsmasq.nix
+  ./services/networking/docker-registry-server.nix
   ./services/networking/ejabberd.nix
   ./services/networking/firefox/sync-server.nix
   ./services/networking/firewall.nix
@@ -305,6 +307,7 @@
   ./services/networking/privoxy.nix
   ./services/networking/prosody.nix
   ./services/networking/quassel.nix
+  ./services/networking/racoon.nix
   ./services/networking/radicale.nix
   ./services/networking/radvd.nix
   ./services/networking/rdnssd.nix
@@ -405,12 +408,14 @@
   ./services/x11/xserver.nix
   ./system/activation/activation-script.nix
   ./system/activation/top-level.nix
+  ./system/boot/coredump.nix
   ./system/boot/emergency-mode.nix
   ./system/boot/kernel.nix
   ./system/boot/kexec.nix
   ./system/boot/loader/efi.nix
   ./system/boot/loader/loader.nix
   ./system/boot/loader/generations-dir/generations-dir.nix
+  ./system/boot/loader/generic-extlinux-compatible
   ./system/boot/loader/grub/grub.nix
   ./system/boot/loader/grub/ipxe.nix
   ./system/boot/loader/grub/memtest.nix
