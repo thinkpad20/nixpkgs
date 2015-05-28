@@ -7818,16 +7818,47 @@ let
     '';
 
     preBuild = ''
-      export BLAS=${pkgs.openblas} LAPACK=${pkgs.openblas}
+      echo "Creating site.cfg file..."
+      cat << EOF > site.cfg
+      [atlas]
+      include_dirs = ${pkgs.atlasWithLapack}/include
+      library_dirs = ${pkgs.atlasWithLapack}/lib
+      EOF
     '';
 
     setupPyBuildFlags = ["--fcompiler='gnu95'"];
 
-    # error: invalid command 'test'
-    doCheck = false;
+    buildInputs = with self; [ pkgs.gfortran nose ];
+    propagatedBuildInputs = with self; [ pkgs.atlas ];
 
-    buildInputs = with self; [ pkgs.gfortran ];
-    propagatedBuildInputs = with self; [  pkgs.openblas ];
+    checkPhase = ''
+      runHook preCheck
+
+      _python=${python}/bin/${python.executable}
+
+      # We will "install" into a temp directory, so that we can run the numpy
+      # tests (see below).
+      install_dir="$TMPDIR/test_install"
+      install_lib="$install_dir/lib/${python.libPrefix}/site-packages"
+      mkdir -p $install_dir
+      $_python setup.py install \
+        --install-lib=$install_lib \
+        --old-and-unmanageable \
+        --prefix=$install_dir > /dev/null
+
+      # Create a directory to run tests in (numpy complains if you try to
+      # import it when you're in this directory).
+      mkdir $TMPDIR/run_tests
+      pushd $TMPDIR/run_tests > /dev/null
+      # Temporarily add the directory we installed in to the python path
+      # (not permanently, or this pythonpath will wind up getting exported),
+      # and run numpy's test suite.
+      PYTHONPATH="$install_lib:$PYTHONPATH" $_python -c \
+        'import numpy; numpy.test("fast", verbose=10)'
+      popd > /dev/null
+
+      runHook postCheck
+    '';
 
     meta = {
       description = "Scientific tools for Python";
