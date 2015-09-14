@@ -5121,6 +5121,9 @@ let
   python34 = hiPrio (callPackage ../development/interpreters/python/3.4 {
     self = python34;
   });
+  python35 = hiPrio (callPackage ../development/interpreters/python/3.5 {
+    self = python35;
+  });
   pypy = callPackage ../development/interpreters/pypy {
     self = pypy;
   };
@@ -8780,6 +8783,11 @@ let
   python34Packages = recurseIntoAttrs (callPackage ./python-packages.nix {
     python = python34;
     self = python34Packages;
+  });
+
+  python35Packages = recurseIntoAttrs (callPackage ./python-packages.nix {
+    python = python35;
+    self = python35Packages;
   });
 
   pypyPackages = recurseIntoAttrs (callPackage ./python-packages.nix {
