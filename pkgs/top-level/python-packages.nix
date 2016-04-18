@@ -3561,7 +3561,10 @@ in modules // {
     };
   };
 
-  covCore = buildPythonPackage rec {
+  # Rename for backwards compatibility
+  covCore = self.cov-core;
+
+  cov-core = buildPythonPackage rec {
     name = "cov-core-1.15.0";
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/c/cov-core/${name}.tar.gz";
@@ -3570,7 +3573,7 @@ in modules // {
     meta = {
       description = "plugin core for use by pytest-cov, nose-cov and nose2-cov";
     };
-    propagatedBuildInputs = with self; [ self.coverage ];
+    propagatedBuildInputs = [self.coverage];
   };
 
   crcmod = buildPythonPackage rec {
@@ -10331,7 +10334,6 @@ in modules // {
   httpretty = buildPythonPackage rec {
     name = "httpretty-${version}";
     version = "0.8.6";
-    disabled = isPy3k;
     doCheck = false;
 
     src = pkgs.fetchurl {
@@ -10353,6 +10355,8 @@ in modules // {
       --- 566 ----
       !                 'content-length': str(len(self.body))
       DIFF
+      ${if !self.isPy3k then "" else
+        "patch -p0 -i ${../development/python-modules/httpretty/setup.py.patch}"}
     '';
 
     meta = {
@@ -13247,7 +13251,16 @@ in modules // {
     blas = pkgs.openblasCompat;
   };
 
-  numpy = self.numpy_1_11;
+  numpy = self.numpy_1_9;
+
+  numpy_1_9 = self.buildNumpyPackage rec {
+    version = "1.9.2";
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/n/numpy/numpy-${version}.tar.gz";
+      sha256 = "0apgmsk9jlaphb2dp1zaxqzdxkf69h1y3iw2d1pcnkj31cmmypij";
+    };
+  };
+
 
   numpy_1_10 = self.buildNumpyPackage rec {
     version = "1.10.4";
@@ -13571,7 +13584,6 @@ in modules // {
 
   ordereddict = buildPythonPackage rec {
     name = "ordereddict-1.1";
-    disabled = !isPy26;
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/o/ordereddict/${name}.tar.gz";
@@ -19453,7 +19465,7 @@ in modules // {
     gfortran = pkgs.gfortran;
   };
 
-  scipy = self.scipy_0_17;
+  scipy = self.scipy_0_16;
 
   scipy_0_16 = self.buildScipyPackage rec {
     version = "0.16.1";
@@ -19461,7 +19473,7 @@ in modules // {
       url = "https://pypi.python.org/packages/source/s/scipy/scipy-${version}.tar.gz";
       sha256 = "ecd1efbb1c038accb0516151d1e6679809c6010288765eb5da6051550bf52260";
     };
-    numpy = self.numpy_1_10;
+    numpy = self.numpy;
   };
 
   scipy_0_17 = self.buildScipyPackage rec {
@@ -19968,7 +19980,7 @@ in modules // {
     disabled = isPyPy || isPy26 || isPy27;
 
     checkPhase = ''
-    ${python.interpreter} test/*.py
+    ${python.interpreter} test/*.py     #*/
     '';
     meta = {
       description = "Simple and extensible IRC bot";
@@ -20728,7 +20740,35 @@ in modules // {
     };
   };
 
-  sqlalchemy = buildPythonPackage rec {
+  sqlalchemy9 = buildPythonPackage rec {
+    name = "SQLAlchemy-0.9.9";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/S/SQLAlchemy/${name}.tar.gz";
+      sha256 = "14az6hhrz4bgnicz4q373z119zmaf7j5zxl1jfbfl5lix5m1z9bj";
+    };
+
+    buildInputs = with self; [ nose mock ]
+      ++ stdenv.lib.optional doCheck pysqlite;
+    propagatedBuildInputs = with self; [ modules.sqlite3 ];
+
+    # Test-only dependency pysqlite doesn't build on Python 3. This isn't an
+    # acceptable reason to make all dependents unavailable on Python 3 as well
+    doCheck = !(isPyPy || isPy3k);
+
+    checkPhase = ''
+      ${python.executable} sqla_nose.py
+    '';
+
+    meta = {
+      homepage = http://www.sqlalchemy.org/;
+      description = "A Python SQL toolkit and Object Relational Mapper";
+    };
+  };
+
+  sqlalchemy = self.sqlalchemy_1_0;
+
+  sqlalchemy_1_0 = buildPythonPackage rec {
     name = "SQLAlchemy-${version}";
     version = "1.0.12";
 
