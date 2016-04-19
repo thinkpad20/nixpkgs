@@ -1,4 +1,8 @@
-{ pkgs, stdenv, python, self }:
+{ pkgs, stdenv, python, self,
+  defaultScipyVersion ? "0.16",
+  defaultNumpyVersion ? "1.10",
+  defaultSqlalchemyVersion ? "1.0"
+}:
 
 with pkgs.lib;
 
@@ -13251,7 +13255,13 @@ in modules // {
     blas = pkgs.openblasCompat;
   };
 
-  numpy = self.numpy_1_9;
+  numpy = if defaultNumpyVersion == "1.11" then self.numpy_1_11
+          else if defaultNumpyVersion == "1.10" then self.numpy_1_10
+          else if defaultNumpyVersion == "1.9" then self.numpy_1_9
+          else throw "Unsupported numpy version: ${defaultNumpyVersion}";
+
+  # Overload the default numpy version
+  withNumpy = newNumpy: self // {numpy = newNumpy;};
 
   numpy_1_9 = self.buildNumpyPackage rec {
     version = "1.9.2";
@@ -19465,7 +19475,9 @@ in modules // {
     gfortran = pkgs.gfortran;
   };
 
-  scipy = self.scipy_0_16;
+  scipy = if defaultScipyVersion == "0.17" then self.scipy_0_17
+          else if defaultScipyVersion == "0.16" then self.scipy_0_16
+          else throw "Unsupported scipy version: ${defaultScipyVersion}";
 
   scipy_0_16 = self.buildScipyPackage rec {
     version = "0.16.1";
@@ -19980,7 +19992,7 @@ in modules // {
     disabled = isPyPy || isPy26 || isPy27;
 
     checkPhase = ''
-    ${python.interpreter} test/*.py     #*/
+    ${python.interpreter} test/*.py     #*/ unconfuse emacs nix mode
     '';
     meta = {
       description = "Simple and extensible IRC bot";
@@ -20678,6 +20690,13 @@ in modules // {
     rope = if isPy3k then null else self.rope;
   };
 
+  sqlalchemy =
+    if defaultSqlalchemyVersion == "0.7" then self.sqlalchemy7
+    else if defaultSqlalchemyVersion == "0.8" then self.sqlalchemy8
+    else if defaultSqlalchemyVersion == "0.9" then self.sqlalchemy9
+    else if defaultSqlalchemyVersion == "1.0" then self.sqlalchemy_1_0
+    else throw "Unsupported sqlalchemy version: ${defaultSqlalchemyVersion}";
+
   sqlalchemy7 = buildPythonPackage rec {
     name = "SQLAlchemy-0.7.10";
     disabled = isPy34 || isPy35;
@@ -20765,8 +20784,6 @@ in modules // {
       description = "A Python SQL toolkit and Object Relational Mapper";
     };
   };
-
-  sqlalchemy = self.sqlalchemy_1_0;
 
   sqlalchemy_1_0 = buildPythonPackage rec {
     name = "SQLAlchemy-${version}";
