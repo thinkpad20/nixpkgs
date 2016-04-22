@@ -9747,7 +9747,7 @@ in modules // {
 
   gevent = buildPythonPackage rec {
     name = "gevent-1.0.2";
-    disabled = isPy3k || isPyPy;  # see https://github.com/surfly/gevent/issues/248
+    disabled = isPyPy;  # see https://github.com/surfly/gevent/issues/248
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/g/gevent/${name}.tar.gz";
@@ -10361,7 +10361,6 @@ in modules // {
   httpretty = buildPythonPackage rec {
     name = "httpretty-${version}";
     version = "0.8.6";
-    disabled = isPy3k;
     doCheck = false;
 
     src = pkgs.fetchurl {
@@ -10383,6 +10382,9 @@ in modules // {
       --- 566 ----
       !                 'content-length': str(len(self.body))
       DIFF
+
+      ${if !self.isPy3k then "" else
+        "patch -p0 -i ${../development/python-modules/httpretty/setup.py.patch}"}
     '';
 
     meta = {
@@ -13277,7 +13279,15 @@ in modules // {
     blas = pkgs.openblasCompat;
   };
 
-  numpy = self.numpy_1_11;
+  numpy = self.numpy_1_10;
+
+  numpy_1_9 = self.buildNumpyPackage rec {
+    version = "1.9.2";
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/n/numpy/numpy-${version}.tar.gz";
+      sha256 = "0apgmsk9jlaphb2dp1zaxqzdxkf69h1y3iw2d1pcnkj31cmmypij";
+    };
+  };
 
   numpy_1_10 = self.buildNumpyPackage rec {
     version = "1.10.4";
@@ -13601,7 +13611,6 @@ in modules // {
 
   ordereddict = buildPythonPackage rec {
     name = "ordereddict-1.1";
-    disabled = !isPy26;
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/o/ordereddict/${name}.tar.gz";
@@ -19528,7 +19537,7 @@ in modules // {
       url = "https://pypi.python.org/packages/source/s/scipy/scipy-${version}.tar.gz";
       sha256 = "ecd1efbb1c038accb0516151d1e6679809c6010288765eb5da6051550bf52260";
     };
-    numpy = self.numpy_1_10;
+    numpy = self.numpy;
   };
 
   scipy_0_17 = self.buildScipyPackage rec {
@@ -20035,7 +20044,7 @@ in modules // {
     disabled = isPyPy || isPy26 || isPy27;
 
     checkPhase = ''
-    ${python.interpreter} test/*.py
+    ${python.interpreter} test/*.py                     #*/ unconfuse emacs
     '';
     meta = {
       description = "Simple and extensible IRC bot";
@@ -20795,7 +20804,9 @@ in modules // {
     };
   };
 
-  sqlalchemy = buildPythonPackage rec {
+  sqlalchemy = sqlalchemy_1_0;
+
+  sqlalchemy_1_0 = buildPythonPackage rec {
     name = "SQLAlchemy-${version}";
     version = "1.0.12";
 

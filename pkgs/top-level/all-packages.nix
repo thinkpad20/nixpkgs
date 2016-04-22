@@ -6002,7 +6002,7 @@ in
 
   gnome_doc_utils = callPackage ../development/tools/documentation/gnome-doc-utils {};
 
-  gnum4 = callPackage ../development/tools/misc/gnum4 { };
+  gnum4 = callPackage ../development/tools/misc/gnum4 {};
 
   gnumake380 = callPackage ../development/tools/build-managers/gnumake/3.80 { };
   gnumake381 = callPackage ../development/tools/build-managers/gnumake/3.81 { };
