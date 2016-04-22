@@ -1,17 +1,13 @@
 { lib, fetchurl, stdenv, zlib, lzo, libtasn1, nettle, pkgconfig, lzip
 , guileBindings, guile, perl, gmp, autogen, libidn, p11_kit, unbound, libiconv
-, tpmSupport ? false, trousers, nettools, bash
+, tpmSupport ? false, trousers, nettools, bash, doCheck ? true
 
 # Version dependent args
 , version, src, patches ? [], postPatch ? "", nativeBuildInputs ? []
 , ...}:
 
 assert guileBindings -> guile != null;
-let
-  # XXX: Gnulib's `test-select' fails on FreeBSD:
-  # http://hydra.nixos.org/build/2962084/nixlog/1/raw .
-  doCheck = !stdenv.isFreeBSD && !stdenv.isDarwin && lib.versionAtLeast version "3.4";
-in
+
 stdenv.mkDerivation {
   name = "gnutls-${version}";
 
@@ -45,7 +41,9 @@ stdenv.mkDerivation {
 
   nativeBuildInputs = [ perl pkgconfig ] ++ nativeBuildInputs;
 
-  inherit doCheck;
+  # XXX: Gnulib's `test-select' fails on FreeBSD:
+  # http://hydra.nixos.org/build/2962084/nixlog/1/raw .
+  doCheck = doCheck && !stdenv.isFreeBSD && !stdenv.isDarwin && lib.versionAtLeast version "3.4";
 
   # Fixup broken libtool and pkgconfig files
   preFixup = lib.optionalString (!stdenv.isDarwin) ''

@@ -1,0 +1,18 @@
+--- src/libstore/build.cc       2016-07-18 15:46:37.903395959 +0000
++++ src/libstore/build.cc.new   2016-07-18 15:46:50.350615554 +0000
+@@ -3346,7 +3346,7 @@
+
+         hash = hashPath(htSHA256, destPath);
+
+-        /* Verify the expected hash we got from the substituer. */
++        /* Verify the expected hash we got from the substituer.
+         if (expectedHashStr != "") {
+             size_t n = expectedHashStr.find(':');
+             if (n == string::npos)
+@@ -3360,6 +3360,7 @@
+                 throw SubstError(format("hash mismatch in downloaded path ‘%1%’: expected %2%, got %3%")
+                     % storePath % printHash(expectedHash) % printHash(actualHash));
+         }
++        */
+
+     } catch (SubstError & e) {

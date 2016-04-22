@@ -3034,6 +3034,7 @@ in {
       [ self.dateutil
         self.requests2
         self.jmespath
+        self.docutils
       ];
 
     buildInputs = with self; [ docutils mock nose ];
@@ -4730,6 +4731,8 @@ in {
     patchPhase = ''
       substituteInPlace testing/cffi0/test_ownlib.py --replace "gcc" "cc"
     '';
+
+    doCheck = !stdenv.isDarwin;
 
     checkPhase = ''
       py.test
@@ -11639,7 +11642,7 @@ in {
       downloadPage = https://github.com/PythonCharmers/python-future/releases;
       license = licenses.mit;
       maintainers = with maintainers; [ prikhi ];
-      platforms = platforms.linux;
+      platforms = platforms.unix;
     };
   };
 
@@ -12060,8 +12063,7 @@ in {
 
   google_apputils = buildPythonPackage rec {
     name = "google-apputils-0.4.1";
-    disabled = isPy3k;
-
+    dontStrip = true;
     src = pkgs.fetchurl {
       url = "mirror://pypi/g/google-apputils/${name}.tar.gz";
       sha256 = "1sxsm5q9vr44qzynj8l7p3l7ffb0zl1jdqhmmzmalkx941nbnj1b";
@@ -15893,7 +15895,15 @@ in {
     blas = pkgs.openblasCompat;
   };
 
-  numpy = self.numpy_1_11;
+  numpy = self.numpy_1_10;
+
+  numpy_1_9 = self.buildNumpyPackage rec {
+    version = "1.9.2";
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/n/numpy/numpy-${version}.tar.gz";
+      sha256 = "0apgmsk9jlaphb2dp1zaxqzdxkf69h1y3iw2d1pcnkj31cmmypij";
+    };
+  };
 
   numpy_1_10 = self.buildNumpyPackage rec {
     version = "1.10.4";
@@ -19010,29 +19020,34 @@ in {
   protobuf2_5 = self.protobufBuild pkgs.protobuf2_5;
   protobufBuild = protobuf: buildPythonPackage rec {
     inherit (protobuf) name src;
-    disabled = isPy3k || isPyPy;
+    atLeast3 = versionAtLeast protobuf.version "3.0.0";
+    atLeast2 = versionAtLeast protobuf.version "2.6.0";
+    disabled = (!atLeast3 && isPy3k) || isPyPy;
 
+    buildInputs = optional atLeast3 self.nose;
     propagatedBuildInputs = with self; [ protobuf google_apputils ];
 
-    prePatch = ''
+    prePatch = if atLeast3 then "cd python" else ''
       while [ ! -d python ]; do
         cd *
       done
       cd python
     '';
 
-    preConfigure = optionalString (versionAtLeast protobuf.version "2.6.0") ''
+    preConfigure = optionalString (atLeast2 && !atLeast3) ''
       PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=cpp
       PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION_VERSION=2
     '';
 
-    checkPhase = if versionAtLeast protobuf.version "2.6.0" then ''
+    checkPhase = if atLeast3 then ''
+      nosetests google/protobuf/internal
+    '' else if atLeast2 then ''
       ${python.executable} setup.py google_test --cpp_implementation
     '' else ''
       ${python.executable} setup.py test
     '';
 
-    installFlags = optional (versionAtLeast protobuf.version "2.6.0") "--install-option='--cpp_implementation'";
+    installFlags = optional atLeast2 "--install-option='--cpp_implementation'";
 
     doCheck = true;
 
@@ -20104,10 +20119,16 @@ in {
         sha256 = "2fe3cc2fc66a56fdc35dbbc2bf1dd96a534abfc79ee6b2ad9ae4fe166e570c4b";
     };
 
+    buildInputs = [self.nose];
     propagatedBuildInputs = with self; [ astroid ];
 
+    doCheck = false;
+
     checkPhase = ''
-        cd pylint/test; ${python.interpreter} -m unittest discover -p "*test*"
+      (
+        cd pylint/test
+        ${python.interpreter} -m unittest discover -p "*test*"
+      )
     '';
 
     postInstall = ''
@@ -23316,7 +23337,7 @@ in {
     disabled = isPyPy || isPy26 || isPy27;
 
     checkPhase = ''
-    ${python.interpreter} test/*.py                                         #*/
+      ${python.interpreter} test/*.py
     '';
     meta = {
       description = "Simple and extensible IRC bot";
@@ -25417,7 +25438,7 @@ in {
       description = "Twitter library for python";
       license = licenses.mit;
       maintainers = with maintainers; [ garbas ];
-      platforms = platforms.linux;
+      platforms = platforms.unix;
     };
   });
 

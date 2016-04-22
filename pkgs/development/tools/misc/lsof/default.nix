@@ -1,10 +1,10 @@
-{ stdenv, fetchurl, ncurses }:
+{ stdenv, fetchurl, ncurses, which }:
 
 stdenv.mkDerivation rec {
   name = "lsof-${version}";
   version = "4.89";
 
-  buildInputs = [ ncurses ];
+  buildInputs = [ ncurses which ];
 
   src = fetchurl {
     urls =
@@ -24,7 +24,7 @@ stdenv.mkDerivation rec {
   };
 
   unpackPhase = "tar xvjf $src; cd lsof_*; tar xvf lsof_*.tar; sourceRoot=$( echo lsof_*/); ";
- 
+
   patches = [ ./dfile.patch ];
 
   configurePhase = ''
@@ -32,11 +32,10 @@ stdenv.mkDerivation rec {
     export LSOF_INCLUDE=${stdenv.cc.libc}/include
     ./Configure -n ${if stdenv.isDarwin then "darwin" else "linux"}
   '';
-  
+
   preBuild = ''
     sed -i Makefile -e 's/^CFGF=/&	-DHASIPv6=1/;' -e 's/-lcurses/-lncurses/'
   '';
-
 
   installPhase = ''
     mkdir -p $out/bin $out/man/man8

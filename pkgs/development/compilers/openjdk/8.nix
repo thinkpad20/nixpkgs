@@ -97,6 +97,8 @@ let
       chmod +x configure
       substituteInPlace configure --replace /bin/bash "$shell"
       substituteInPlace hotspot/make/linux/adlc_updater --replace /bin/sh "$shell"
+      substituteInPlace hotspot/make/linux/makefiles/dtrace.make \
+        --replace /usr/include /dev/null
     '';
 
     configureFlags = [

@@ -1,4 +1,4 @@
-{ stdenv, lib, fetchurl, pkgconfig, expat, systemd
+{ stdenv, lib, fetchurl, pkgconfig, expat, systemd, glib, dbus_glib, python
 , libX11 ? null, libICE ? null, libSM ? null, x11Support ? (stdenv.isLinux || stdenv.isDarwin) }:
 
 assert x11Support -> libX11 != null
@@ -6,8 +6,8 @@ assert x11Support -> libX11 != null
                   && libSM != null;
 
 let
-  version = "1.10.12";
-  sha256 = "0pa71vf5c0d7k3gni06iascmplj0j5g70wbc833ayvi71d1pj2i1";
+  version = "1.8.20";
+  sha256 = "0fkh3d5r57a659hw9lqnw4v0bc5556vx54fsf7l9c732ci6byksw";
 
 self =  stdenv.mkDerivation {
     name = "dbus-${version}";
@@ -17,7 +17,8 @@ self =  stdenv.mkDerivation {
       inherit sha256;
     };
 
-    patches = lib.optional stdenv.isSunOS ./implement-getgrouplist.patch;
+    patches = [ ./ignore-missing-includedirs.patch ]
+      ++ lib.optional stdenv.isSunOS ./implement-getgrouplist.patch;
     postPatch = ''
       substituteInPlace tools/Makefile.in \
         --replace 'install-localstatelibDATA:' 'disabled:' \
@@ -27,12 +28,12 @@ self =  stdenv.mkDerivation {
         --replace '$(mkinstalldirs) $(DESTDIR)$(localstatedir)/run/dbus' ':'
     '' + /* cleanup of runtime references */ ''
       substituteInPlace ./dbus/dbus-sysdeps-unix.c \
-        --replace 'DBUS_BINDIR "/dbus-launch"' "\"$lib/bin/dbus-launch\""
+        --replace 'DBUS_BINDIR "/dbus-launch"' "\"$out/bin/dbus-launch\""
       substituteInPlace ./tools/dbus-launch.c \
-        --replace 'DBUS_DAEMONDIR"/dbus-daemon"' '"/run/current-system/sw/bin/dbus-daemon"'
+        --replace 'DBUS_DAEMONDIR"/dbus-daemon"' "\"$out/bin/dbus-daemon\""
     '';
 
-    outputs = [ "out" "dev" "lib" "doc" ];
+    outputs = [ "dev" "out" "doc" ];
 
     nativeBuildInputs = [ pkgconfig ];
     propagatedBuildInputs = [ expat ];
@@ -44,11 +45,7 @@ self =  stdenv.mkDerivation {
       "--localstatedir=/var"
       "--sysconfdir=/etc"
       "--with-session-socket-dir=/tmp"
-      "--with-system-pid-file=/run/dbus/pid"
-      "--with-system-socket=/run/dbus/system_bus_socket"
       "--with-systemdsystemunitdir=$(out)/etc/systemd/system"
-      "--with-systemduserunitdir=$(out)/etc/systemd/user"
-      "--enable-user-session"
       # this package installs nothing into those dirs and they create a dependency
       "--datadir=/run/current-system/sw/share"
       "--libexecdir=$(out)/libexec" # we don't need dbus-daemon-launch-helper
@@ -66,14 +63,9 @@ self =  stdenv.mkDerivation {
 
     installFlags = "sysconfdir=$(out)/etc datadir=$(out)/share";
 
-    # it's executed from $lib by absolute path
-    postFixup = ''
-      moveToOutput bin/dbus-launch "$lib"
-      ln -s "$lib/bin/dbus-launch" "$out/bin/"
-    '';
-
     passthru = {
-      dbus-launch = "${self.lib}/bin/dbus-launch";
+      lib = self.out;
+      dbus-launch = "${self.out}/bin/dbus-launch";
       daemon = self.out;
     };
 
