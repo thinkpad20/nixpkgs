@@ -20804,7 +20804,7 @@ in modules // {
     };
   };
 
-  sqlalchemy = sqlalchemy_1_0;
+  sqlalchemy = self.sqlalchemy_1_0;
 
   sqlalchemy_1_0 = buildPythonPackage rec {
     name = "SQLAlchemy-${version}";
