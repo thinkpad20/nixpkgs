@@ -1,4 +1,4 @@
-{ stdenv, fetchurl }:
+{ stdenv, fetchurl, pkgs }:
 
 stdenv.mkDerivation rec {
   name = "lsof-${version}";
@@ -20,6 +20,8 @@ stdenv.mkDerivation rec {
   unpackPhase = "tar xvjf $src; cd lsof_*; tar xvf lsof_*.tar; sourceRoot=$( echo lsof_*/); ";
 
   preBuild = "sed -i Makefile -e 's/^CFGF=/&	-DHASIPv6=1/;';";
+
+  buildInputs = [pkgs.which];
 
   configurePhase = if stdenv.isDarwin
     then "./Configure -n darwin;"

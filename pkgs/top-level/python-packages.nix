@@ -9625,7 +9625,7 @@ in modules // {
       downloadPage = https://github.com/PythonCharmers/python-future/releases;
       license = licenses.mit;
       maintainers = with maintainers; [ prikhi ];
-      platforms = platforms.linux;
+      platforms = platforms.unix;
     };
   };
 
@@ -10355,6 +10355,37 @@ in modules // {
       description = "A Python library for property based testing";
       homepage = https://github.com/DRMacIver/hypothesis;
       license = licenses.mpl20;
+    };
+  };
+
+  colored = buildPythonPackage rec {
+    name = "colored-${version}";
+    version = "1.1.5";
+    src = pkgs.fetchurl {
+      url = "mirror://pypi/c/colored/${name}.tar.gz";
+      sha256 = "1r1vsypk8v7az82d66bidbxlndx1h7xd4m43hpg1a6hsjr30wrm3";
+    };
+  };
+
+
+  lsi = buildPythonPackage rec {
+    name = "lsi-${version}";
+    version = "0.2.2";
+    disabled = isPy3k;
+    src = pkgs.fetchurl {
+      url = "mirror://pypi/l/lsi/${name}.tar.gz";
+      sha256 = "0429iilb06yhsmvj3xp6wyhfh1rp4ndxlhwrm80r97z0w7plrk94";
+    };
+    propagatedBuildInputs = [
+      self.colored
+      self.boto
+      pkgs.openssh
+      pkgs.which
+    ];
+    meta = {
+      description = "CLI for querying and SSHing onto AWS EC2 instances";
+      homepage = https://github.com/NarrativeScience/lsi;
+      license = licenses.mit;
     };
   };
 
@@ -17039,10 +17070,16 @@ in modules // {
         sha256 = "2fe3cc2fc66a56fdc35dbbc2bf1dd96a534abfc79ee6b2ad9ae4fe166e570c4b";
     };
 
+    buildInputs = [self.nose];
     propagatedBuildInputs = with self; [ astroid ];
 
+    doCheck = false;
+
     checkPhase = ''
-        cd pylint/test; ${python.interpreter} -m unittest discover -p "*test*"
+      (
+        cd pylint/test
+        ${python.interpreter} -m unittest discover -p "*test*"
+      )
     '';
 
     postInstall = ''
