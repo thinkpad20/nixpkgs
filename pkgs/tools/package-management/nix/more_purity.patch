@@ -1,0 +1,20 @@
+--- scripts/nix-build.in	2016-02-11 01:12:17.000000000 -0800
++++ scripts/nix-build.in.new	2016-05-23 14:44:00.000000000 -0700
+@@ -289,7 +289,7 @@
+             $rcfile,
+             "rm -rf '$tmpDir'; " .
+             'unset BASH_ENV; ' .
+-            '[ -n "$PS1" ] && [ -e ~/.bashrc ] && source ~/.bashrc; ' .
++            ($pure ? '' : '[ -n "$PS1" ] && [ -e ~/.bashrc ] && source ~/.bashrc; ') .
+             ($pure ? '' : 'p=$PATH; ' ) .
+             'dontAddDisableDepTrack=1; ' .
+             '[ -e $stdenv/setup ] && source $stdenv/setup; ' .
+@@ -297,7 +297,7 @@
+             'set +e; ' .
+             '[ -n "$PS1" ] && PS1="\n\[\033[1;32m\][nix-shell:\w]$\[\033[0m\] "; ' .
+             'if [ "$(type -t runHook)" = function ]; then runHook shellHook; fi; ' .
+-            'unset NIX_ENFORCE_PURITY; ' .
++            ($pure ? '' : 'unset NIX_ENFORCE_PURITY; ') .
+             'unset NIX_INDENT_MAKE; ' .
+             'shopt -u nullglob; ' .
+             'unset TZ; ' . (defined $ENV{'TZ'} ? "export TZ='${ENV{'TZ'}}'; " : '') .

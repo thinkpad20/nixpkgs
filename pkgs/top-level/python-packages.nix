@@ -16114,7 +16114,8 @@ in modules // {
     '';
 
     # Test suite needs `free`, therefore we have pkgs.busybox
-    buildInputs = with self; [ mock pkgs.busybox] ++ optionals stdenv.isDarwin [ pkgs.darwin.IOKit ];
+    buildInputs = [self.mock] ++
+      (if stdenv.isDarwin then [pkgs.darwin.IOKit] else [pkgs.busybox]);
 
     meta = {
       description = "Process and system utilization information interface for python";
@@ -21898,7 +21899,7 @@ in modules // {
       description = "Twitter library for python";
       license = licenses.mit;
       maintainers = with maintainers; [ garbas ];
-      platforms = platforms.linux;
+      platforms = platforms.unix;
     };
   });
 
