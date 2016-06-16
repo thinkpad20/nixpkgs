@@ -1,0 +1,117 @@
+--- scripts/download-from-binary-cache.pl.in	2016-02-11 09:12:17.000000000 +0000
++++ scripts/download-from-binary-cache.pl.in.fixed	2016-06-16 21:53:52.192819021 +0000
+@@ -65,19 +65,9 @@
+     $Nix::Config::config{"connect-timeout"} //
+     $ENV{"NIX_CONNECT_TIMEOUT"} // 0);
+ 
+-
+-sub addRequest {
+-    my ($storePath, $url, $head) = @_;
+-
+-    my $curl = WWW::Curl::Easy->new;
+-    my $curlId = $curlIdCount++;
+-    $requests{$curlId} = { storePath => $storePath, url => $url, handle => $curl, content => "", type => $head ? "HEAD" : "GET"
+-                         , shown => 0, started => time() };
+-
+-    $curl->setopt(CURLOPT_PRIVATE, $curlId);
++sub setBasicCurlOptions {
++    my ($curl, $url) = @_;
+     $curl->setopt(CURLOPT_URL, $url);
+-    open (my $fh, ">", \$requests{$curlId}->{content});
+-    $curl->setopt(CURLOPT_WRITEDATA, $fh);
+     $curl->setopt(CURLOPT_FOLLOWLOCATION, 1);
+     $curl->setopt(CURLOPT_CAINFO, $caBundle) if defined $caBundle;
+ 
+@@ -87,11 +77,29 @@
+     }
+ 
+     $curl->setopt(CURLOPT_USERAGENT, $userAgent);
+-    $curl->setopt(CURLOPT_NOBODY, 1) if $head;
+     $curl->setopt(CURLOPT_FAILONERROR, 1);
+     $curl->setopt(CURLOPT_CONNECTTIMEOUT, $curlConnectTimeout);
+     $curl->setopt(CURLOPT_TIMEOUT, 20 * 60);
+ 
++    if ($ENV{"NIX_BINARY_CACHE_USERNAME"}) {
++        $curl->setopt(CURLOPT_USERNAME, $ENV{"NIX_BINARY_CACHE_USERNAME"});
++    }
++    if ($ENV{"NIX_BINARY_CACHE_PASSWORD"}) {
++        $curl->setopt(CURLOPT_PASSWORD, $ENV{"NIX_BINARY_CACHE_PASSWORD"});
++    }
++}
++
++sub addRequest {
++    my ($storePath, $url, $head) = @_;
++    my $curl = WWW::Curl::Easy->new;
++    my $curlId = $curlIdCount++;
++    $requests{$curlId} = { storePath => $storePath, url => $url, handle => $curl, content => "", type => $head ? "HEAD" : "GET"
++                         , shown => 0, started => time() };
++    setBasicCurlOptions($curl, $url);
++    $curl->setopt(CURLOPT_NOBODY, 1) if $head;
++    $curl->setopt(CURLOPT_PRIVATE, $curlId);
++    open (my $fh, ">", \$requests{$curlId}->{content});
++    $curl->setopt(CURLOPT_WRITEDATA, $fh);
+     if ($activeRequests >= $maxParallelRequests) {
+         $scheduled{$curlId} = 1;
+     } else {
+@@ -102,7 +110,6 @@
+     return $requests{$curlId};
+ }
+ 
+-
+ sub processRequests {
+     while ($activeRequests) {
+         my ($rfds, $wfds, $efds) = $curlm->fdset();
+@@ -296,7 +303,7 @@
+             next;
+         }
+ 
+-        my $storeDir = "/nix/store";
++        my $storeDir = $Nix::Config::storeDir;
+         my $wantMassQuery = 0;
+         my $priority = 50;
+         foreach my $line (split "\n", $request->{content}) {
+@@ -538,7 +545,6 @@
+     }
+ }
+ 
+-
+ sub downloadBinary {
+     my ($storePath, $destPath) = @_;
+ 
+@@ -566,10 +572,26 @@
+         die if $requireSignedBinaryCaches && !defined $info->{signedBy};
+         print STDERR "\n*** Downloading ‘$url’ ", ($requireSignedBinaryCaches ? "(signed by ‘$info->{signedBy}’) " : ""), "to ‘$storePath’...\n";
+         checkURL $url;
+-        if (system("$Nix::Config::curl --fail --location --connect-timeout $curlConnectTimeout -A '$userAgent' '$url' $decompressor | $Nix::Config::binDir/nix-store --restore $destPath") != 0) {
+-            warn "download of ‘$url’ failed" . ($! ? ": $!" : "") . "\n";
++        my $curl = WWW::Curl::Easy->new;
++        setBasicCurlOptions($curl, $url);
++        my $response_body;
++        $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
++        # Show progress bar
++        $curl->setopt(CURLOPT_NOPROGRESS, 0);
++
++        # Starts the actual request
++        my $retcode = $curl->perform;
++        if ($retcode != 0) {
++            my $err = $curl->errbuf;
++            my $statusCode = $curl->getinfo(CURLINFO_HTTP_CODE);
++            warn "download of ‘$url’ failed with response $statusCode" .
++                ($err ? ": $err" : "") . "\n";
+             next;
+         }
++        # Pipe the resulting data into the decompression/nix-store
++        open(my $curlf, "$decompressor| $Nix::Config::binDir/nix-store --restore $destPath");
++        print $curlf "$response_body";
++        close($curlf);
+ 
+         # Tell Nix about the expected hash so it can verify it.
+         die unless defined $info->{narHash} && $info->{narHash} ne "";
+@@ -583,7 +605,6 @@
+     exit 1;
+ }
+ 
+-
+ # Bail out right away if binary caches are disabled.
+ exit 0 if
+     ($Nix::Config::config{"use-binary-caches"} // "true") eq "false" ||
