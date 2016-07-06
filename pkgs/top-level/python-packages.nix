@@ -9995,8 +9995,7 @@ in modules // {
 
   google_apputils = buildPythonPackage rec {
     name = "google-apputils-0.4.1";
-    disabled = isPy3k;
-
+    dontStrip = true;
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/g/google-apputils/${name}.tar.gz";
       sha256 = "1sxsm5q9vr44qzynj8l7p3l7ffb0zl1jdqhmmzmalkx941nbnj1b";
@@ -16059,31 +16058,37 @@ in modules // {
   protobuf = self.protobuf2_6;
   protobuf2_6 = self.protobufBuild pkgs.protobuf2_6;
   protobuf2_5 = self.protobufBuild pkgs.protobuf2_5;
+  protobuf3_0 = self.protobufBuild pkgs.protobuf3_0;
   protobufBuild = protobuf: buildPythonPackage rec {
     inherit (protobuf) name src;
-    disabled = isPy3k || isPyPy;
+    atLeast3 = versionAtLeast protobuf.version "3.0.0";
+    atLeast2 = versionAtLeast protobuf.version "2.6.0";
+    disabled = (!atLeast3 && isPy3k) || isPyPy;
 
+    buildInputs = optional atLeast3 self.nose;
     propagatedBuildInputs = with self; [ protobuf google_apputils ];
 
-    prePatch = ''
+    prePatch = if atLeast3 then "cd python" else ''
       while [ ! -d python ]; do
         cd *
       done
       cd python
     '';
 
-    preConfigure = optionalString (versionAtLeast protobuf.version "2.6.0") ''
+    preConfigure = optionalString (atLeast2 && !atLeast3) ''
       PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=cpp
       PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION_VERSION=2
     '';
 
-    checkPhase = if versionAtLeast protobuf.version "2.6.0" then ''
+    checkPhase = if atLeast3 then ''
+      nosetests google/protobuf/internal
+    '' else if atLeast2 then ''
       ${python.executable} setup.py google_test --cpp_implementation
     '' else ''
       ${python.executable} setup.py test
     '';
 
-    installFlags = optional (versionAtLeast protobuf.version "2.6.0") "--install-option='--cpp_implementation'";
+    installFlags = optional atLeast2 "--install-option='--cpp_implementation'";
 
     doCheck = true;
 
