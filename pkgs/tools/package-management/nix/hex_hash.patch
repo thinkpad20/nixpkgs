@@ -1,0 +1,37 @@
+--- src/nix-store/nix-store.cc	2016-02-11 01:12:17.000000000 -0800
++++ src/nix-store/nix-store.new.cc	2016-07-07 11:08:45.000000000 -0700
+@@ -269,7 +269,7 @@
+ {
+     enum QueryType
+         { qDefault, qOutputs, qRequisites, qReferences, qReferrers
+-        , qReferrersClosure, qDeriver, qBinding, qHash, qSize
++        , qReferrersClosure, qDeriver, qBinding, qHash, qHexHash, qSize
+         , qTree, qGraph, qXml, qResolve, qRoots };
+     QueryType query = qDefault;
+     bool useOutput = false;
+@@ -293,6 +293,7 @@
+             query = qBinding;
+         }
+         else if (i == "--hash") query = qHash;
++        else if (i == "--hex-hash") query = qHexHash;
+         else if (i == "--size") query = qSize;
+         else if (i == "--tree") query = qTree;
+         else if (i == "--graph") query = qGraph;
+@@ -366,6 +367,7 @@
+             break;
+ 
+         case qHash:
++        case qHexHash:
+         case qSize:
+             for (auto & i : opArgs) {
+                 PathSet paths = maybeUseOutputs(followLinksToStorePath(i), useOutput, forceRealise);
+@@ -374,6 +376,9 @@
+                     if (query == qHash) {
+                         assert(info.hash.type == htSHA256);
+                         cout << format("sha256:%1%\n") % printHash32(info.hash);
++                    } else if (query == qHexHash) {
++                        assert(info.hash.type == htSHA256);
++                        cout << format("sha256:%1%\n") % printHash(info.hash);
+                     } else if (query == qSize)
+                         cout << format("%1%\n") % info.narSize;
+                 }
