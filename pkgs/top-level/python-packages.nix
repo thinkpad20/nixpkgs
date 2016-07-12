@@ -20854,8 +20854,8 @@ in modules // {
     version = "1.0.14";
 
     src = pkgs.fetchurl {
-      url = "https://pypi.python.org/packages/source/S/SQLAlchemy/${name}.tar.gz";
-      sha256 = "8c594eb35ee8ceb82ad82b57ad855fe427190992ed525faac9915dff267f4d18";
+      url = "https://pypi.python.org/packages/aa/cb/e3990b9da48facbe48b80a281a51fb925ff84aaaca44d368d658b0160fcf/SQLAlchemy-1.0.14.tar.gz";
+      sha256 = "da4d1a39c1e99c7fecc2aaa3a050094b6aa7134de7d89f77e6216e7abd1705b3";
     };
 
     buildInputs = with self; [ nose mock ]
