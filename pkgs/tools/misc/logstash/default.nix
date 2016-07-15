@@ -1,4 +1,4 @@
-{ stdenv, fetchurl }:
+{ stdenv, fetchurl, lib, jdk, makeWrapper }:
 
 stdenv.mkDerivation rec {
   version = "1.5.3";
@@ -14,10 +14,15 @@ stdenv.mkDerivation rec {
   dontStrip         = true;
   dontPatchShebangs = true;
 
+  buildInputs = [makeWrapper];
+  propagatedBuildInputs = [jdk];
+
   installPhase = ''
     mkdir -p $out
     cp -r {Gemfile*,vendor,lib,bin} $out
     mv $out/bin/plugin $out/bin/logstash-plugin
+    wrapProgram $out/bin/logstash \
+      --prefix PATH : ${lib.makeBinPath [jdk]}
   '';
 
   meta = with stdenv.lib; {
