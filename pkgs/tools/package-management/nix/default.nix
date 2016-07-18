@@ -32,6 +32,7 @@ let
       patch -p0 -i ${./more_purity.patch}
       patch -p0 -i ${./user_pass_auth.patch}
       patch -p0 -i ${./hex_hash.patch}
+      patch -p0 -i ${./disable_hash_check.patch}
       sed -i 's|$ENV{NIX_BUILD_SHELL} // "bash"|"${bashInteractive}/bin/bash"|' \
         scripts/nix-build.in
     '';
