@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchurl, pkgconfig, libtool
+{ lib, stdenv, fetchurl, pkgconfig, libtool, silver-searcher
 , bzip2, zlib, libX11, libXext, libXt, fontconfig, freetype, ghostscript, libjpeg
 , lcms2, openexr, libpng, librsvg, libtiff, libxml2
 }:
@@ -13,7 +13,7 @@ in
 
 stdenv.mkDerivation rec {
   name = "imagemagick-${version}";
-  version = "6.9.3-8";
+  version = "6.7.9-10";
 
   src = fetchurl {
     urls = [
@@ -21,7 +21,7 @@ stdenv.mkDerivation rec {
       # the original source above removes tarballs quickly
       "http://distfiles.macports.org/ImageMagick/ImageMagick-${version}.tar.xz"
     ];
-    sha256 = "129s4cwp6cbhgsr3xr8186q5j02zpbk6kqfk4j7ayb563zsrdb4h";
+    sha256 = "147p96zx1jylc90d5zbpd1lr4xk6d6zw8cligznv36dr91kxx5rn";
   };
 
   outputs = [ "out" "doc" ];
@@ -39,7 +39,7 @@ stdenv.mkDerivation rec {
 
   buildInputs =
     [ pkgconfig libtool zlib fontconfig freetype ghostscript libjpeg
-      openexr libpng librsvg libtiff libxml2
+      openexr libpng librsvg libtiff libxml2 silver-searcher
     ];
 
   propagatedBuildInputs =
