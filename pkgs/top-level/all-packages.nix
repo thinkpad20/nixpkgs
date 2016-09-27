@@ -148,7 +148,6 @@ in
 
   dockerTools = callPackage ../build-support/docker {
     storeDir = config.nix.storeDir or "/nix/store";
-    stateDir = config.nix.stateDir or "/nix/var";
   };
 
   dotnetenv = callPackage ../build-support/dotnetenv {

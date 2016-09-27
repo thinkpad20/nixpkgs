@@ -9,7 +9,6 @@
   pigz,
   runCommand,
   shadow,
-  stateDir,
   stdenv,
   storeDir,
   utillinux,
@@ -42,32 +41,32 @@ rec {
     cp tarsum $out
   '';
 
-  # # buildEnv creates symlinks to dirs, which is hard to edit inside the overlay VM
-  # mergeDrvs = {
-  #   derivations,
-  #   onlyDeps ? false
-  # }:
-  #   runCommand "merge-drvs" {
-  #     inherit derivations onlyDeps;
-  #   } ''
-  #     if [[ -n "$onlyDeps" ]]; then
-  #       echo $derivations > $out
-  #       exit 0
-  #     fi
+  # buildEnv creates symlinks to dirs, which is hard to edit inside the overlay VM
+  mergeDrvs = {
+    derivations,
+    onlyDeps ? false
+  }:
+    runCommand "merge-drvs" {
+      inherit derivations onlyDeps;
+    } ''
+      if [[ -n "$onlyDeps" ]]; then
+        echo $derivations > $out
+        exit 0
+      fi
 
-  #     mkdir $out
-  #     for derivation in $derivations; do
-  #       echo "Merging $derivation..."
-  #       if [[ -d "$derivation" ]]; then
-  #         # If it's a directory, copy all of its contents into $out.
-  #         cp -drf --preserve=mode -f $derivation/* $out/
-  #       else
-  #         # Otherwise treat the derivation as a tarball and extract it
-  #         # into $out.
-  #         tar -C $out -xpf $drv || true
-  #       fi
-  #     done
-  #   '';
+      mkdir $out
+      for derivation in $derivations; do
+        echo "Merging $derivation..."
+        if [[ -d "$derivation" ]]; then
+          # If it's a directory, copy all of its contents into $out.
+          cp -drf --preserve=mode -f $derivation/* $out/
+        else
+          # Otherwise treat the derivation as a tarball and extract it
+          # into $out.
+          tar -C $out -xpf $drv || true
+        fi
+      done
+    '';
 
   # Helper for setting up the base files for managing users and
   # groups, only if such files don't exist already. It is suitable for
@@ -281,7 +280,7 @@ rec {
 
       preMount = lib.optionalString (contents != null) ''
         echo "Adding contents..."
-        for item in $contents; do
+        for item in ${toString contents}; do
           echo "Adding $item..."
           cp -drf $item/* layer/
         done
@@ -289,14 +288,16 @@ rec {
       '';
 
       postMount = ''
-        mkdir -p mnt/{dev,proc,sys,nix/store}
+        mkdir -p mnt/{dev,proc,sys} mnt${storeDir}
         mount --rbind /dev mnt/dev
         mount --rbind /sys mnt/sys
         mount --rbind ${storeDir} mnt${storeDir}
 
         unshare -imnpuf --mount-proc chroot mnt ${runAsRootScript}
         umount -R mnt/dev mnt/sys mnt${storeDir}
-        rmdir --ignore-fail-on-non-empty mnt/dev mnt/proc mnt/sys mnt${storeDir} mnt/nix
+        rmdir --ignore-fail-on-non-empty \
+          mnt/dev mnt/proc mnt/sys mnt${storeDir} \
+          mnt$(dirname ${storeDir})
       '';
 
       postUmount = ''
