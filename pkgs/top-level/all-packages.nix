@@ -146,7 +146,10 @@ in
 
   cmark = callPackage ../development/libraries/cmark { };
 
-  dockerTools = callPackage ../build-support/docker { };
+  dockerTools = callPackage ../build-support/docker {
+    storeDir = config.nix.storeDir or "/nix/store";
+    stateDir = config.nix.stateDir or "/nix/var";
+  };
 
   dotnetenv = callPackage ../build-support/dotnetenv {
     dotnetfx = dotnetfx40;
