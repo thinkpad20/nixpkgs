@@ -263,6 +263,8 @@ rec {
       # Add a 'checksum' field to the JSON, with the value set to the
       # checksum of the tarball.
       cat ${baseJson} | jshon -s "$tarsum" -i checksum > $out/json
+
+      # Indicate to docker that we're using schema version 1.0.
       echo -n "1.0" > $out/VERSION
 
       echo "Finished building layer ${name}"
@@ -274,7 +276,7 @@ rec {
   mkRootLayer = {
     # Name of the image.
     name,
-    # Script to run as root.
+    # Script to run as root. Bash.
     runAsRoot,
     # Files to add to the layer. If null, an empty layer will be created.
     contents ? null,
@@ -291,6 +293,7 @@ rec {
     # Commands (bash) to run on the layer; these do not require sudo.
     extraCommands ? ""
   }:
+    # Generate an executable script from the `runAsRoot` text.
     let runAsRootScript = shellScript "run-as-root.sh" runAsRoot;
     in runWithOverlay {
       name = "${name}-docker-root-layer";
@@ -308,14 +311,19 @@ rec {
 
       postMount = ''
         mkdir -p mnt/{dev,proc,sys} mnt${storeDir}
+
+        # Mount /dev, /sys and the nix store as shared folders.
         mount --rbind /dev mnt/dev
         mount --rbind /sys mnt/sys
         mount --rbind ${storeDir} mnt${storeDir}
 
-        # See 'man unshare' for details on what's going on here;
-        # basically this command means that the runAsRootScript will
-        # be executed in a nearly completely isolated environment.
+        # Execute the run as root script. See 'man unshare' for
+        # details on what's going on here; basically this command
+        # means that the runAsRootScript will be executed in a nearly
+        # completely isolated environment.
         unshare -imnpuf --mount-proc chroot mnt ${runAsRootScript}
+
+        # Unmount directories and remove them.
         umount -R mnt/dev mnt/sys mnt${storeDir}
         rmdir --ignore-fail-on-non-empty \
           mnt/dev mnt/proc mnt/sys mnt${storeDir} \
@@ -327,12 +335,17 @@ rec {
         ${extraCommands}
         popd
 
-        echo Packing layer
+        echo "Packing layer..."
         mkdir $out
         tar -C layer --mtime=0 -cf $out/layer.tar .
+
+        # Compute the tar checksum and add it to the output json.
         ts=$(${tarsum} < $out/layer.tar)
         cat ${baseJson} | jshon -s "$ts" -i checksum > $out/json
+        # Indicate to docker that we're using schema version 1.0.
         echo -n "1.0" > $out/VERSION
+
+        echo "Finished building layer ${name}"
       '';
     };
 
