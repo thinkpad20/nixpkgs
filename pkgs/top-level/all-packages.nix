@@ -297,7 +297,9 @@ in
 
   nukeReferences = callPackage ../build-support/nuke-references/default.nix { };
 
-  vmTools = callPackage ../build-support/vm/default.nix { };
+  vmTools = callPackage ../build-support/vm {
+    storeDir = config.nix.storeDir or "/nix/store";
+  };
 
   releaseTools = callPackage ../build-support/release/default.nix { };
 
