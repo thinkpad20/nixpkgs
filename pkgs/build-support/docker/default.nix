@@ -168,8 +168,11 @@ rec {
       mkdir layer
       mkdir mnt
 
-      # Execute pre-mount steps if any
-      ${preMount}
+      ${lib.optionalString (preMount != "") ''
+        # Execute pre-mount steps
+         echo "Executing pre-mount steps..."
+         ${preMount}
+      ''}
 
       if [ -n "$lowerdir" ]; then
         mount -t overlay overlay -olowerdir=$lowerdir,workdir=work,upperdir=layer mnt
@@ -177,8 +180,11 @@ rec {
         mount --bind layer mnt
       fi
 
-      # Execute post-mount steps if any
-      ${postMount}
+      ${lib.optionalString (postMount != "") ''
+        # Execute post-mount steps
+         echo "Executing post-mount steps..."
+         ${postMount}
+      ''}
 
       umount mnt
 
@@ -198,6 +204,18 @@ rec {
         tar -C mnt --mtime=0 -cf $out .
       '';
     };
+
+
+  # Create an executable shell script which has the coreutils in its
+  # PATH. Since root scripts are executed in a blank environment, even
+  # things like `ls` or `echo` will be missing.
+  shellScript = name: text:
+    writeScript name ''
+      #!${stdenv.shell}
+      set -e
+      export PATH=${coreutils}/bin:/bin
+      ${text}
+    '';
 
   # Create a "layer" (set of files).
   mkPureLayer = {
@@ -258,7 +276,7 @@ rec {
     name,
     # Script to run as root.
     runAsRoot,
-    # Files to add to the layer.
+    # Files to add to the layer. If null, an empty layer will be created.
     contents ? null,
     # JSON containing configuration and metadata for this layer.
     baseJson,
@@ -273,7 +291,7 @@ rec {
     # Commands (bash) to run on the layer; these do not require sudo.
     extraCommands ? ""
   }:
-    let runAsRootScript = writeScript "run-as-root.sh" runAsRoot;
+    let runAsRootScript = shellScript "run-as-root.sh" runAsRoot;
     in runWithOverlay {
       name = "${name}-docker-root-layer";
 
@@ -294,6 +312,9 @@ rec {
         mount --rbind /sys mnt/sys
         mount --rbind ${storeDir} mnt${storeDir}
 
+        # See 'man unshare' for details on what's going on here;
+        # basically this command means that the runAsRootScript will
+        # be executed in a nearly completely isolated environment.
         unshare -imnpuf --mount-proc chroot mnt ${runAsRootScript}
         umount -R mnt/dev mnt/sys mnt${storeDir}
         rmdir --ignore-fail-on-non-empty \
