@@ -4,7 +4,7 @@
   docker,
   e2fsprogs,
   findutils,
-  goPackages,
+  go,
   jshon,
   lib,
   pigz,
@@ -28,7 +28,7 @@ rec {
   # We need to sum layer.tar, not a directory, hence tarsum instead of nix-hash.
   # And we cannot untar it, because then we cannot preserve permissions ecc.
   tarsum = runCommand "tarsum" {
-    buildInputs = [ goPackages.go ];
+    buildInputs = [ go ];
   } ''
     mkdir tarsum
     cd tarsum
@@ -188,9 +188,11 @@ rec {
 
       umount mnt
 
-      pushd layer
-      find . -type c -exec bash -c 'name="$(basename {})"; touch "$(dirname {})/.wh.$name"; rm "{}"' \;
-      popd
+      (
+        cd layer
+        cmd='name="$(basename {})"; touch "$(dirname {})/.wh.$name"; rm "{}"'
+        find . -type c -exec bash -c "$cmd" \;
+      )
 
       ${postUmount}
       '');
@@ -228,36 +230,35 @@ rec {
     # Additional commands to run on the layer before it is tar'd up.
     extraCommands ? ""
   }:
-    runCommand "${name}-docker-pure-layer" {
+    runCommand "docker-layer-${name}" {
       inherit baseJson contents extraCommands;
 
       buildInputs = [ jshon ];
-    } ''
+    }
+    ''
       mkdir layer
       if [[ -n "$contents" ]]; then
         echo "Adding contents..."
         for item in $contents; do
           echo "Adding $item"
           cp -drf $item/* layer/
-          chmod -R ug+w layer/
         done
+        chmod -R ug+w layer/
       else
         echo "No contents to add to layer."
       fi
 
       if [[ -n $extraCommands ]]; then
         (cd layer; eval "$extraCommands")
-      else
-        echo "No extra commands to run in layer."
       fi
 
+      # Tar up the layer and throw it into 'layer.tar'.
       echo "Packing layer..."
       mkdir $out
-
-      # Tar up the layer and throw it into 'layer.tar'.
       tar -C layer --mtime=0 -cf $out/layer.tar .
 
       # Compute a checksum of the tarball.
+      echo "Computing layer checksum..."
       tarsum=$(${tarsum} < $out/layer.tar)
 
       # Add a 'checksum' field to the JSON, with the value set to the
@@ -267,7 +268,7 @@ rec {
       # Indicate to docker that we're using schema version 1.0.
       echo -n "1.0" > $out/VERSION
 
-      echo "Finished building layer ${name}"
+      echo "Finished building layer '${name}'"
     '';
 
   # Make a "root" layer; required if we need to execute commands as a
@@ -296,11 +297,11 @@ rec {
     # Generate an executable script from the `runAsRoot` text.
     let runAsRootScript = shellScript "run-as-root.sh" runAsRoot;
     in runWithOverlay {
-      name = "${name}-docker-root-layer";
+      name = "docker-layer-${name}";
 
       inherit fromImage fromImageName fromImageTag diskSize;
 
-      preMount = lib.optionalString (contents != null) ''
+      preMount = lib.optionalString (contents != null && contents != []) ''
         echo "Adding contents..."
         for item in ${toString contents}; do
           echo "Adding $item..."
@@ -331,21 +332,20 @@ rec {
       '';
 
       postUmount = ''
-        pushd layer
-        ${extraCommands}
-        popd
+        (cd layer; eval "${extraCommands}")
 
         echo "Packing layer..."
         mkdir $out
         tar -C layer --mtime=0 -cf $out/layer.tar .
 
         # Compute the tar checksum and add it to the output json.
+        echo "Computing checksum..."
         ts=$(${tarsum} < $out/layer.tar)
         cat ${baseJson} | jshon -s "$ts" -i checksum > $out/json
         # Indicate to docker that we're using schema version 1.0.
         echo -n "1.0" > $out/VERSION
 
-        echo "Finished building layer ${name}"
+        echo "Finished building layer '${name}'"
       '';
     };
 
@@ -366,7 +366,7 @@ rec {
     fromImageName ? null,
     # Tag of the parent image; will be read from the image otherwise.
     fromImageTag ? null,
-    # Files to put on the image (a nix store path).
+    # Files to put on the image (a nix store path or list of paths).
     contents ? null,
     # Docker config; e.g. what command to run on the container.
     config ? null,
@@ -381,7 +381,7 @@ rec {
     let
       baseName = baseNameOf name;
 
-      # Create a JSON blob of the configuration.
+      # Create a JSON blob of the configuration. Set the date to unix zero.
       baseJson = writeText "${baseName}-config.json" (builtins.toJSON {
         created = "1970-01-01T00:00:01Z";
         architecture = "amd64";
@@ -395,13 +395,14 @@ rec {
         else mkRootLayer { inherit name baseJson fromImage fromImageName
                                    fromImageTag contents runAsRoot diskSize
                                    extraCommands; };
-      result = runCommand "${baseName}.tar.gz" {
+      result = runCommand "docker-image-${baseName}.tar.gz" {
         buildInputs = [ jshon pigz coreutils findutils ];
         imageName = name;
         imageTag = tag;
         inherit fromImage baseJson;
         layerClosure = writeReferencesToFile layer;
         passthru.buildArgs = args;
+        passthru.layer = layer;
       } ''
         # Print tar contents:
         # 1: Interpreted as relative to the root directory
