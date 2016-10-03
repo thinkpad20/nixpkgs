@@ -146,9 +146,7 @@ in
 
   cmark = callPackage ../development/libraries/cmark { };
 
-  dockerTools = callPackage ../build-support/docker {
-    storeDir = config.nix.storeDir or "/nix/store";
-  };
+  dockerTools = callPackage ../build-support/docker {};
 
   dotnetenv = callPackage ../build-support/dotnetenv {
     dotnetfx = dotnetfx40;
@@ -297,9 +295,7 @@ in
 
   nukeReferences = callPackage ../build-support/nuke-references/default.nix { };
 
-  vmTools = callPackage ../build-support/vm {
-    storeDir = config.nix.storeDir or "/nix/store";
-  };
+  vmTools = callPackage ../build-support/vm {};
 
   releaseTools = callPackage ../build-support/release/default.nix { };
 

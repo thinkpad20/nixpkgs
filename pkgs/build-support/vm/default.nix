@@ -1,7 +1,7 @@
 { pkgs
 , kernel ? pkgs.linux
 , img ? "bzImage"
-, storeDir
+, storeDir ? builtins.storeDir
 , rootModules ?
     [ "virtio_pci" "virtio_blk" "virtio_balloon" "virtio_rng" "ext4" "unix" "9p" "9pnet_virtio" "rtc_cmos" ]
 }:

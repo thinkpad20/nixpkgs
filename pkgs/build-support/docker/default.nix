@@ -7,11 +7,13 @@
   go,
   jshon,
   lib,
+  pkgs,
   pigz,
   runCommand,
+  rsync,
   shadow,
   stdenv,
-  storeDir,
+  storeDir ? builtins.storeDir,
   utillinux,
   vmTools,
   writeReferencesToFile,
@@ -22,6 +24,10 @@
 # WARNING: this API is unstable and may be subject to backwards-incompatible changes in the future.
 
 rec {
+
+  examples = import ./examples.nix {
+    inherit pkgs buildImage pullImage shadowSetup;
+  };
 
   pullImage = callPackage ./pull.nix {};
 
@@ -115,7 +121,7 @@ rec {
         };
         inherit fromImage fromImageName fromImageTag;
 
-        buildInputs = [ utillinux e2fsprogs jshon ];
+        buildInputs = [ utillinux e2fsprogs jshon rsync ];
       } ''
       rm -rf $out
 
@@ -170,8 +176,8 @@ rec {
 
       ${lib.optionalString (preMount != "") ''
         # Execute pre-mount steps
-         echo "Executing pre-mount steps..."
-         ${preMount}
+        echo "Executing pre-mount steps..."
+        ${preMount}
       ''}
 
       if [ -n "$lowerdir" ]; then
@@ -182,8 +188,8 @@ rec {
 
       ${lib.optionalString (postMount != "") ''
         # Execute post-mount steps
-         echo "Executing post-mount steps..."
-         ${postMount}
+        echo "Executing post-mount steps..."
+        ${postMount}
       ''}
 
       umount mnt
@@ -233,7 +239,7 @@ rec {
     runCommand "docker-layer-${name}" {
       inherit baseJson contents extraCommands;
 
-      buildInputs = [ jshon ];
+      buildInputs = [ jshon rsync ];
     }
     ''
       mkdir layer
@@ -241,9 +247,8 @@ rec {
         echo "Adding contents..."
         for item in $contents; do
           echo "Adding $item"
-          cp -drf $item/* layer/
+          rsync -a $item/ layer/
         done
-        chmod -R ug+w layer/
       else
         echo "No contents to add to layer."
       fi
@@ -305,9 +310,8 @@ rec {
         echo "Adding contents..."
         for item in ${toString contents}; do
           echo "Adding $item..."
-          cp -drf $item/* layer/
+          rsync -a $item/ layer/
         done
-        chmod -R ug+w layer/
       '';
 
       postMount = ''
