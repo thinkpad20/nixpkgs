@@ -2997,14 +2997,14 @@ in {
     propagatedBuildInputs = [ self.botocore self.jmespath self.s3transfer ] ++
                             (if isPy3k then [] else [self.futures]);
     buildInputs = [ self.docutils self.nose self.mock ];
-    # checkPhase = ''
-    #   runHook preCheck
-    #   # This method is not in mock. It might have appeared in some versions.
-    #   sed -i 's/action.assert_called_once()/self.assertEqual(action.call_count, 1)/' \
-    #     tests/unit/resources/test_factory.py
-    #   nosetests -d tests/unit --verbose
-    #   runHook postCheck
-    # '';
+    checkPhase = ''
+      runHook preCheck
+      # This method is not in mock. It might have appeared in some versions.
+      sed -i 's/action.assert_called_once()/self.assertEqual(action.call_count, 1)/' \
+        tests/unit/resources/test_factory.py
+      nosetests -d tests/unit --verbose
+      runHook postCheck
+    '';
 
     meta = {
       homepage = https://github.com/boto3/boto;
@@ -4872,7 +4872,7 @@ in {
 
   pytest_29 = self.pytest_27.override rec {
     name = "pytest-2.9.2";
-
+    doCheck = false;
     src = pkgs.fetchurl {
       url = "mirror://pypi/p/pytest/${name}.tar.gz";
       sha256 = "1n6igbc1b138wx1q5gca4pqw1j6nsyicfxds5n0b5989kaxqmh8j";
@@ -6069,7 +6069,6 @@ in {
   docker = buildPythonPackage rec {
     name = "docker-py-${version}";
     version = "1.10.6";
-    disabled = isPy3k;
 
     src = pkgs.fetchurl {
       url = "mirror://pypi/d/docker-py/${name}.tar.gz";
