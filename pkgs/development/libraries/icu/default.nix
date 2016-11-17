@@ -1,16 +1,16 @@
-{ stdenv, fetchurl, fixDarwinDylibNames }:
+{
+  stdenv, fetchurl, fixDarwinDylibNames,
+  version ? "57.1",
+  sha256 ? "10cmkqigxh9f73y7q3p991q6j8pph0mrydgj11w1x6wlcp5ng37z"
+}:
 
-let
-  pname = "icu4c";
-  version = "57.1";
-in
 stdenv.mkDerivation ({
-  name = pname + "-" + version;
+  name = "icu4c-${version}";
 
   src = fetchurl {
-    url = "http://download.icu-project.org/files/${pname}/${version}/${pname}-"
+    url = "http://download.icu-project.org/files/icu4c/${version}/icu4c-"
       + (stdenv.lib.replaceChars ["."] ["_"] version) + "-src.tgz";
-    sha256 = "10cmkqigxh9f73y7q3p991q6j8pph0mrydgj11w1x6wlcp5ng37z";
+    inherit sha256;
   };
 
   outputs = [ "out" "dev" ];
