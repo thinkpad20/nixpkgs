@@ -9806,6 +9806,13 @@ in
   };
 
   ### DEVELOPMENT / PYTHON MODULES
+  # Builds a python package set, given some base python derivation.
+  mkPythonPackages = {python, overrides}: let
+    _pythonPackages = (callPackage ./python-packages.nix {
+      inherit python;
+      self = _pythonPackages;
+    }) // overrides;
+  in _pythonPackages;
 
   # `nix-env -i python-nose` installs for 2.7, the default python.
   # Therefore we do not recurse into attributes here, in contrast to
