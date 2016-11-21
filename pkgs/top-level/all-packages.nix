@@ -13342,6 +13342,11 @@ in
     libwebp = null;
   };
 
+  imagemagick7 = imagemagickBig.override {
+    version = "7.0.3-7";
+    binOnly = true;
+  };
+
   imagemagick = imagemagickBig.override {
     ghostscript = null;
   };
