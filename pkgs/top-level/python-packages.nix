@@ -6090,6 +6090,10 @@ in {
     # Version conflict
     doCheck = false;
 
+    buildInputs = optional stdenv.isLinux pkgs.glibcLocales;
+    LANG = "en_US.UTF-8";
+    LC_ALL = "en_US.UTF-8";
+
     meta = {
       description = "An API client for docker written in Python";
       homepage = https://github.com/docker/docker-py;
