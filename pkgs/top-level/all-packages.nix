@@ -17073,9 +17073,9 @@ in
     stdenv = overrideCC stdenv gcc49;
   };
 
-  inherit (callPackages ../tools/package-management/nix {
-      storeDir = config.nix.storeDir or "/nix/store";
-      stateDir = config.nix.stateDir or "/nix/var";
+  inherit (with builtins; callPackages ../tools/package-management/nix {
+      storeDir = config.nix.storeDir or storeDir;
+      stateDir = config.nix.stateDir or dirOf storeDir + "/var";
       })
     nix
     nixStable
