@@ -153,6 +153,9 @@ self: super: {
   # Required to fix version 0.91.0.0.
   wx = dontHaddock (appendConfigureFlag super.wx "--ghc-option=-XFlexibleContexts");
 
+  # Incompatible hspec version.
+  ReadArgs = dontCheck super.ReadArgs;
+
   # Inexplicable haddock failure
   # https://github.com/gregwebs/aeson-applicative/issues/2
   aeson-applicative = dontHaddock super.aeson-applicative;
