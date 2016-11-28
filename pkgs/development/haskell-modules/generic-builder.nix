@@ -286,7 +286,7 @@ stdenv.mkDerivation ({
 
     env = stdenv.mkDerivation {
       name = "interactive-${pname}-${version}-environment";
-      nativeBuildInputs = [ ghcEnv systemBuildInputs ]
+      nativeBuildInputs = [ ghcEnv ] ++ systemBuildInputs
         ++ optional isGhcjs ghc."socket.io"; # for ghcjsi
       LANG = "en_US.UTF-8";
       LOCALE_ARCHIVE = optionalString stdenv.isLinux "${glibcLocales}/lib/locale/locale-archive";
