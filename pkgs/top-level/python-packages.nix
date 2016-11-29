@@ -23341,7 +23341,7 @@ in {
     disabled = isPyPy || isPy26 || isPy27;
 
     checkPhase = ''
-      ${python.interpreter} test/*.py
+      ${python.interpreter} test/*.py                                    #*/
     '';
     meta = {
       description = "Simple and extensible IRC bot";
