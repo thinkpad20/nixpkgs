@@ -15808,7 +15808,9 @@ in {
       maintainers = with maintainers; [ fridh ];
     };
   };
-
+  # numexpr-darwin-deps is used to bring some introspection utilities
+  # into scope on MacOS that numexpr uses. It prevents some fairly
+  # inconsequential (but annoying) errors.
   numexpr = let numexpr-darwin-deps = stdenv.mkDerivation {
     name = "numexpr-darwin-deps";
     version = "0.0.0";
@@ -15818,6 +15820,7 @@ in {
       ln -s /usr/bin/machine $out/bin/machine
       ln -s /usr/sbin/sysctl $out/bin/sysctl
     '';
+    meta.platforms = platforms.darwin;
   };
   in buildPythonPackage rec {
     version = "2.5.2";
