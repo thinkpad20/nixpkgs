@@ -15809,7 +15809,17 @@ in {
     };
   };
 
-  numexpr = buildPythonPackage rec {
+  numexpr = let numexpr-darwin-deps = stdenv.mkDerivation {
+    name = "numexpr-darwin-deps";
+    version = "0.0.0";
+    buildCommand = ''
+      mkdir -p $out/bin
+      ln -s /usr/bin/arch $out/bin/arch
+      ln -s /usr/bin/machine $out/bin/machine
+      ln -s /usr/sbin/sysctl $out/bin/sysctl
+    '';
+  };
+  in buildPythonPackage rec {
     version = "2.5.2";
     name = "numexpr-${version}";
 
@@ -15821,7 +15831,8 @@ in {
     # Tests fail with python 3. https://github.com/pydata/numexpr/issues/177
     # doCheck = !isPy3k;
 
-    propagatedBuildInputs = with self; [ numpy ];
+    propagatedBuildInputs = with self; [ numpy ]
+      ++ stdenv.lib.optional stdenv.isDarwin numexpr-darwin-deps;
 
     # Run the test suite.
     # It requires the build path to be in the python search path.
