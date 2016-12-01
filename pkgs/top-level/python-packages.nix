@@ -28856,12 +28856,11 @@ in {
   };
 
   datadiff = buildPythonPackage rec {
-    name = "datadiff-1.1.6";
-    disabled = ! isPy27;
+    name = "datadiff-2.0.0";
 
     src = pkgs.fetchurl {
-      url = "mirror://pypi/d/datadiff/datadiff-1.1.6.zip";
-      sha256 = "f1402701063998f6a70609789aae8dc05703f3ad0a34882f6199653654c55543";
+      url = "https://pypi.python.org/packages/87/72/74d5c3d9b4574d3df45f61894aa28344b22f4b059d192cc3753c112f62f0/datadiff-2.0.0.tar.gz";
+      sha256 = "1a6ai5p07lzq04hxnzn36b49m4sz8ajplyrfxr3m5plnm109812l";
     };
 
     buildInputs = with self; [ nose ];
