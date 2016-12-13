@@ -19868,10 +19868,11 @@ in {
 
     buildInputs = [ pkgs.libev ];
 
-    postPatch = ''
-      libev_so=${pkgs.libev}/lib/libev.so.4
-      test -f "$libev_so" || { echo "ERROR: File $libev_so does not exist, please fix nix expression for pyev"; exit 1; }
-      sed -i -e "s|libev_dll_name = find_library(\"ev\")|libev_dll_name = \"$libev_so\"|" setup.py
+    postPatch = let
+      libev_so = if stdenv.isDarwin then "${pkgs.libev}/lib/libev.4.dylib" else "${pkgs.libev}/lib/libev.so.4";
+    in ''
+      test -f "${libev_so}" || { echo "ERROR: File ${libev_so} does not exist, please fix nix expression for pyev"; exit 1; }
+      sed -i -e "s|libev_dll_name = find_library(\"ev\")|libev_dll_name = \"${libev_so}\"|" setup.py
     '';
 
     meta = {
@@ -23723,7 +23724,7 @@ in {
     propagatedBuildInputs = with self; [ pillow blessings ];
 
     # fails with obscure error
-    doCheck = !isPy3k;
+    doCheck = !isPy3k && !stdenv.isDarwin;
 
     meta = {
       maintainers = with maintainers; [ domenkozar ];
