@@ -17672,7 +17672,9 @@ in {
       sed -i 's@python@${python.interpreter}@' .testr.conf
     '';
 
-    buildInputs = with self; [ pbr testtools testrepository mock ];
+    doCheck = !isPy3k;
+    buildInputs = if isPy3k then [] else
+                  (with self; [ pbr testtools testrepository mock ]);
     propagatedBuildInputs = with self; [ six requests2 ];
   };
 
