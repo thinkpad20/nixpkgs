@@ -1,0 +1,81 @@
+--- a/src/lint/mod.rs
++++ b/src/lint/mod.rs
+@@ -35,11 +35,18 @@ mod dbus_missing_bus_name_directive;
+
+ use systemd_parser::items::SystemdUnit;
+
+-type LintFunction = fn(&SystemdUnit) -> Result<(), LintResult>;
++type LintFunction = (&'static str, fn(&SystemdUnit) -> Result<(), LintResult>);
+
+-pub const ALL_LINTS: &'static [LintFunction] = &[lint_missing_description::lint,
+-                                                 service_type_always_explicit::lint,
+-                                                 service_execstart_not_set::lint,
+-                                                 dbus_missing_bus_name_directive::lint,
+-                                                 unknown_directive::lint,
+-                                                 unknown_category::lint];
++pub const ALL_LINTS: &'static [LintFunction] = &[
++    ("Unit has a description", lint_missing_description::lint),
++    ("Service type is explicit", service_type_always_explicit::lint),
++    ("Service ExecStart is set", service_execstart_not_set::lint),
++    ("dbus has a name directive", dbus_missing_bus_name_directive::lint),
++    ("Directive is recognized", unknown_directive::lint),
++    ("Category is recognized", unknown_category::lint)
++];
++    // service_type_always_explicit::lint,
++    // service_execstart_not_set::lint,
++    // dbus_missing_bus_name_directive::lint,
++    // unknown_directive::lint,
++    // unknown_category::lint];
+--- a/src/lint/service_execstart_not_set.rs
++++ b/src/lint/service_execstart_not_set.rs
+@@ -5,9 +5,6 @@ use systemd_parser::items::*;
+ pub fn lint(unit: &SystemdUnit) -> Result<(), LintResult> {
+
+     if let Some(&DirectiveEntry::Solo(ref type_entry)) = unit.lookup_by_key("Type") {
+-
+-        println!("{:?}", type_entry.value());
+-
+         if type_entry.value() != Some("Simple") {
+             return Ok(());
+         }
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -26,9 +26,10 @@ pub fn main() {
+             .required(true))
+         .get_matches();
+
+-    let filepath = Path::new(matches.value_of("INPUT").expect("clap should ensure INPUT is set"));
++    let filepath = Path::new(matches.value_of("INPUT")
++                             .expect("clap should ensure INPUT is set"));
+     if !filepath.exists() {
+-        error_and_exit("path does not exists !".into())
++        error_and_exit("path does not exist!".into())
+     }
+
+     let mut contents = String::with_capacity(4096);
+@@ -44,15 +45,21 @@ pub fn main() {
+
+     let mut has_errors = false;
+
+-    for lint_f in lint::ALL_LINTS.iter() {
+-        let res = lint_f(&unit_file);
+-        has_errors = has_errors || res.is_ok();
+-
+-        println!("** {:?}\n", res);
++    for &(description, lint_f) in lint::ALL_LINTS.iter() {
++        print!("{}...", description);
++        match lint_f(&unit_file) {
++            Ok(_) => println!("OK"),
++            Err(err) => {
++              has_errors = true;
++              println!("Error! {:?}", err);
++            }
++        };
+     }
+
+     if has_errors {
+         error_and_exit(String::from("Lint errors. Exiting"))
++    } else {
++        println!("All linters passed! :)");
+     }
+ }

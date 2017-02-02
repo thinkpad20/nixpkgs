@@ -14,7 +14,9 @@ rustPlatform.buildRustPackage rec {
     buildInputs = [rustPlatform.rust.cargo];
     buildCommand = ''
       tar xf $tarball
-      cp ${./Cargo.lock} systemd-linter-0.1.4/Cargo.lock
+      cd systemd-linter-0.1.4
+      cp ${./Cargo.lock} Cargo.lock
+      patch -p1 ${./improve_messaging.patch}
       mv systemd-linter-0.1.4 $out
     '';
   };
