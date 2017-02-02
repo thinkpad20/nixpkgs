@@ -11420,6 +11420,8 @@ in
       udev.lib = libudev.out; # ${systemd.udev.lib}/lib/libudev.*
     };
 
+  systemd-linter = callPackage ../tools/misc/systemd-linter {};
+
   # standalone cryptsetup generator for systemd
   systemd-cryptsetup-generator = callPackage ../os-specific/linux/systemd/cryptsetup-generator.nix { };
 
