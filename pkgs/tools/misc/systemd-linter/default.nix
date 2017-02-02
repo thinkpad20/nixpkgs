@@ -10,6 +10,8 @@ rustPlatform.buildRustPackage rec {
       url = https://github.com/mackwic/systemd-linter/archive/v0.1.4.tar.gz;
       sha256= "0vj10wh57jb4nl21l8v5mjnp5n19hsvpqcfkp16vlnh0ay2mfq2n";
     };
+    inherit (rustPlatform) rustRegistry;
+    buildInputs = [rustPlatform.rust.cargo];
     buildCommand = ''
       tar xf $tarball
       cp ${./Cargo.lock} systemd-linter-0.1.4/Cargo.lock
@@ -17,7 +19,7 @@ rustPlatform.buildRustPackage rec {
     '';
   };
 
-  depsSha256 = "10f7pkgaxwizl7kzhkry7wx1rgm9wsybwkk92myc29s7sqir2mxx";
+  depsSha256 = "1cq9ixiffhifzp26xb8jc9y6s7ylc6j29zkri848dhapb3wfg1fh";
 
   meta = with stdenv.lib; {
     description = "Lint systemd files";
