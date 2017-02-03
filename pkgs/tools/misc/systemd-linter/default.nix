@@ -16,7 +16,8 @@ rustPlatform.buildRustPackage rec {
       tar xf $tarball
       cd systemd-linter-0.1.4
       cp ${./Cargo.lock} Cargo.lock
-      patch -p1 ${./improve_messaging.patch}
+      patch -p1 < ${./improve_messaging.patch}
+      cd ..
       mv systemd-linter-0.1.4 $out
     '';
   };
