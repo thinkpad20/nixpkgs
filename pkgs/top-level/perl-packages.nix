@@ -1551,8 +1551,8 @@ let self = _self // overrides; _self = with self; {
   CGI = buildPerlPackage rec {
     name = "CGI-4.31";
     src = fetchurl {
-      url = "mirror://cpan/authors/id/L/LE/LEEJO/${name}.tar.gz";
-      sha256 = "dee34f45525efb698d02c56ba2458a72acc34c4dcb05344706b587840b4e8c99";
+      url = "http://pkgs.fedoraproject.org/lookaside/extras/perl-CGI/${name}.tar.gz/dae441f0add16e205326948039310a20/${name}.tar.gz";
+      sha256 = "16cc9q5q91xm0r3k81fb9m6c7b3ji92s4sy50a6nkysya92lzqyy";
     };
     buildInputs = [ TestDeep TestWarn ];
     propagatedBuildInputs = [ HTMLParser self."if" ];
@@ -6619,7 +6619,7 @@ let self = _self // overrides; _self = with self; {
       sha256 = "74d22c44b5ad2e7190e2786e8a17d74bbf4cef89b4d1157ba33598b5a2720dad";
     };
   };
-  
+
   IOPager = buildPerlPackage {
     name = "IO-Pager-0.06";
     src = fetchurl {
