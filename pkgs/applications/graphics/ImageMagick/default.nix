@@ -5,6 +5,8 @@
   # FIXME: This version has multiple security vulnerabilities
 , version ? if (stdenv.cross.libc or null) == "msvcrt"
             then "6.9.2-0" else "6.9.6-2"
+  # Only needs to be passed in if version isn't listed in the cfgs below.
+, sha256 ? null, patches ? []
 # Set to true if you want a single-output derivation.
 , binOnly ? false
 }:
@@ -30,12 +32,14 @@ let
         sha256 = "1pypszlcx2sf7wfi4p37w1y58ck2r8cd5b2wrrwr9rh87p7fy1c0";
       })];
     };
-    "7.0.3-7" = {
-      sha256 = "1mvi8nm12134jn2ccr10aviacqp99q2wv9rj47csw9ik7brrj2ql";
+    "7.0.4-7" = {
+      sha256 = "0nw8dalhk6as2ciwpjqzz0ghvx153isysygqdfj19arxf26q4m9b";
       patches = [];
     };
   };
-  cfg = cfgs."${version}" or (throw "No info recorded for version ${version}");
+  cfg = if sha256 != null then { inherit sha256 patches; }
+        else if lib.hasAttr version cfgs then cfgs."${version}"
+        else throw "No info recorded for version ${version}";
   atleast7 = stdenv.lib.versionAtLeast version "7";
 in
 
