@@ -35,6 +35,7 @@ stdenv.mkDerivation rec {
 
   configureFlags =
     [ "--with-frozenpaths" ]
+    ++ [ "--with-fontpath=${fontconfig}/etc/fonts/fonts.conf" ]
     ++ [ "--with-gcc-arch=${arch}" ]
     ++ lib.optional (librsvg != null) "--with-rsvg"
     ++ lib.optionals (ghostscript != null)

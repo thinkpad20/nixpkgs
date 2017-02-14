@@ -1,5 +1,5 @@
 { stdenv, fetchurl, fetchpatch, pkgconfig, freetype, expat, libxslt, dejavu_fonts
-, substituteAll }:
+, substituteAll, lib }:
 
 /** Font configuration scheme
  - ./config-compat.patch makes fontconfig try the following root configs, in order:
@@ -24,7 +24,7 @@ stdenv.mkDerivation rec {
   };
 
   patches = [
-    (substituteAll {
+    (lib.optional (lib.pathExists /etc/nixos) (substituteAll {
       src = ./config-compat.patch;
       inherit configVersion;
     })
