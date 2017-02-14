@@ -27,7 +27,7 @@ stdenv.mkDerivation rec {
     (lib.optional (lib.pathExists /etc/nixos) (substituteAll {
       src = ./config-compat.patch;
       inherit configVersion;
-    })
+    }))
   ];
 
   outputs = [ "bin" "dev" "lib" "out" ]; # $out contains all the config
