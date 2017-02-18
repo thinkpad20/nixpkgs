@@ -1,12 +1,7 @@
-{ lib, stdenv, fetchurl, fetchpatch, pkgconfig, libtool
+{ lib, stdenv, fetchFromGitHub, fetchpatch, pkgconfig, libtool
 , bzip2, zlib, libX11, libXext, libXt, fontconfig, freetype, ghostscript, libjpeg
 , lcms2, openexr, libpng, librsvg, libtiff, libxml2, openjpeg, libwebp
-  # Freeze version on mingw so we don't need to port the patch too often.
-  # FIXME: This version has multiple security vulnerabilities
-, version ? if (stdenv.cross.libc or null) == "msvcrt"
-            then "6.9.2-0" else "6.9.6-2"
-  # Only needs to be passed in if version isn't listed in the cfgs below.
-, sha256 ? null, patches ? []
+, version, sha256
 # Set to true if you want a single-output derivation.
 , binOnly ? false
 }:
@@ -18,28 +13,6 @@ let
     else if stdenv.system == "armv7l-linux" then "armv7l"
     else throw "ImageMagick is not supported on this platform.";
 
-  cfgs = {
-    "6.9.6-2" = {
-      sha256 = "139h9lycxw3lszn052m34xm0rqyanin4nb529vxjcrkkzqilh91r";
-      patches = [];
-    };
-    "6.9.2-0" = {
-      sha256 = "17ir8bw1j7g7srqmsz3rx780sgnc21zfn0kwyj78iazrywldx8h7";
-      patches = [(fetchpatch {
-        name = "mingw-build.patch";
-        url = "https://raw.githubusercontent.com/Alexpux/MINGW-packages/"
-          + "01ca03b2a4ef/mingw-w64-imagemagick/002-build-fixes.patch";
-        sha256 = "1pypszlcx2sf7wfi4p37w1y58ck2r8cd5b2wrrwr9rh87p7fy1c0";
-      })];
-    };
-    "7.0.4-7" = {
-      sha256 = "0nw8dalhk6as2ciwpjqzz0ghvx153isysygqdfj19arxf26q4m9b";
-      patches = [];
-    };
-  };
-  cfg = if sha256 != null then { inherit sha256 patches; }
-        else if lib.hasAttr version cfgs then cfgs."${version}"
-        else throw "No info recorded for version ${version}";
   atleast7 = stdenv.lib.versionAtLeast version "7";
 in
 
@@ -47,16 +20,12 @@ stdenv.mkDerivation rec {
   name = "imagemagick-${version}";
   inherit version;
 
-  src = fetchurl {
-    urls = [
-      "mirror://imagemagick/releases/ImageMagick-${version}.tar.xz"
-      # the original source above removes tarballs quickly
-      "http://distfiles.macports.org/ImageMagick/ImageMagick-${version}.tar.xz"
-    ];
-    inherit (cfg) sha256;
+  src = fetchFromGitHub {
+    owner = "ImageMagick";
+    repo = "ImageMagick";
+    rev = version;
+    inherit sha256;
   };
-
-  patches = cfg.patches;
 
   # bin/ isn't really big
   outputs = if binOnly then ["out"] else [ "out" "dev" "doc" ];

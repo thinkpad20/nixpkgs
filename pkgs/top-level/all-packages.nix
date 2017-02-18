@@ -13344,16 +13344,14 @@ in
     libwebp = null;
   };
 
-  imagemagick7 = imagemagickBig.override {
-    version = "7.0.3-7";
-    binOnly = true;
-  };
-
   imagemagick = imagemagickBig.override {
     ghostscript = null;
   };
 
-  imagemagickBig = callPackage ../applications/graphics/ImageMagick { };
+  imagemagickBig = callPackage ../applications/graphics/ImageMagick {
+    version = "7.0.4-7";
+    sha256 = "119pkwhp0r1f40vwr9gz41plm9035kr3mxj4gydfkpiswnksa8n4";
+  };
 
   # Impressive, formerly known as "KeyJNote".
   impressive = callPackage ../applications/office/impressive { };
