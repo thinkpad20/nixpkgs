@@ -1,24 +1,6 @@
 { ghcjsBoot }: { callPackage }:
 
 {
-  async = callPackage
-    ({ mkDerivation, base, HUnit, stdenv, stm, test-framework
-      , test-framework-hunit
-      }:
-      mkDerivation {
-        pname = "async";
-        version = "2.0.1.6";
-        src = "${ghcjsBoot}/boot/async";
-        doCheck = false;
-        libraryHaskellDepends = [ base stm ];
-        testHaskellDepends = [
-          base HUnit test-framework test-framework-hunit
-        ];
-        jailbreak = true;
-        homepage = "https://github.com/simonmar/async";
-        description = "Run IO operations asynchronously and wait for their results";
-        license = stdenv.lib.licenses.bsd3;
-      }) {};
   aeson = callPackage
     ({ mkDerivation, attoparsec, base, bytestring, containers, deepseq
       , dlist, ghc-prim, hashable, HUnit, mtl, QuickCheck, scientific
