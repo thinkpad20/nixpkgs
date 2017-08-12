@@ -138,6 +138,12 @@ self: super: builtins.intersectAttrs super {
     preConfigure = "sed -i -e /extra-lib-dirs/d -e 's|, /usr/include, /usr/local/include/mesos||' hs-mesos.cabal";
   });
 
+  foundation = if !pkgs.stdenv.isDarwin then super.foundation
+               else addLibrarySystemDepend super.foundation pkgs.darwin.libiconv;
+
+  network-info = if !pkgs.stdenv.isDarwin then super.network-info
+                 else addLibrarySystemDepend super.network-info pkgs.darwin.libiconv;
+
   # These packages try to access the network.
   amqp = dontCheck super.amqp;
   amqp-conduit = dontCheck super.amqp-conduit;

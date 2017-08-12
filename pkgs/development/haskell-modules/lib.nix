@@ -42,6 +42,9 @@ rec {
   addSetupDepend = drv: x: addSetupDepends drv [x];
   addSetupDepends = drv: xs: overrideCabal drv (drv: { setupHaskellDepends = (drv.setupHaskellDepends or []) ++ xs; });
 
+  addLibrarySystemDepend = drv: x: addLibrarySystemDepends drv [x];
+  addLibrarySystemDepends = drv: xs: overrideCabal drv (drv: { librarySystemDepends = (drv.librarySystemDepends or []) ++ xs; });
+
   enableCabalFlag = drv: x: appendConfigureFlag (removeConfigureFlag drv "-f-${x}") "-f${x}";
   disableCabalFlag = drv: x: appendConfigureFlag (removeConfigureFlag drv "-f${x}") "-f-${x}";
 
