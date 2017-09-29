@@ -874,4 +874,5 @@ self: super: {
   # https://github.com/diagrams/diagrams-solve/issues/4
   diagrams-solve = dontCheck super.diagrams-solve;
 
+  parsers = dontCheck super.parsers;
 }
