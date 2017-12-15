@@ -229,6 +229,7 @@
         description = "An efficient packed Unicode text type";
         license = stdenv.lib.licenses.bsd3;
       }) {};
+/*
   unordered-containers = callPackage
     ({ mkDerivation, base, ChasingBottoms, containers, deepseq, hashable
       , HUnit, QuickCheck, stdenv, test-framework, test-framework-hunit
@@ -249,6 +250,7 @@
         description = "Efficient hashing-based container types";
         license = stdenv.lib.licenses.bsd3;
       }) {};
+*/
   vector = callPackage
     ({ mkDerivation, base, deepseq, ghc-prim, primitive, QuickCheck
       , random, stdenv, template-haskell, test-framework
