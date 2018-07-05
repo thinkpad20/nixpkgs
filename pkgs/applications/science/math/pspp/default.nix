@@ -1,8 +1,18 @@
 { stdenv, fetchurl, libxml2, readline, zlib, perl, cairo, gtk3, gsl
-, pkgconfig, gtksourceview, pango, gettext
+, pkgconfig, gtksourceview, pango, gettext, automake, autoconf
 , makeWrapper, gsettings-desktop-schemas, hicolor-icon-theme
-, gnome3
+, gnome3, texinfo
 }:
+
+let
+  automake_1_15 = automake.overrideDerivation (d: rec {
+    name = "automake-1.15";
+    src = fetchurl {
+      url = "mirror://gnu/automake/${name}.tar.xz";
+      sha256 = "0dl6vfi2lzz8alnklwxzfz624b95hb1ipjvd3mk177flmddcf24r";
+    };
+  });
+in
 
 stdenv.mkDerivation rec {
   name = "pspp-1.0.1";
@@ -12,9 +22,14 @@ stdenv.mkDerivation rec {
     sha256 = "1r8smr5057993h90nx0mdnff8nxw9x546zzh6qpy4h3xblp1la5s";
   };
 
+  patches = [
+    ./0001-New-command-SAVE-DATA-COLLECTION.patch
+    ./0002-tests-Add-missing-file.patch
+  ];
+
   nativeBuildInputs = [ pkgconfig ];
   buildInputs = [ libxml2 readline zlib perl cairo gtk3 gsl
-    gtksourceview pango gettext
+    gtksourceview pango gettext automake_1_15 autoconf texinfo
     makeWrapper gsettings-desktop-schemas hicolor-icon-theme ];
 
   doCheck = false;
