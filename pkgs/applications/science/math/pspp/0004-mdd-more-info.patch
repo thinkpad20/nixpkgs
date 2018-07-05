@@ -1,0 +1,578 @@
+--- a/src/data/mdd-writer.c
++++ b/src/data/mdd-writer.c
+@@ -25,15 +25,18 @@
+ #include <sys/stat.h>
+ #include <time.h>
+ 
++#include "data/format.h"
+ #include "data/dictionary.h"
+ #include "data/file-handle-def.h"
+ #include "data/make-file.h"
+ #include "data/short-names.h"
+ #include "data/value-labels.h"
+ #include "data/variable.h"
++#include "data/mrset.h"
+ #include "libpspp/message.h"
+ #include "libpspp/misc.h"
+ #include "libpspp/string-set.h"
++#include "libpspp/string-map.h"
+ #include "libpspp/version.h"
+ 
+ #include "gl/c-ctype.h"
+@@ -47,6 +50,53 @@
+ 
+ #define _xml(X) CHAR_CAST (const xmlChar *, X)
+ 
++enum val_numeric_type {
++  VAL_INTEGER_TYPE = 1,
++  VAL_STRING_TYPE = 2,
++  VAL_CATEGORICAL_TYPE = 3,
++  VAL_DATETIME_TYPE = 5,
++  VAL_DECIMAL_TYPE = 6
++};
++
++/* enum val_numeric_type */
++/* var_get_numeric_type_(const struct variable *var); */
++
++void
++write_variable_section (xmlTextWriter *writer, const struct variable *var, int id);
++
++/* Get the numeric type of the variable. */
++enum val_numeric_type
++var_get_numeric_type_(const struct variable *var)
++{
++  enum measure measure = var_get_measure (var);
++  char format_str[FMT_STRING_LEN_MAX + 1];
++  const struct val_labs *val_labs = var_get_value_labels (var);
++  const struct fmt_spec *print = var_get_print_format (var);
++  fmt_to_string (print, format_str);
++
++  if (var_get_type (var) == VAL_STRING) {
++    return VAL_STRING_TYPE;
++  }
++
++  if (measure == MEASURE_NOMINAL && val_labs_count (val_labs)) {
++    return VAL_CATEGORICAL_TYPE;
++  }
++
++  if (print->d > 0) {
++    return VAL_DECIMAL_TYPE;
++  }
++
++  if (strncmp(format_str, "DATETIME", 8) == 0) {
++    return VAL_DATETIME_TYPE;
++  }
++
++  if (format_str[0] == 'F') {
++    return VAL_INTEGER_TYPE;
++  }
++
++  return VAL_CATEGORICAL_TYPE;
++}
++
+ /* Metadata file writer. */
+ struct mdd_writer
+   {
+@@ -58,6 +108,19 @@ struct mdd_writer
+     xmlTextWriter *writer;
+   };
+ 
++/* Either a variable or a multi-response set. */
++
++struct var_or_mrset
++  {
++    // If true, the union contains a multi-response set. Otherwise,
++    // it contains a variable.
++    bool is_mrset;
++    union {
++      const struct mrset *mrset;
++      const struct variable *variable;
++    } u;
++  };
++
+ /* Returns true if an I/O error has occurred on WRITER, false otherwise. */
+ static bool
+ mdd_write_error (const struct mdd_writer *writer)
+@@ -193,6 +256,94 @@ name_to_id (const char *name)
+   return id;
+ }
+ 
++void
++write_variable_section (xmlTextWriter *writer, const struct variable *var, int id)
++{
++  const char *name = var_get_name (var);
++  xmlTextWriterStartElement (writer, _xml ("variable"));
++  write_attr (writer, "name", var_get_name (var));
++
++  bool is_string = var_get_type (var) == VAL_STRING;
++
++  int type = var_get_numeric_type_ (var);
++  xmlTextWriterWriteFormatAttribute (writer, _xml ("type"), "%d", type);
++
++  int max = is_string ? var_get_width (var) : 1;
++  xmlTextWriterWriteFormatAttribute (writer, _xml ("max"), "%d", max);
++
++  write_attr (writer, "maxtype", "3");
++
++  const char *label = var_get_label (var);
++  if (label)
++    {
++      xmlTextWriterStartElement (writer, _xml ("labels"));
++      write_attr (writer, "context", "LABEL");
++
++      xmlTextWriterStartElement (writer, _xml ("text"));
++      write_attr (writer, "context", "ANALYSIS");
++      write_xml_lang (writer);
++      xmlTextWriterWriteString (writer, _xml (label));
++      xmlTextWriterEndElement (writer);
++
++      xmlTextWriterEndElement (writer);
++    }
++
++  const struct val_labs *val_labs = var_get_value_labels (var);
++  size_t n_vls = val_labs_count (val_labs);
++  if (n_vls)
++    {
++      const struct val_lab **vls = val_labs_sorted (val_labs);
++
++      /* <categories/> */
++      xmlTextWriterStartElement (writer, _xml ("categories"));
++      write_global_name_space (writer);
++      int width = var_get_width (var);
++      for (size_t j = 0; j < n_vls; j++)
++        {
++          const struct val_lab *vl = vls[j];
++
++          /* <category> */
++          xmlTextWriterStartElement (writer, _xml ("category"));
++          xmlTextWriterWriteFormatAttribute (writer, _xml ("id"), "_%d", id);
++
++          char *name = name_to_id (val_lab_get_label (vl));
++          write_attr (writer, "name", name);
++          free (name);
++
++          /* <properties/> */
++          xmlTextWriterStartElement (writer, _xml ("properties"));
++          xmlTextWriterStartElement (writer, _xml ("property"));
++          write_attr (writer, "name", "Value");
++          write_value_label_value (writer, vl, width);
++          write_attr (writer, "type", "5");
++          write_attr (writer, "context", "Analysis");
++          xmlTextWriterEndElement (writer); /* </property> */
++          xmlTextWriterEndElement (writer); /* </properties> */
++
++          /* <labels/> */
++          xmlTextWriterStartElement (writer, _xml ("labels"));
++          write_attr (writer, "context", "LABEL");
++          xmlTextWriterStartElement (writer, _xml ("text"));
++          write_attr (writer, "context", "ANALYSIS");
++          write_xml_lang (writer);
++          xmlTextWriterWriteString (writer,
++                                    _xml (val_lab_get_label (vl)));
++          xmlTextWriterEndElement (writer); /* </text> */
++          xmlTextWriterEndElement (writer); /* </labels> */
++
++
++          /* </category> */
++          xmlTextWriterEndElement (writer);
++        }
++      write_empty_element (writer, "deleted");
++      xmlTextWriterEndElement (writer); /* </categories> */
++
++      free (vls);
++    }
++  /* </variable> */
++  xmlTextWriterEndElement (writer);
++}
++
+ bool
+ mdd_write (struct file_handle *fh, struct dictionary *dict,
+            const char *sav_name)
+@@ -281,49 +432,169 @@ mdd_write (struct file_handle *fh, struct dictionary *dict,
+   write_attr (w->writer, "project", "126");
+ 
+   size_t n_vars = dict_get_var_cnt (dict);
++  size_t n_sets = dict_get_n_mrsets (dict);
++
++  struct string_map subvariable_name_to_mrset_name =
++    STRING_MAP_INITIALIZER (subvariable_name_to_mrset_name);
++
++  // Counts how many variables we'll be writing into the XML file.
++  size_t var_count = n_vars + n_sets;
++
++  for (size_t set_idx = 0; set_idx < n_sets; set_idx++) {
++    const struct mrset *mrset = dict_get_mrset (dict, set_idx);
++    if (mrset == NULL) goto error;
++
++    // Reduce the total variable count by the number of variables this set has.
++    var_count -= mrset->n_vars;
++
++    // Point variable names to set names.
++    for (size_t i = 0; i < mrset->n_vars; ++i) {
++      const struct variable *var = mrset->vars[i];
++      string_map_insert (
++        &subvariable_name_to_mrset_name,
++        var_get_name (var),
++        mrset->name
++      );
++    }
++  }
++
++  // Allocate an array of var_or_mrset pointers (initially null).
++  struct var_or_mrset *var_or_mrset_array = calloc (
++    var_count, sizeof(struct var_or_mrset)
++  );
++
++  if (var_or_mrset_array == NULL) goto error;
++
++  // Fill the array.
++  size_t var_idx = 0;
++  for (size_t i = 0; i < n_vars; ++i) {
++    const struct variable *var = dict_get_var(dict, i);
++    const char *mrset_name = string_map_find (
++      &subvariable_name_to_mrset_name,
++      var_get_name (var)
++    );
++    struct var_or_mrset var_or_mrset;
++    if (mrset_name == NULL) {
++      // The variable is not part of a multi-response set.
++      var_or_mrset.is_mrset = false;
++      var_or_mrset.u.variable = var;
++    } else {
++      // If the variable is part of a multi-response set, then instead add the
++      // corresponding set to the array.
++      const struct mrset *mrset = dict_lookup_mrset (dict, mrset_name);
++      if (mrset == NULL) goto error;
++
++      var_or_mrset.is_mrset = true;
++      var_or_mrset.u.mrset = mrset;
++
++      // In addition, increment the index to skip the remaining subquestions.
++      i += (mrset->n_vars - 1);
++    }
++
++    assert (var_idx < var_count);
++    var_or_mrset_array[var_idx++] = var_or_mrset;
++  }
++
++  // Ensure that we filled up the array
++  assert (var_idx == var_count);
++
++  // Build up a set of names of all variables which are part of a
++  // Multi-Response Set. Skip those variables when writing datasource
++  // definitions.
++  struct string_set subvariable_names = STRING_SET_INITIALIZER (subvariable_names);
++
++  for (size_t set_idx = 0; set_idx < n_sets; set_idx++) {
++    const struct mrset *mrset = dict_get_mrset (dict, set_idx);
++    for (size_t subvar_idx = 0; subvar_idx < mrset->n_vars; subvar_idx++) {
++      const struct variable *subvar = mrset->vars[subvar_idx];
++      string_set_insert(&subvariable_names, var_get_name(subvar));
++    }
++  }
++
+   short_names_assign (dict);
+-  for (size_t i = 0; i < n_vars; i++)
++  for (size_t i = 0; i < var_count; i++)
+     {
+-      const struct variable *var = dict_get_var (dict, i);
++      const struct var_or_mrset var_or_mrset = var_or_mrset_array[i];
+       xmlTextWriterStartElement (w->writer, _xml ("var"));
++      if (var_or_mrset.is_mrset)
++        {
++          const struct mrset *mrset = var_or_mrset.u.mrset;
++          write_attr (w->writer, "fullname", mrset->name + 1);
++          write_attr (w->writer, "aliasname", mrset->name);
+ 
+-      char *short_name = xstrdup (var_get_short_name (var, 0));
+-      for (char *p = short_name; *p; p++)
+-        *p = c_tolower (*p);
+-      write_attr (w->writer, "fullname", short_name);
+-      free (short_name);
+-
+-      write_attr (w->writer, "aliasname", var_get_name (var));
++          for (size_t subvar_idx = 0; subvar_idx < mrset->n_vars; subvar_idx++)
++            {
++              xmlTextWriterStartElement(w->writer, _xml ("subalias"));
++              xmlTextWriterWriteFormatAttribute (w->writer, _xml ("index"),
++                                                 "%zu", subvar_idx);
++              write_attr (w->writer, "name",
++                          var_get_name (mrset->vars[subvar_idx]));
+ 
+-      const struct val_labs *val_labs = var_get_value_labels (var);
+-      size_t n_vls = val_labs_count (val_labs);
+-      if (n_vls)
++              xmlTextWriterEndElement (w->writer); // subalias
++            }
++        }
++      else
+         {
+-          const struct val_lab **vls = val_labs_sorted (val_labs);
++          const struct variable *var = var_or_mrset.u.variable;
+ 
+-          xmlTextWriterStartElement (w->writer, _xml ("nativevalues"));
+-          int width = var_get_width (var);
+-          for (size_t j = 0; j < n_vls; j++)
++          char *short_name = xstrdup (var_get_short_name (var, 0));
++          for (char *p = short_name; *p; p++)
++            *p = c_tolower (*p);
++          write_attr (w->writer, "fullname", short_name);
++          free (short_name);
++
++          write_attr (w->writer, "aliasname", var_get_name (var));
++
++          const struct val_labs *val_labs = var_get_value_labels (var);
++          size_t n_vls = val_labs_count (val_labs);
++          if (n_vls)
+             {
+-              const struct val_lab *vl = vls[j];
+-              xmlTextWriterStartElement (w->writer, _xml ("nativevalue"));
++              const struct val_lab **vls = val_labs_sorted (val_labs);
+ 
+-              char *fullname = name_to_id (val_lab_get_label (vl));
+-              write_attr (w->writer, "fullname", fullname);
+-              free (fullname);
++              xmlTextWriterStartElement (w->writer, _xml ("nativevalues"));
++              int width = var_get_width (var);
++              for (size_t j = 0; j < n_vls; j++)
++                {
++                  const struct val_lab *vl = vls[j];
++                  xmlTextWriterStartElement (w->writer, _xml ("nativevalue"));
++
++                  char *fullname = name_to_id (val_lab_get_label (vl));
++                  write_attr (w->writer, "fullname", fullname);
++                  free (fullname);
+ 
+-              write_value_label_value (w->writer, vl, width);
++                  write_value_label_value (w->writer, vl, width);
++                  xmlTextWriterEndElement (w->writer);
++                }
+               xmlTextWriterEndElement (w->writer);
++
++              free (vls);
+             }
+-          xmlTextWriterEndElement (w->writer);
+ 
+-          free (vls);
+         }
++      xmlTextWriterEndElement (w->writer); // var
++    }
++
++  xmlTextWriterEndElement (w->writer); // connection
++  xmlTextWriterEndElement (w->writer); // datasources
++
++  /* If the dictionary has a label, record it here */
++  const char *file_label = dict_get_label (dict);
++  if (file_label != NULL)
++    {
++      xmlTextWriterStartElement (w->writer, _xml ("labels"));
++      write_attr (w->writer, "context", "LABEL");
++      xmlTextWriterStartElement (w->writer, _xml ("text"));
++
++      write_attr (w->writer, "context", "ANALYSIS");
++      write_xml_lang (w->writer);
++      xmlTextWriterWriteString (w->writer, _xml (file_label));
+ 
++      /* </text> */
++      xmlTextWriterEndElement (w->writer);
++
++      /* </labels> */
+       xmlTextWriterEndElement (w->writer);
+     }
+-  xmlTextWriterEndElement (w->writer);
+-  xmlTextWriterEndElement (w->writer);
+ 
+   /* We reserve ids 1...N_VARS for variables and then start other ids after
+      that. */
+@@ -331,94 +602,106 @@ mdd_write (struct file_handle *fh, struct dictionary *dict,
+ 
+   /* <definition/> */
+   xmlTextWriterStartElement (w->writer, _xml ("definition"));
+-  for (size_t i = 0; i < n_vars; i++)
++  for (size_t i = 0; i < var_count; i++)
+     {
+-      const struct variable *var = dict_get_var (dict, i);
+-      xmlTextWriterStartElement (w->writer, _xml ("variable"));
+       xmlTextWriterWriteFormatAttribute (w->writer, _xml ("id"), "%zu", i + 1);
+-      write_attr (w->writer, "name", var_get_name (var));
++      const struct var_or_mrset var_or_mrset = var_or_mrset_array[i];
+ 
+-      bool is_string = var_get_type (var) == VAL_STRING;
+-      int type = is_string ? 2 : 3;
+-      xmlTextWriterWriteFormatAttribute (w->writer, _xml ("type"), "%d", type);
+-
+-      int max = is_string ? var_get_width (var) : 1;
+-      xmlTextWriterWriteFormatAttribute (w->writer, _xml ("max"), "%d", max);
++      if (var_or_mrset.is_mrset)
++        {
++          const struct mrset *mrset = var_or_mrset.u.mrset;
++          xmlTextWriterStartElement (w->writer, _xml ("variable"));
++          write_attr (w->writer, "name", mrset->name + 1);
++
++          /* TODO: Use the type of the first subvariable as the type of the MRSET */
++          write_attr (w->writer, "type", "3");
++
++          xmlTextWriterStartElement (w->writer, _xml ("properties"));
++          xmlTextWriterStartElement (w->writer, _xml ("property"));
++          write_attr (w->writer, "name", "QvLabel");
++          write_attr (w->writer, "value", mrset->name + 1);
++          write_attr (w->writer, "type", "8");
++          write_attr (w->writer, "context", "Analysis");
++          /* </property> */
++          xmlTextWriterEndElement (w->writer);
++          /* </properties> */
++          xmlTextWriterEndElement (w->writer);
+ 
+-      write_attr (w->writer, "maxtype", "3");
+ 
+-      const char *label = var_get_label (var);
+-      if (label)
+-        {
+           xmlTextWriterStartElement (w->writer, _xml ("labels"));
+           write_attr (w->writer, "context", "LABEL");
+-
+           xmlTextWriterStartElement (w->writer, _xml ("text"));
++
+           write_attr (w->writer, "context", "ANALYSIS");
+           write_xml_lang (w->writer);
+-          xmlTextWriterWriteString (w->writer, _xml (label));
+-          xmlTextWriterEndElement (w->writer);
++          xmlTextWriterWriteString (w->writer, _xml (mrset->label));
+ 
++          /* </text> */
+           xmlTextWriterEndElement (w->writer);
+-        }
+ 
+-      const struct val_labs *val_labs = var_get_value_labels (var);
+-      size_t n_vls = val_labs_count (val_labs);
+-      if (n_vls)
+-        {
+-          const struct val_lab **vls = val_labs_sorted (val_labs);
++          /* </labels> */
++          xmlTextWriterEndElement (w->writer);
+ 
+-          /* <categories/> */
+           xmlTextWriterStartElement (w->writer, _xml ("categories"));
+-          write_global_name_space (w->writer);
+-          int width = var_get_width (var);
+-          for (size_t j = 0; j < n_vls; j++)
+-            {
+-              const struct val_lab *vl = vls[j];
++          write_attr (w->writer, "global-name-space", "-1");
++          write_empty_element (w->writer, "deleted");
+ 
+-              /* <category> */
++          /* Individual categories */
++          int value = 2;
++          for (size_t var_idx = 0; var_idx < mrset->n_vars; ++var_idx)
++            {
++              const struct variable *subvar = mrset->vars[var_idx];
++              value += 2;
+               xmlTextWriterStartElement (w->writer, _xml ("category"));
+-              xmlTextWriterWriteFormatAttribute (w->writer, _xml ("id"),
+-                                                 "_%d", id++);
+-
+-              char *name = name_to_id (val_lab_get_label (vl));
+-              write_attr (w->writer, "name", name);
+-              free (name);
++              write_attr (w->writer, "context", "LABEL");
++              char *name_without_spaces = strdup (var_get_name (subvar));
++              for (size_t i = 0; name_without_spaces[i]; ++i)
++                if (name_without_spaces[i] == ' ') name_without_spaces[i] = '_';
++              write_attr (w->writer, "name", name_without_spaces);
++              free (name_without_spaces);
+ 
+-              /* <properties/> */
++              /* // TODO: properties */
+               xmlTextWriterStartElement (w->writer, _xml ("properties"));
+               xmlTextWriterStartElement (w->writer, _xml ("property"));
+-              write_attr (w->writer, "name", "Value");
+-              write_value_label_value (w->writer, vl, width);
+-              write_attr (w->writer, "type", "5");
++              write_attr (w->writer, "name", "QvBasicNum");
++              xmlTextWriterWriteFormatAttribute
++                (w->writer, _xml ("value"), "%d", value);
++              write_attr (w->writer, "type", "3");
+               write_attr (w->writer, "context", "Analysis");
++              /* </property> */
+               xmlTextWriterEndElement (w->writer);
++              /* </properties> */
+               xmlTextWriterEndElement (w->writer);
+ 
+-              /* <labels/> */
+               xmlTextWriterStartElement (w->writer, _xml ("labels"));
+               write_attr (w->writer, "context", "LABEL");
++
+               xmlTextWriterStartElement (w->writer, _xml ("text"));
+               write_attr (w->writer, "context", "ANALYSIS");
+               write_xml_lang (w->writer);
+-              xmlTextWriterWriteString (w->writer,
+-                                        _xml (val_lab_get_label (vl)));
+-              xmlTextWriterEndElement (w->writer);
++              xmlTextWriterWriteString (w->writer, _xml (var_get_label (subvar)));
++              /* </text> */
+               xmlTextWriterEndElement (w->writer);
+ 
+ 
++              /* </labels> */
++              xmlTextWriterEndElement (w->writer);
+               /* </category> */
+               xmlTextWriterEndElement (w->writer);
+             }
+-          write_empty_element (w->writer, "deleted");
+-          xmlTextWriterEndElement (w->writer);
+ 
+-          free (vls);
++          /* </categories> */
++          xmlTextWriterEndElement (w->writer);
++          /* </variable> */
++          xmlTextWriterEndElement (w->writer);
++        }
++      else
++        {
++          const struct variable *var = var_or_mrset.u.variable;
++          write_variable_section(w->writer, var, id++);
+         }
+-
+-      xmlTextWriterEndElement (w->writer);
+     }
+-  xmlTextWriterEndElement (w->writer);
++  xmlTextWriterEndElement (w->writer); /* </definition> */
+ 
+   write_empty_element (w->writer, "system");
+   write_empty_element (w->writer, "systemrouting");
+@@ -434,10 +717,10 @@ mdd_write (struct file_handle *fh, struct dictionary *dict,
+       const struct variable *var = dict_get_var (dict, i);
+       xmlTextWriterStartElement (w->writer, _xml ("variable"));
+       xmlTextWriterWriteFormatAttribute (w->writer, _xml ("id"),
+-                                         "_%d", i + 1);
++                                         "_%zu", i + 1);
+       write_attr (w->writer, "name", var_get_name (var));
+       xmlTextWriterWriteFormatAttribute (w->writer, _xml ("ref"),
+-                                         "%d", i + 1);
++                                         "%zu", i + 1);
+       xmlTextWriterEndElement (w->writer);
+     }
+   write_empty_element (w->writer, "deleted");
+@@ -522,7 +805,7 @@ mdd_write (struct file_handle *fh, struct dictionary *dict,
+                   write_attr (w->writer, "name", label);
+                   xmlTextWriterWriteFormatAttribute (
+                     w->writer, _xml ("value"),
+-                    "%d", string_set_count (&categories));
++                    "%zu", string_set_count (&categories));
+                   xmlTextWriterEndElement (w->writer);
+                 }
+             }
+@@ -567,6 +850,12 @@ mdd_write (struct file_handle *fh, struct dictionary *dict,
+ 
+   xmlTextWriterEndDocument (w->writer);
+ 
++  string_set_destroy(&subvariable_names);
++
++  free(var_or_mrset_array);
++
++  string_map_destroy(&subvariable_name_to_mrset_name);
++
+ error:
+   mdd_close (w);
+   return NULL;
