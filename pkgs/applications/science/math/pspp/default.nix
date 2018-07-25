@@ -30,6 +30,7 @@ stdenv.mkDerivation rec {
     ./0001-New-command-SAVE-DATA-COLLECTION.patch
     ./0002-tests-Add-missing-file.patch
     ./0003-outfile-optional.patch
+    ./0004-mdd-more-info.patch
   ];
 
   nativeBuildInputs = [ pkgconfig ];
