@@ -71,5 +71,6 @@ self: super: {
   # https://github.com/pikajude/stylish-cabal/issues/11
   stylish-cabal = markBrokenVersion "0.4.1.0" super.stylish-cabal;
 
+  network_3_0_1_1 = dontCheck super.network_3_0_1_1;
   purescript = doCheck super.purescript;
 }
